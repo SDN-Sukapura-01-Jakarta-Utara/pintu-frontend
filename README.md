@@ -53,35 +53,54 @@ PINTU adalah solusi terintegrasi untuk manajemen informasi sekolah yang dirancan
 
 ```
 pintu-frontend/
-├── app/
-│   ├── assets/
-│   │   ├── css/
-│   │   └── images/
-│   ├── components/
-│   │   └── common/
-│   ├── composables/
-│   ├── layouts/
-│   ├── middleware/
-│   ├── pages/
-│   │   └── backoffice/
-│   ├── plugins/
-│   ├── services/
-│   ├── stores/
-│   ├── types/
-│   ├── utils/
-│   └── app.vue
+├── app/                           # Main application folder
+│   ├── assets/                    # Static files (CSS, images, fonts)
+│   │   ├── css/                   # Global stylesheets
+│   │   └── images/                # Static images
+│   ├── components/                # Reusable Vue components
+│   │   └── common/                # Common UI components (Button, Input, Alert)
+│   ├── composables/               # Vue composables (reusable logic)
+│   ├── layouts/                   # Layout templates untuk pages
+│   ├── middleware/                # Route middleware & guards
+│   ├── pages/                     # File-based routing (auto-generated routes)
+│   │   └── backoffice/            # Auth-protected routes
+│   ├── plugins/                   # Nuxt plugins (initialization scripts)
+│   ├── services/                  # API integration & HTTP calls
+│   ├── stores/                    # Pinia state management stores
+│   ├── types/                     # TypeScript interfaces & types
+│   ├── utils/                     # Utility functions & helpers
+│   └── app.vue                    # Root component
 │
-├── public/
-├── .nuxt/
-├── node_modules/
-├── nuxt.config.ts
-├── package.json
-├── tsconfig.json
-├── .env.example
-├── .env.local
-├── .gitignore
-└── README.md
+├── public/                        # Static public assets (robots.txt, favicon, etc)
+├── .nuxt/                         # Build output (auto-generated)
+├── node_modules/                  # Dependencies (auto-generated)
+├── nuxt.config.ts                 # Nuxt configuration
+├── package.json                   # Project dependencies & scripts
+├── tsconfig.json                  # TypeScript configuration
+├── .env.example                   # Environment variables template
+├── .env.local                     # Local environment variables (git-ignored)
+├── .gitignore                     # Git ignore rules
+└── README.md                       # Project documentation
 ```
+
+### Penjelasan Folder Structure
+
+| Folder | Fungsi |
+|--------|--------|
+| **app/assets/** | Menyimpan file statis seperti CSS global, image, font |
+| **app/components/** | Komponen Vue reusable yang digunakan di multiple pages |
+| **app/composables/** | Logic reusable dalam bentuk functions (seperti useAuth) |
+| **app/layouts/** | Template layout untuk pages (login layout, dashboard layout) |
+| **app/middleware/** | Route guards untuk proteksi dan validasi sebelum navigate |
+| **app/pages/** | File-based routing - setiap file auto-jadi route |
+| **app/plugins/** | Scripts yang dijalankan saat app initialization (auth, router setup) |
+| **app/services/** | API integration - handle HTTP calls ke backend |
+| **app/stores/** | Pinia stores untuk centralized state management |
+| **app/types/** | TypeScript interfaces untuk type safety |
+| **app/utils/** | Utility functions & helper methods |
+| **public/** | Static assets yang tidak perlu processing |
+| **.nuxt/** | Build output dari Nuxt (auto-generated, jangan edit) |
+| **node_modules/** | Installed dependencies (auto-generated, jangan edit) |
 
 ## 🚀 Installation
 
@@ -312,16 +331,6 @@ npm run dev -- --port 3002
 - [Tailwind CSS](https://tailwindcss.com/)
 - [Pinia Documentation](https://pinia.vuejs.org/)
 - [TypeScript Documentation](https://www.typescriptlang.org/)
-
-## 🤝 Contributing
-
-Kontribusi sangat dihargai! Untuk berkontribusi:
-
-1. Fork repository
-2. Buat feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
 
 ## 📄 License
 
