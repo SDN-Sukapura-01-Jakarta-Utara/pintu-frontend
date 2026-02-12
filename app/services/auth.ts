@@ -1,71 +1,60 @@
 /**
  * Authentication Service
- * API calls untuk authentication akan diimplementasikan di sini
+ * Handle API calls untuk authentication dengan backend Golang
  */
 
-import type { LoginCredentials, AuthResponse, User } from '~/types/auth'
+import type { LoginCredentials, LoginResponse, LogoutResponse } from '~/types/AuthType'
+
+const config = useRuntimeConfig()
 
 /**
  * Login dengan username dan password
  * @param credentials - Username dan password
- * @returns Auth response dengan token dan user data
+ * @returns Login response dengan token dan user data
  */
-export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
-  // TODO: Replace dengan actual API call
-  // const response = await $fetch('/api/auth/login', {
-  //   method: 'POST',
-  //   body: credentials
-  // })
-  // return response
+export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
+  const response = await $fetch<LoginResponse>(`${config.public.apiBase}/api/v1/auth/login`, {
+    method: 'POST',
+    body: credentials,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
 
-  // Placeholder untuk development
-  return {
-    success: true,
-    message: 'Login successful (mock)',
-    data: {
-      token: 'mock-token-123',
-      user: {
-        id: '1',
-        username: credentials.username,
-        name: 'Admin User'
-      }
-    }
-  }
+  return response
 }
 
 /**
  * Logout user
- * @returns Logout status
+ * @param token - JWT token
+ * @returns Logout response
  */
-export async function logout(): Promise<{ success: boolean }> {
-  // TODO: Replace dengan actual API call
-  // await $fetch('/api/auth/logout', { method: 'POST' })
+export async function logout(token: string): Promise<LogoutResponse> {
+  const response = await $fetch<LogoutResponse>(`${config.public.apiBase}/api/v1/auth/logout`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  })
 
-  return { success: true }
+  return response
 }
 
 /**
  * Get current user session
- * @returns Current user data atau null jika tidak authenticated
+ * @param token - JWT token
+ * @returns Current user data
  */
-export async function getCurrentUser(): Promise<User | null> {
-  // TODO: Replace dengan actual API call
-  // const user = await $fetch('/api/auth/me')
-  // return user
+export async function getCurrentUser(token: string) {
+  const response = await $fetch(`${config.public.apiBase}/api/v1/auth/me`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  })
 
-  return null
-}
-
-/**
- * Refresh auth token
- * @returns New token
- */
-export async function refreshToken(): Promise<string | null> {
-  // TODO: Replace dengan actual API call
-  // const response = await $fetch('/api/auth/refresh', { method: 'POST' })
-  // return response.token
-
-  return null
+  return response
 }
 
 /**
@@ -74,12 +63,19 @@ export async function refreshToken(): Promise<string | null> {
  * @returns Token validity
  */
 export async function validateToken(token: string): Promise<boolean> {
-  // TODO: Replace dengan actual API call
-  // const result = await $fetch('/api/auth/validate', {
-  //   method: 'POST',
-  //   body: { token }
-  // })
-  // return result.valid
-
-  return false
+  try {
+    const response = await $fetch<{ valid: boolean }>(
+      `${config.public.apiBase}/api/v1/auth/validate`,
+      {
+        method: 'POST',
+        body: { token },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    return response.valid
+  } catch {
+    return false
+  }
 }
