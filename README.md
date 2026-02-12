@@ -56,59 +56,31 @@ pintu-frontend/
 ├── app/
 │   ├── assets/
 │   │   ├── css/
-│   │   │   └── main.css           # Global styles
 │   │   └── images/
-│   │       └── logo-sekolah.jpg   # School logo
-│   │
 │   ├── components/
-│   │   ├── LoginForm.vue          # Login form dengan API integration
 │   │   └── common/
-│   │       ├── Button.vue         # Reusable button component
-│   │       ├── Input.vue          # Reusable input component
-│   │       └── Alert.vue          # Alert notification component
-│   │
 │   ├── composables/
-│   │   ├── useAuth.ts             # Authentication composable
-│   │   └── useForm.ts             # Form management composable
-│   │
 │   ├── layouts/
-│   │   ├── backoffice-layout.vue  # Login page layout dengan animated background
-│   │   └── default.vue             # Default layout untuk dashboard
-│   │
 │   ├── middleware/
-│   │   (Route protection dihandle oleh router.ts plugin)
-│   │
 │   ├── pages/
-│   │   ├── index.vue              # Home page
 │   │   └── backoffice/
-│   │       ├── login.vue          # Login page
-│   │       └── index.vue          # Dashboard page
-│   │
 │   ├── plugins/
-│   │   ├── auth.ts                # Auth plugin initialization
-│   │   └── router.ts              # Router guard untuk auth protection
-│   │
 │   ├── services/
-│   │   └── auth.ts                # API integration untuk authentication
-│   │
 │   ├── stores/
-│   │   └── AuthStore.ts           # Pinia store untuk auth state
-│   │
 │   ├── types/
-│   │   └── AuthType.ts            # TypeScript interfaces untuk auth
-│   │
 │   ├── utils/
-│   │   (Utility functions)
-│   │
-│   └── app.vue                    # Root component
+│   └── app.vue
 │
-├── public/                         # Static assets
-├── nuxt.config.ts                 # Nuxt configuration
-├── package.json                   # Dependencies
-├── tsconfig.json                  # TypeScript config
-├── .env.example                   # Environment variables template
-├── README.md                       # This file
-└── .gitignore
+├── public/
+├── .nuxt/
+├── node_modules/
+├── nuxt.config.ts
+├── package.json
+├── tsconfig.json
+├── .env.example
+├── .env.local
+├── .gitignore
+└── README.md
 ```
 
 ## 🚀 Installation
