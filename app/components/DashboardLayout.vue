@@ -1,12 +1,12 @@
 <template>
-    <div class="flex h-screen bg-gray-50">
+    <div class="flex h-screen bg-gray-50 overflow-hidden">
         <!-- Sidebar Component -->
         <Sidebar :isOpen="isSidebarOpen" :user="user" :isLoading="isLoading" @close="isSidebarOpen = false"
             @logout="handleLogout" />
 
         <!-- Main Content -->
         <div :class="[
-            'flex-1 flex flex-col transition-all duration-300',
+            'flex-1 flex flex-col transition-all duration-300 overflow-hidden',
             'md:ml-20',
             isSidebarOpen ? 'md:ml-72' : 'md:ml-20'
         ]">
@@ -15,8 +15,8 @@
                 @toggle-sidebar="isSidebarOpen = !isSidebarOpen" @logout="handleLogout" />
 
             <!-- Page Content -->
-            <div class="flex-1 overflow-y-auto">
-                <div class="p-6">
+            <div class="flex-1 overflow-y-auto overflow-x-hidden w-full">
+                <div class="p-6 w-full max-w-full">
                     <slot />
                 </div>
             </div>

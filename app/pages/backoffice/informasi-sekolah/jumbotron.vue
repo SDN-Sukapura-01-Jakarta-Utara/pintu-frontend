@@ -1,46 +1,46 @@
 <template>
     <DashboardLayout>
         <!-- Header Section -->
-        <div class="mb-8">
-            <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="mb-6 sm:mb-8">
+            <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
               <div>
-                <h1 class="text-3xl font-bold text-gray-900">
-                  Jumbotron
-                </h1>
-                    <p class="text-gray-600 mt-2">Kelola gambar jumbotron untuk halaman utama sekolah</p>
-                </div>
+                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                   Jumbotron
+                 </h1>
+                     <p class="text-[13px] sm:text-sm md:text-[15px] text-gray-600 mt-1 sm:mt-2">Kelola gambar jumbotron untuk halaman utama sekolah</p>
+                 </div>
                 <button @click="openCreateModal"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:bg-blue-700">
-                    <i class="fa-solid fa-plus w-4 h-4"></i>
-                    Tambah Data
+                   class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-[#2e45a7] text-white font-semibold text-[13px] sm:text-sm shadow-md hover:shadow-lg transition-all duration-300 hover:bg-[#002d89]">
+                   <i class="fa-solid fa-plus w-3 h-3 sm:w-4 sm:h-4"></i>
+                   Tambah Data
                 </button>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div v-if="isLoading" class="flex items-center justify-center py-12">
-            <div class="flex flex-col items-center gap-4">
-                <div class="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600"></div>
-                <p class="text-gray-600 font-medium">Memuat data jumbotron...</p>
+        <div v-if="isLoading" class="flex items-center justify-center py-8 sm:py-12">
+            <div class="flex flex-col items-center gap-3 sm:gap-4">
+                <div class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600"></div>
+                <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data jumbotron...</p>
             </div>
         </div>
 
         <!-- Error State -->
-        <div v-else-if="error" class="rounded-xl border-2 border-red-200 bg-red-50 p-6">
-            <div class="flex items-start gap-4">
+        <div v-else-if="error" class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+            <div class="flex items-start gap-3 sm:gap-4">
                 <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                    <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd"
                             d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
                             clip-rule="evenodd" />
                     </svg>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-red-900">Gagal memuat data</h3>
-                    <p class="mt-1 text-red-800">{{ error }}</p>
+                    <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
+                    <p class="mt-1 text-sm sm:text-base text-red-800">{{ error }}</p>
                     <button @click="fetchJumbotronData"
-                        class="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors">
-                        <i class="fa-solid fa-rotate-right w-4 h-4"></i>
+                        class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
+                        <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
                         Coba Lagi
                     </button>
                 </div>
@@ -48,119 +48,30 @@
         </div>
 
         <!-- Table Section -->
-        <div v-else class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200">
             <!-- Empty State -->
-            <div v-if="jumbotronList.length === 0" class="flex flex-col items-center justify-center py-16 px-6">
-                <div class="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                    <i class="fa-solid fa-image w-8 h-8 text-gray-400"></i>
+            <div v-if="jumbotronList.length === 0" class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                <div class="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gray-100 flex items-center justify-center mb-3 sm:mb-4">
+                    <i class="fa-solid fa-image w-6 h-6 sm:w-8 sm:h-8 text-gray-400"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-1">Belum ada jumbotron</h3>
-                <p class="text-gray-600 text-center mb-6 max-w-sm">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">Belum ada jumbotron</h3>
+                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
                     Mulai dengan menambahkan gambar jumbotron untuk halaman utama sekolah Anda
                 </p>
                 <button @click="openCreateModal"
-                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 hover:bg-blue-700">
-                    <i class="fa-solid fa-plus w-4 h-4"></i>
+                    class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-[#2e45a7] text-white font-semibold text-[13px] sm:text-sm shadow-md hover:shadow-lg transition-all duration-300 hover:bg-[#002d89]">
+                    <i class="fa-solid fa-plus w-3 h-3 sm:w-4 sm:h-4"></i>
                     Tambah Data
                 </button>
             </div>
 
             <!-- Data Table -->
-            <div v-else class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <!-- Header -->
-                        <thead>
-                            <tr class="border-b border-gray-200 bg-red-800">
-                            <th
-                                class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white w-12">
-                                No
-                            </th>
-                            <th
-                                class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white w-32">
-                                Gambar
-                            </th>
-                            <th
-                                class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">
-                                Status
-                            </th>
-                            <th
-                                class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-white">
-                                Dibuat
-                            </th>
-                            <th
-                                class="px-6 py-4 text-center text-xs font-semibold uppercase tracking-wider text-white">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-
-                    <!-- Body -->
-                    <tbody class="divide-y divide-gray-200">
-                        <tr v-for="(item, index) in jumbotronList" :key="item.id"
-                            class="hover:bg-gray-50 transition-colors duration-150">
-                            <!-- No Column -->
-                            <td class="px-6 py-4 text-sm font-medium text-gray-700">
-                                {{ index + 1 }}
-                            </td>
-
-                            <!-- Image Column -->
-                            <td class="px-6 py-4">
-                                <img :src="item.file" :alt="`Jumbotron ${item.id}`"
-                                    class="h-16 w-24 rounded-lg object-cover shadow-sm border border-gray-200 hover:shadow-md transition-shadow" />
-                            </td>
-
-                            <!-- Status Column -->
-                            <td class="px-6 py-4">
-                                <span :class="[
-                                    'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
-                                    item.status === 'active'
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800',
-                                ]">
-                                    <span :class="[
-                                        'inline-block h-2 w-2 rounded-full mr-2',
-                                        item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
-                                    ]"></span>
-                                    {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
-                                </span>
-                            </td>
-
-                            <!-- Created Date Column -->
-                            <td class="px-6 py-4 text-sm text-gray-700">
-                                {{ formatDate(item.created_at) }}
-                            </td>
-
-                            <!-- Action Column -->
-                            <td class="px-6 py-4">
-                                <div class="flex items-center justify-center gap-2">
-                                    <!-- Edit Button -->
-                                    <button @click="openEditModal(item)"
-                                        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-yellow-100 text-yellow-700 font-semibold hover:bg-yellow-200 transition-colors duration-200"
-                                        title="Edit">
-                                        <i class="fa-solid fa-pen w-4 h-4"></i>
-                                    </button>
-
-                                    <!-- Delete Button -->
-                                    <button @click="openDeleteConfirm(item)"
-                                        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-red-100 text-red-700 font-semibold hover:bg-red-200 transition-colors duration-200"
-                                        title="Hapus">
-                                        <i class="fa-solid fa-trash w-4 h-4"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                </div>
-
-                <!-- Pagination Info -->
-                <div v-if="jumbotronList.length > 0"
-                    class="border-t border-gray-200 bg-gray-50 px-6 py-4 text-sm text-gray-600">
-                    Menampilkan <span class="font-semibold text-gray-900">{{ jumbotronList.length }}</span> dari
-                    <span class="font-semibold text-gray-900">{{ total }}</span> data
-                </div>
-            </div>
+            <Table 
+                :items="jumbotronList" 
+                :total="total"
+                @edit="openEditModal"
+                @delete="openDeleteConfirm"
+            />
         </div>
 
         <!-- Delete Confirmation Modal -->
@@ -176,10 +87,10 @@
                     </div>
 
                     <!-- Title -->
-                    <h3 class="text-xl font-bold text-gray-900 text-center mb-2">Hapus Jumbotron?</h3>
+                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 text-center mb-2">Hapus Jumbotron?</h3>
 
                     <!-- Message -->
-                    <p class="text-gray-600 text-center mb-6">
+                    <p class="text-base sm:text-lg text-gray-600 text-center mb-6">
                         Anda yakin ingin menghapus jumbotron ini? Tindakan ini tidak dapat dibatalkan.
                     </p>
 
@@ -242,15 +153,6 @@ const fetchJumbotronData = async () => {
     } finally {
         isLoading.value = false
     }
-}
-
-// Format date
-const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    })
 }
 
 // Open create modal

@@ -27,7 +27,7 @@
                         isOpen ? 'w-16 h-16' : 'w-12 h-12'
                     ]" />
                     <!-- Sidebar Title -->
-                    <p v-if="isOpen" class="text-sm font-bold text-center leading-tight">
+                    <p v-if="isOpen" class="text-xs sm:text-sm font-bold text-center leading-tight">
                         PINTU SDN Sukapura 01
                     </p>
                 </div>
@@ -45,8 +45,8 @@
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700 active:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                 ]">
-                    <i class="fa-solid fa-house w-5 h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-sm font-medium">Dashboard</span>
+                    <i class="fa-solid fa-house w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Dashboard</span>
                 </NuxtLink>
 
                 <!-- Informasi Sekolah -->
@@ -55,44 +55,44 @@
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                     ]">
-                        <i class="fa-solid fa-circle-info w-5 h-5 text-base"></i>
-                        <div v-if="isOpen" class="flex-1 flex items-center justify-between">
-                            <span class="text-sm font-medium">Informasi Sekolah</span>
-                            <i :class="[
-                                'fa-solid fa-chevron-right w-4 h-4 transition-transform duration-200 flex-shrink-0',
-                                openMenus.sekolah ? 'rotate-90' : ''
-                            ]"></i>
+                        <i class="fa-solid fa-circle-info w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                         <div v-if="isOpen" class="flex-1 flex items-center justify-between">
+                             <span class="text-xs sm:text-sm font-medium">Informasi Sekolah</span>
+                             <i :class="[
+                                 'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
+                                 openMenus.sekolah ? 'rotate-90' : ''
+                             ]"></i>
                         </div>
                     </button>
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.sekolah" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
                         <NuxtLink to="/backoffice/informasi-sekolah/jumbotron" :class="[
-                            'block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('jumbotron') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Jumbotron
                         </NuxtLink>
                         <NuxtLink to="/backoffice/informasi-sekolah/kutipan" :class="[
-                            'block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('kutipan') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Kutipan Kepala Sekolah
                         </NuxtLink>
                         <NuxtLink to="/backoffice/informasi-sekolah/visi-misi" :class="[
-                            'block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('visi-misi') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Visi Misi
                         </NuxtLink>
                         <NuxtLink to="/backoffice/informasi-sekolah/sarana-prasarana" :class="[
-                            'block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('sarana-prasarana') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Sarana & Prasarana
                         </NuxtLink>
                         <NuxtLink to="/backoffice/informasi-sekolah/struktur" :class="[
-                            'block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('struktur') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Struktur Organisasi
@@ -106,11 +106,11 @@
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                     ]">
-                        <i class="fa-solid fa-image w-5 h-5 text-base"></i>
+                        <i class="fa-solid fa-image w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                         <div v-if="isOpen" class="flex-1 flex items-center justify-between">
-                            <span class="text-sm font-medium">Media & Publikasi</span>
+                            <span class="text-xs sm:text-sm font-medium">Media & Publikasi</span>
                             <i :class="[
-                                'fa-solid fa-chevron-right w-4 h-4 transition-transform duration-200 flex-shrink-0',
+                                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
                                 openMenus.media ? 'rotate-90' : ''
                             ]"></i>
                         </div>
@@ -119,15 +119,15 @@
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.media" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
                         <NuxtLink to="/backoffice/media/artikel"
-                            class="block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
                             Artikel
                         </NuxtLink>
                         <NuxtLink to="/backoffice/media/pengumuman"
-                            class="block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
                             Pengumuman
                         </NuxtLink>
                         <NuxtLink to="/backoffice/media/galeri"
-                            class="block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
                             Galeri Kegiatan
                         </NuxtLink>
                     </div>
@@ -138,8 +138,8 @@
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                 ]">
-                    <i class="fa-solid fa-users w-5 h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-sm font-medium">Peserta Didik</span>
+                    <i class="fa-solid fa-users w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Peserta Didik</span>
                 </NuxtLink>
 
                 <!-- Kepegawaian -->
@@ -148,11 +148,11 @@
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                     ]">
-                        <i class="fa-solid fa-users w-5 h-5 text-base"></i>
+                        <i class="fa-solid fa-users w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                         <div v-if="isOpen" class="flex-1 flex items-center justify-between">
-                            <span class="text-sm font-medium">Kepegawaian</span>
+                            <span class="text-xs sm:text-sm font-medium">Kepegawaian</span>
                             <i :class="[
-                                'fa-solid fa-chevron-right w-4 h-4 transition-transform duration-200 flex-shrink-0',
+                                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
                                 openMenus.kepegawaian ? 'rotate-90' : ''
                             ]"></i>
                         </div>
@@ -162,11 +162,11 @@
                     <div v-if="isOpen && openMenus.kepegawaian"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
                         <NuxtLink to="/backoffice/kepegawaian/pendidik"
-                            class="block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
                             Pendidik
                         </NuxtLink>
                         <NuxtLink to="/backoffice/kepegawaian/tenaga-kependidikan"
-                            class="block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
                             Tenaga Kependidikan
                         </NuxtLink>
                     </div>
@@ -177,8 +177,8 @@
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                 ]">
-                    <i class="fa-solid fa-arrow-right-arrow-left w-5 h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-sm font-medium">Mutasi Siswa</span>
+                    <i class="fa-solid fa-arrow-right-arrow-left w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Mutasi Siswa</span>
                 </NuxtLink>
 
                 <!-- Kritik dan Saran -->
@@ -186,8 +186,8 @@
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                 ]">
-                    <i class="fa-solid fa-comment w-5 h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-sm font-medium">Kritik & Saran</span>
+                    <i class="fa-solid fa-comment w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Kritik & Saran</span>
                 </NuxtLink>
 
                 <!-- Pertanyaan Pengaduan -->
@@ -196,11 +196,11 @@
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                     ]">
-                        <i class="fa-solid fa-circle-question w-5 h-5 text-base"></i>
+                        <i class="fa-solid fa-circle-question w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                         <div v-if="isOpen" class="flex-1 flex items-center justify-between">
-                            <span class="text-sm font-medium">Pertanyaan Pengaduan</span>
+                            <span class="text-xs sm:text-sm font-medium">Pertanyaan Pengaduan</span>
                             <i :class="[
-                                'fa-solid fa-chevron-right w-4 h-4 transition-transform duration-200 flex-shrink-0',
+                                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
                                 openMenus.pertanyaan ? 'rotate-90' : ''
                             ]"></i>
                         </div>
@@ -210,11 +210,11 @@
                     <div v-if="isOpen && openMenus.pertanyaan"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
                         <NuxtLink to="/backoffice/pertanyaan"
-                            class="block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
                             Pertanyaan
                         </NuxtLink>
                         <NuxtLink to="/backoffice/pengaduan"
-                            class="block text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
                             Pengaduan
                         </NuxtLink>
                     </div>
@@ -226,10 +226,10 @@
                 <div v-if="isOpen" class="flex flex-col gap-3">
                     <div>
                         <p class="text-xs text-red-200 mb-1">Logged in as</p>
-                        <p class="text-sm font-semibold text-white truncate">{{ user?.nama }}</p>
+                        <p class="text-xs sm:text-sm font-semibold text-white truncate">{{ user?.nama }}</p>
                     </div>
                     <button @click="$emit('logout')" :disabled="isLoading"
-                        class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg bg-red-800 text-white text-sm font-bold hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg bg-red-800 text-white text-xs sm:text-sm font-bold hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
                         <i v-if="isLoading" class="fa-solid fa-spinner w-4 h-4 animate-spin"></i>
                         <i v-else class="fa-solid fa-sign-out-alt w-4 h-4"></i>
                         <span>{{ isLoading ? 'Keluar...' : 'Keluar' }}</span>
