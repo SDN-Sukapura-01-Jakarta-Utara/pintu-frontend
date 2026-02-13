@@ -4,6 +4,7 @@
 
 <script setup lang="ts">
 definePageMeta({
-  layout: 'backoffice-layout'
+  layout: 'backoffice-layout',
+  middleware: 'auth'
 })
 </script>

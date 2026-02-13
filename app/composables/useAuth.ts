@@ -25,7 +25,9 @@ export function useAuth() {
     if (result.success) {
       // Router guard akan handle redirect ke login
       const router = useRouter()
-      router.push('/backoffice/login')
+      setTimeout(() => {
+        router.replace('/backoffice/login')
+      }, 500)
     }
     return result
   }
