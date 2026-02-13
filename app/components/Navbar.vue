@@ -7,7 +7,7 @@
                     class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200">
                     <i class="fa-solid fa-bars w-6 h-6 text-gray-700"></i>
                 </button>
-                <h1 class="text-xl font-bold text-gray-900">Dashboard</h1>
+                <h1 class="text-xl font-bold text-gray-900">{{ pageTitle }}</h1>
             </div>
 
             <!-- Right: User Info & Logout (Desktop Only) -->
@@ -36,6 +36,7 @@ import type { User } from '~/types/AuthType'
 defineProps<{
     user: User | null
     isLoading: boolean
+    pageTitle: string
 }>()
 
 defineEmits<{
