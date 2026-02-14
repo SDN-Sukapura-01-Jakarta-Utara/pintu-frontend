@@ -1,26 +1,28 @@
 <template>
     <DashboardLayout>
+        <!-- Create Jumbotron Modal -->
+        <CreateJumbotronModal v-model="showCreateModal" @success="handleCreateSuccess" @error="handleCreateError" />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
-              <div>
-                 <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                   Jumbotron
-                 </h1>
-                     <p class="text-[13px] sm:text-sm md:text-[15px] text-gray-600 mt-1 sm:mt-2">Kelola gambar jumbotron untuk halaman utama sekolah</p>
-                 </div>
-                <button @click="openCreateModal"
-                   class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-[#2e45a7] text-white font-semibold text-[13px] sm:text-sm shadow-md hover:shadow-lg transition-all duration-300 hover:bg-[#002d89]">
-                   <i class="fa-solid fa-plus w-3 h-3 sm:w-4 sm:h-4"></i>
-                   Tambah Data
-                </button>
+                <div>
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+                        Jumbotron
+                    </h1>
+                    <p class="text-[13px] sm:text-sm md:text-[15px] text-gray-600 mt-1 sm:mt-2">Kelola gambar jumbotron
+                        untuk halaman utama sekolah</p>
+                </div>
+                <AddButton label="Tambah Data" iconClass="fa-solid fa-plus" @click="openCreateModal" />
             </div>
         </div>
 
         <!-- Loading State -->
         <div v-if="isLoading" class="flex items-center justify-center py-8 sm:py-12">
             <div class="flex flex-col items-center gap-3 sm:gap-4">
-                <div class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600"></div>
+                <div
+                    class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
+                </div>
                 <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data jumbotron...</p>
             </div>
         </div>
@@ -50,29 +52,22 @@
         <!-- Table Section -->
         <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200">
             <!-- Empty State -->
-            <div v-if="jumbotronList.length === 0" class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
-                <div class="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gray-100 flex items-center justify-center mb-3 sm:mb-4">
+            <div v-if="jumbotronList.length === 0"
+                class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                <div
+                    class="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gray-100 flex items-center justify-center mb-3 sm:mb-4">
                     <i class="fa-solid fa-image w-6 h-6 sm:w-8 sm:h-8 text-gray-400"></i>
                 </div>
                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">Belum ada jumbotron</h3>
                 <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
                     Mulai dengan menambahkan gambar jumbotron untuk halaman utama sekolah Anda
                 </p>
-                <button @click="openCreateModal"
-                    class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-[#2e45a7] text-white font-semibold text-[13px] sm:text-sm shadow-md hover:shadow-lg transition-all duration-300 hover:bg-[#002d89]">
-                    <i class="fa-solid fa-plus w-3 h-3 sm:w-4 sm:h-4"></i>
-                    Tambah Data
-                </button>
+                <AddButton label="Tambah Data" iconClass="fa-solid fa-plus" @click="openCreateModal" />
             </div>
 
             <!-- Data Table -->
-            <Table 
-                :items="jumbotronList" 
-                :total="total"
-                :columns="tableColumns"
-                @edit="openEditModal"
-                @delete="openDeleteConfirm"
-            >
+            <Table :items="jumbotronList" :total="total" :columns="tableColumns" @edit="openEditModal"
+                @delete="openDeleteConfirm">
                 <!-- Custom cell for Gambar column -->
                 <template #cell-file="{ item }">
                     <img :src="item.file" :alt="`Jumbotron ${item.id}`"
@@ -152,6 +147,8 @@ import { ref, onMounted } from 'vue'
 import type { JumbotronData } from '~/types/JumbotronType'
 import type { TableColumn } from '~/components/Table.vue'
 import { getJumbotronList, deleteJumbotron } from '~/services/jumbotron'
+import AddButton from '~/components/common/AddButton.vue'
+import CreateJumbotronModal from '~/components/modals/CreateJumbotronModal.vue'
 
 definePageMeta({
     layout: 'default',
@@ -165,6 +162,7 @@ const isDeleting = ref(false)
 const error = ref<string | null>(null)
 const total = ref(0)
 const showDeleteModal = ref(false)
+const showCreateModal = ref(false)
 const selectedItem = ref<JumbotronData | null>(null)
 
 // Table columns configuration
@@ -200,7 +198,7 @@ const fetchJumbotronData = async () => {
             await handle401()
             return
         }
-        
+
         error.value = err.data?.message || err.message || 'Gagal memuat data jumbotron'
         console.error('Error fetching jumbotron:', err)
     } finally {
@@ -210,8 +208,19 @@ const fetchJumbotronData = async () => {
 
 // Open create modal
 const openCreateModal = () => {
-    // TODO: Implement modal for create
-    console.log('Open create modal')
+    showCreateModal.value = true
+}
+
+// Handle successful create
+const handleCreateSuccess = async (message: string) => {
+    console.log('Create success:', message)
+    // Refresh data
+    await fetchJumbotronData()
+}
+
+// Handle create error
+const handleCreateError = (error: string) => {
+    console.error('Create error:', error)
 }
 
 // Open edit modal
@@ -252,7 +261,7 @@ const confirmDelete = async () => {
             await handle401()
             return
         }
-        
+
         error.value = err.data?.message || err.message || 'Gagal menghapus jumbotron'
         console.error('Error deleting jumbotron:', err)
     } finally {
