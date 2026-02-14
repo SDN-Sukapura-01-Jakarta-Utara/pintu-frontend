@@ -78,10 +78,16 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       if (token.value) {
-        await logout(token.value)
+        try {
+          await logout(token.value)
+        } catch (err: any) {
+          // If logout fails (e.g., token expired), still clear local state
+          // This prevents user from being stuck
+          console.warn('Logout API error (will clear local auth anyway):', err.message)
+        }
       }
 
-      // Clear state
+      // Clear state regardless of API response
       user.value = null
       token.value = null
 
@@ -105,9 +111,18 @@ export const useAuthStore = defineStore('auth', () => {
         error: apiError,
       }
       error.value = authError
+      
+      // Still clear auth state to prevent user being stuck
+      user.value = null
+      token.value = null
+      if (process.client) {
+        localStorage.removeItem('auth_token')
+        localStorage.removeItem('auth_user')
+      }
+      
       return {
-        success: false,
-        message: apiError,
+        success: true, // Return success anyway to navigate away
+        message: 'Logout berhasil',
       }
     } finally {
       isLoading.value = false

@@ -17,6 +17,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     const isAuthenticated = authStore.isAuthenticated
     const isLoginPage = to.path === '/backoffice/login'
     const isProtectedRoute = to.path.startsWith('/backoffice') && !isLoginPage
+    const isPublicRoute = to.path === '/' || isLoginPage
+
+    // Debug log
+    // console.log('Router guard:', { to: to.path, isAuthenticated, isProtectedRoute })
 
     // Jika mencoba akses protected route tanpa auth, redirect ke login
     if (isProtectedRoute && !isAuthenticated) {
@@ -26,6 +30,11 @@ export default defineNuxtPlugin((nuxtApp) => {
     // Jika sudah auth dan mencoba akses login, redirect ke dashboard
     if (isLoginPage && isAuthenticated) {
       return '/backoffice'
+    }
+
+    // Allow public routes without auth
+    if (isPublicRoute && !isAuthenticated) {
+      return true
     }
   })
 })

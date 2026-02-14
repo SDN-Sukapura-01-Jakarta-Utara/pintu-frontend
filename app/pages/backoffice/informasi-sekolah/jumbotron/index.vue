@@ -69,9 +69,37 @@
             <Table 
                 :items="jumbotronList" 
                 :total="total"
+                :columns="tableColumns"
                 @edit="openEditModal"
                 @delete="openDeleteConfirm"
-            />
+            >
+                <!-- Custom cell for Gambar column -->
+                <template #cell-file="{ item }">
+                    <img :src="item.file" :alt="`Jumbotron ${item.id}`"
+                        class="h-12 w-16 sm:h-16 sm:w-24 rounded-lg object-cover shadow-sm border border-gray-200 hover:shadow-md transition-shadow" />
+                </template>
+
+                <!-- Custom cell for Status column -->
+                <template #cell-status="{ item }">
+                    <span :class="[
+                        'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                        item.status === 'active'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800',
+                    ]">
+                        <span :class="[
+                            'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                            item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                        ]"></span>
+                        {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                    </span>
+                </template>
+
+                <!-- Custom cell for Created Date column -->
+                <template #cell-created_at="{ item }">
+                    {{ formatDate(item.created_at) }}
+                </template>
+            </Table>
         </div>
 
         <!-- Delete Confirmation Modal -->
@@ -122,6 +150,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { JumbotronData } from '~/types/JumbotronType'
+import type { TableColumn } from '~/components/Table.vue'
 import { getJumbotronList, deleteJumbotron } from '~/services/jumbotron'
 
 definePageMeta({
@@ -138,6 +167,23 @@ const total = ref(0)
 const showDeleteModal = ref(false)
 const selectedItem = ref<JumbotronData | null>(null)
 
+// Table columns configuration
+const tableColumns: TableColumn[] = [
+    {
+        key: 'file',
+        label: 'Gambar',
+        width: '32',
+    },
+    {
+        key: 'status',
+        label: 'Status',
+    },
+    {
+        key: 'created_at',
+        label: 'Dibuat',
+    },
+]
+
 // Fetch jumbotron data
 const fetchJumbotronData = async () => {
     isLoading.value = true
@@ -148,6 +194,13 @@ const fetchJumbotronData = async () => {
         jumbotronList.value = response.data
         total.value = response.total
     } catch (err: any) {
+        // Handle 401 Unauthorized - redirect to login
+        if (err.status === 401) {
+            const { handle401 } = useAuthGuard()
+            await handle401()
+            return
+        }
+        
         error.value = err.data?.message || err.message || 'Gagal memuat data jumbotron'
         console.error('Error fetching jumbotron:', err)
     } finally {
@@ -193,11 +246,28 @@ const confirmDelete = async () => {
         // Show success message
         console.log('Jumbotron berhasil dihapus')
     } catch (err: any) {
+        // Handle 401 Unauthorized - redirect to login
+        if (err.status === 401) {
+            const { handle401 } = useAuthGuard()
+            await handle401()
+            return
+        }
+        
         error.value = err.data?.message || err.message || 'Gagal menghapus jumbotron'
         console.error('Error deleting jumbotron:', err)
     } finally {
         isDeleting.value = false
     }
+}
+
+// Format date helper
+const formatDate = (dateString: string) => {
+    if (!dateString) return '-'
+    return new Date(dateString).toLocaleDateString('id-ID', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    })
 }
 
 // Lifecycle

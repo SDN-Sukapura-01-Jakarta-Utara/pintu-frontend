@@ -30,15 +30,24 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
  * @returns Logout response
  */
 export async function logout(token: string): Promise<LogoutResponse> {
-  const response = await $fetch<LogoutResponse>(`${config.public.apiBase}/api/v1/auth/logout`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-  })
-
-  return response
+  try {
+    const response = await $fetch<LogoutResponse>(`${config.public.apiBase}/api/v1/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    })
+    return response
+  } catch (error: any) {
+    // If token is invalid/expired (401), still consider logout as success
+    // because we'll clear the state anyway
+    if (error.status === 401) {
+      return { success: true, message: 'Logout berhasil' }
+    }
+    // Re-throw other errors
+    throw error
+  }
 }
 
 /**
