@@ -4,29 +4,31 @@
       <NuxtPage />
     </NuxtLayout>
 
-    <!-- Alert Container -->
+    <!-- Toast Container (from Store) -->
     <Teleport to="body">
-      <Transition
-        enter-active-class="transition duration-300 ease-out"
-        enter-from-class="-translate-y-full opacity-0 translate-x-full"
-        enter-to-class="translate-y-0 opacity-100 translate-x-0"
-        leave-active-class="transition duration-300 ease-in"
-        leave-from-class="translate-y-0 opacity-100 translate-x-0"
-        leave-to-class="-translate-y-full opacity-0 translate-x-full"
-      >
-        <div v-if="showAlert" class="fixed top-6 right-4 lg:right-8 z-50 w-full max-w-xs lg:max-w-sm px-4 lg:px-0">
+      <div class="fixed top-6 right-4 lg:right-8 z-50 w-full max-w-xs lg:max-w-sm px-4 lg:px-0 space-y-3 pointer-events-none">
+        <Transition
+          v-for="toast in toastStore.toasts"
+          :key="toast.id"
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="-translate-y-full opacity-0 translate-x-full"
+          enter-to-class="translate-y-0 opacity-100 translate-x-0"
+          leave-active-class="transition duration-300 ease-in"
+          leave-from-class="translate-y-0 opacity-100 translate-x-0"
+          leave-to-class="-translate-y-full opacity-0 translate-x-full"
+        >
           <div
             :class="[
-              'rounded-xl px-4 py-3 sm:px-5 sm:py-4 shadow-xl flex items-start gap-3',
-              alertState.type === 'success'
+              'rounded-xl px-4 py-3 sm:px-5 sm:py-4 shadow-xl flex items-start gap-3 pointer-events-auto',
+              toast.type === 'success'
                 ? 'bg-green-50 border-2 border-green-200'
                 : 'bg-red-50 border-2 border-red-200',
             ]"
           >
             <!-- Icon -->
-            <div class="flex-shrink-0 pt-0.5" :class="alertState.type === 'success' ? 'text-green-600' : 'text-red-600'">
+            <div class="flex-shrink-0 pt-0.5" :class="toast.type === 'success' ? 'text-green-600' : 'text-red-600'">
               <svg
-                v-if="alertState.type === 'success'"
+                v-if="toast.type === 'success'"
                 class="w-5 h-5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -56,28 +58,28 @@
               <p
                 :class="[
                   'font-semibold text-sm sm:text-base',
-                  alertState.type === 'success' ? 'text-green-900' : 'text-red-900',
+                  toast.type === 'success' ? 'text-green-900' : 'text-red-900',
                 ]"
               >
-                {{ alertState.title }}
+                {{ toast.title }}
               </p>
               <p
-                v-if="alertState.message"
+                v-if="toast.message"
                 :class="[
                   'text-xs sm:text-sm mt-1 line-clamp-2',
-                  alertState.type === 'success' ? 'text-green-700' : 'text-red-700',
+                  toast.type === 'success' ? 'text-green-700' : 'text-red-700',
                 ]"
               >
-                {{ alertState.message }}
+                {{ toast.message }}
               </p>
             </div>
 
             <!-- Close Button -->
             <button
-              @click="closeAlert"
-              class="flex-shrink-0 ml-2 transition-colors"
+              @click="toastStore.removeToast(toast.id)"
+              class="flex-shrink-0 ml-2 transition-colors cursor-pointer"
               :class="[
-                alertState.type === 'success'
+                toast.type === 'success'
                   ? 'text-green-600 hover:text-green-900'
                   : 'text-red-600 hover:text-red-900',
               ]"
@@ -91,41 +93,14 @@
               </svg>
             </button>
           </div>
-        </div>
-      </Transition>
+        </Transition>
+      </div>
     </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { useToastStore } from '~/stores/ToastStore'
 
-const showAlert = ref(false)
-const alertState = ref<{ type: 'success' | 'error'; title: string; message?: string }>({
-  type: 'success',
-  title: '',
-})
-
-let alertTimeout: NodeJS.Timeout
-
-const closeAlert = () => {
-  showAlert.value = false
-  if (alertTimeout) clearTimeout(alertTimeout)
-}
-
-// Expose untuk trigger alert dari child components jika perlu
-const triggerAlert = (type: 'success' | 'error', title: string, message?: string) => {
-  if (alertTimeout) clearTimeout(alertTimeout)
-  
-  alertState.value = { type, title, message }
-  showAlert.value = true
-  
-  alertTimeout = setTimeout(() => {
-    showAlert.value = false
-  }, 5000)
-}
-
-onMounted(() => {
-  // Auth akan di-initialize oleh plugin
-})
+const toastStore = useToastStore()
 </script>

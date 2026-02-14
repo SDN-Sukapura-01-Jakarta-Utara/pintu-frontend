@@ -74,13 +74,17 @@ export async function createJumbotron(payload: JumbotronCreatePayload) {
  * @param payload - Updated data
  * @returns Updated jumbotron data
  */
-export async function updateJumbotron(id: number, payload: Partial<JumbotronCreatePayload>) {
+export async function updateJumbotron(id: number, payload: Partial<JumbotronCreatePayload> & { remove_file?: boolean }) {
   const formData = new FormData()
+  formData.append('id', id.toString())
   if (payload.file) {
     formData.append('file', payload.file)
   }
   if (payload.status) {
     formData.append('status', payload.status)
+  }
+  if (payload.remove_file) {
+    formData.append('remove_file', 'true')
   }
 
   const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/update-jumbotron`, {

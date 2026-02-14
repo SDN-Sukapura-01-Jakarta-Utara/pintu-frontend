@@ -3,6 +3,19 @@
         <!-- Create Jumbotron Modal -->
         <CreateJumbotronModal v-model="showCreateModal" @success="handleCreateSuccess" @error="handleCreateError" />
 
+        <!-- Edit Jumbotron Modal -->
+        <EditJumbotronModal v-model="showEditModal" :jumbotron-data="selectedItem" @success="handleEditSuccess"
+            @error="handleEditError" />
+
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationDeleteModal 
+            v-model="showDeleteModal"
+            title="Hapus Jumbotron?"
+            message="Anda yakin ingin menghapus jumbotron ini? Tindakan ini tidak dapat dibatalkan."
+            :is-loading="isDeleting"
+            @confirm="confirmDelete"
+        />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
@@ -51,94 +64,53 @@
 
         <!-- Table Section -->
         <div v-else class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <!-- Data Table -->
+            <div v-if="jumbotronList.length > 0">
+                <Table :items="jumbotronList" :total="total" :columns="tableColumns" @edit="openEditModal"
+                    @delete="openDeleteConfirm">
+                    <!-- Custom cell for Gambar column -->
+                    <template #cell-file="{ item }">
+                        <img :src="item.file" :alt="`Jumbotron ${item.id}`"
+                            class="h-12 w-16 sm:h-16 sm:w-24 rounded-lg object-cover shadow-sm border border-gray-200 hover:shadow-md transition-shadow" />
+                    </template>
+
+                    <!-- Custom cell for Status column -->
+                    <template #cell-status="{ item }">
+                        <span :class="[
+                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                            item.status === 'active'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800',
+                        ]">
+                            <span :class="[
+                                'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                            ]"></span>
+                            {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                        </span>
+                    </template>
+
+                    <!-- Custom cell for Created Date column -->
+                    <template #cell-created_at="{ item }">
+                        {{ formatDate(item.created_at) }}
+                    </template>
+                </Table>
+            </div>
+
             <!-- Empty State -->
-            <div v-if="jumbotronList.length === 0"
-                class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+            <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
                 <div
-                    class="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gray-100 flex items-center justify-center mb-3 sm:mb-4">
-                    <i class="fa-solid fa-image w-6 h-6 sm:w-8 sm:h-8 text-gray-400"></i>
+                    class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
+                    <i class="fa-solid fa-image text-2xl sm:text-4xl text-gray-400"></i>
                 </div>
                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">Belum ada jumbotron</h3>
                 <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
                     Mulai dengan menambahkan gambar jumbotron untuk halaman utama sekolah Anda
                 </p>
-                <AddButton label="Tambah Data" iconClass="fa-solid fa-plus" @click="openCreateModal" />
             </div>
-
-            <!-- Data Table -->
-            <Table :items="jumbotronList" :total="total" :columns="tableColumns" @edit="openEditModal"
-                @delete="openDeleteConfirm">
-                <!-- Custom cell for Gambar column -->
-                <template #cell-file="{ item }">
-                    <img :src="item.file" :alt="`Jumbotron ${item.id}`"
-                        class="h-12 w-16 sm:h-16 sm:w-24 rounded-lg object-cover shadow-sm border border-gray-200 hover:shadow-md transition-shadow" />
-                </template>
-
-                <!-- Custom cell for Status column -->
-                <template #cell-status="{ item }">
-                    <span :class="[
-                        'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
-                        item.status === 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800',
-                    ]">
-                        <span :class="[
-                            'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
-                            item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
-                        ]"></span>
-                        {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
-                    </span>
-                </template>
-
-                <!-- Custom cell for Created Date column -->
-                <template #cell-created_at="{ item }">
-                    {{ formatDate(item.created_at) }}
-                </template>
-            </Table>
         </div>
 
-        <!-- Delete Confirmation Modal -->
-        <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 translate-y-4"
-            enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-200 ease-in"
-            leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-4">
-            <div v-if="showDeleteModal"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-                <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-8 animate-slide-up">
-                    <!-- Icon -->
-                    <div class="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-trash w-6 h-6 text-red-600"></i>
-                    </div>
 
-                    <!-- Title -->
-                    <h3 class="text-lg sm:text-xl font-bold text-gray-900 text-center mb-2">Hapus Jumbotron?</h3>
-
-                    <!-- Message -->
-                    <p class="text-base sm:text-lg text-gray-600 text-center mb-6">
-                        Anda yakin ingin menghapus jumbotron ini? Tindakan ini tidak dapat dibatalkan.
-                    </p>
-
-                    <!-- Buttons -->
-                    <div class="flex gap-3">
-                        <button @click="showDeleteModal = false"
-                            class="flex-1 px-4 py-3 rounded-lg border-2 border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">
-                            Batal
-                        </button>
-                        <button @click="confirmDelete" :disabled="isDeleting"
-                            class="flex-1 px-4 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                            <i v-if="isDeleting" class="fa-solid fa-spinner w-4 h-4 animate-spin"></i>
-                            {{ isDeleting ? 'Menghapus...' : 'Hapus' }}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </Transition>
-
-        <!-- Backdrop -->
-        <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0"
-            enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in"
-            leave-from-class="opacity-100" leave-to-class="opacity-0">
-            <div v-if="showDeleteModal" @click="showDeleteModal = false" class="fixed inset-0 z-40 bg-black/40"></div>
-        </Transition>
     </DashboardLayout>
 </template>
 
@@ -149,6 +121,11 @@ import type { TableColumn } from '~/components/Table.vue'
 import { getJumbotronList, deleteJumbotron } from '~/services/jumbotron'
 import AddButton from '~/components/common/AddButton.vue'
 import CreateJumbotronModal from '~/components/modals/CreateJumbotronModal.vue'
+import EditJumbotronModal from '~/components/modals/EditJumbotronModal.vue'
+import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
+import { useToast } from '~/composables/useToast'
+
+const { success } = useToast()
 
 definePageMeta({
     layout: 'default',
@@ -163,6 +140,7 @@ const error = ref<string | null>(null)
 const total = ref(0)
 const showDeleteModal = ref(false)
 const showCreateModal = ref(false)
+const showEditModal = ref(false)
 const selectedItem = ref<JumbotronData | null>(null)
 
 // Table columns configuration
@@ -189,7 +167,13 @@ const fetchJumbotronData = async () => {
 
     try {
         const response = await getJumbotronList(100, 0)
-        jumbotronList.value = response.data
+        // Sort by created_at descending (newest first)
+        const sortedData = response.data.sort((a, b) => {
+            const dateA = new Date(a.created_at).getTime()
+            const dateB = new Date(b.created_at).getTime()
+            return dateB - dateA // descending order
+        })
+        jumbotronList.value = sortedData
         total.value = response.total
     } catch (err: any) {
         // Handle 401 Unauthorized - redirect to login
@@ -214,6 +198,8 @@ const openCreateModal = () => {
 // Handle successful create
 const handleCreateSuccess = async (message: string) => {
     console.log('Create success:', message)
+    // Show toast
+    success('Data Berhasil Ditambahkan', 'Jumbotron baru telah ditambahkan ke sistem')
     // Refresh data
     await fetchJumbotronData()
 }
@@ -225,8 +211,22 @@ const handleCreateError = (error: string) => {
 
 // Open edit modal
 const openEditModal = (item: JumbotronData) => {
-    // TODO: Implement modal for edit
-    console.log('Open edit modal for:', item)
+    selectedItem.value = item
+    showEditModal.value = true
+}
+
+// Handle successful edit
+const handleEditSuccess = async (message: string) => {
+    console.log('Edit success:', message)
+    // Show toast
+    success('Data Berhasil Diperbarui', 'Perubahan jumbotron telah disimpan')
+    // Refresh data
+    await fetchJumbotronData()
+}
+
+// Handle edit error
+const handleEditError = (error: string) => {
+    console.error('Edit error:', error)
 }
 
 // Open delete confirmation
@@ -252,8 +252,8 @@ const confirmDelete = async () => {
         showDeleteModal.value = false
         selectedItem.value = null
 
-        // Show success message
-        console.log('Jumbotron berhasil dihapus')
+        // Show success toast
+        success('Data Berhasil Dihapus', 'Jumbotron telah dihapus dari sistem')
     } catch (err: any) {
         // Handle 401 Unauthorized - redirect to login
         if (err.status === 401) {

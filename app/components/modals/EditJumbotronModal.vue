@@ -36,7 +36,7 @@
 
                     <!-- Header Content -->
                     <div class="relative z-10">
-                        <h2 class="text-lg sm:text-xl font-bold text-white">Tambah Jumbotron</h2>
+                        <h2 class="text-lg sm:text-xl font-bold text-white">Edit Jumbotron</h2>
                     </div>
                 </div>
 
@@ -49,10 +49,23 @@
                         <div>
                             <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Gambar Jumbotron
-                                <span class="text-red-600 ml-1">*</span>
                             </label>
 
-                            <!-- Image Preview -->
+                            <!-- Current Image Preview -->
+                            <div v-if="!imagePreview && jumbotronData?.file && !shouldRemoveCurrentImage" class="mb-3 sm:mb-4 relative group">
+                                <img :src="jumbotronData.file" alt="Current Preview"
+                                    class="w-full h-32 sm:h-48 object-cover rounded-xl border-2 border-gray-200 shadow-md" />
+                                <button type="button" @click="removeCurrentImage" :disabled="isSubmitting"
+                                    class="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg opacity-100 hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer hover:cursor-pointer">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                            clip-rule="evenodd"></path>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <!-- New Image Preview -->
                             <div v-if="imagePreview" class="mb-3 sm:mb-4 relative group">
                                 <img :src="imagePreview" alt="Preview"
                                     class="w-full h-32 sm:h-48 object-cover rounded-xl border-2 border-gray-200 shadow-md" />
@@ -151,7 +164,7 @@
                                 class="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg border-2 border-gray-200 text-gray-700 font-semibold text-sm sm:text-base hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" :disabled="!selectedFile || isSubmitting"
+                            <button type="submit" :disabled="isSubmitting || !hasValidImage || !hasChanges"
                                 class="flex-1 px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold text-sm sm:text-base hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:cursor-pointer flex items-center justify-center gap-2">
                                 <svg v-if="isSubmitting" class="w-3 sm:w-4 h-3 sm:h-4 animate-spin" fill="none"
                                     stroke="currentColor" viewBox="0 0 24 24">
@@ -172,13 +185,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { createJumbotron } from '~/services/jumbotron'
-import type { JumbotronCreatePayload } from '~/types/JumbotronType'
+import { ref, watch, computed } from 'vue'
+import { updateJumbotron } from '~/services/jumbotron'
+import type { JumbotronData } from '~/types/JumbotronType'
 import { compressImage, getFileSizeInMB } from '~/utils/imageCompressor'
 
 interface Props {
     modelValue: boolean
+    jumbotronData: JumbotronData | null
 }
 
 const props = defineProps<Props>()
@@ -198,6 +212,7 @@ const isSubmitting = ref(false)
 const fileError = ref<string | null>(null)
 const submitError = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
+const shouldRemoveCurrentImage = ref(false)
 
 // File validation
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
@@ -216,6 +231,51 @@ const validateFile = (file: File): string | null => {
 
     return null
 }
+
+// Check if form has a valid image (must have either old file that's not removed or new file selected)
+const hasValidImage = computed(() => {
+    // Has new file uploaded
+    if (selectedFile.value) {
+        return true
+    }
+    
+    // Has old file and it wasn't removed
+    if (props.jumbotronData?.file && !shouldRemoveCurrentImage.value) {
+        return true
+    }
+    
+    return false
+})
+
+// Check if there are changes to save
+const hasChanges = computed(() => {
+    // Check if status changed
+    if (props.jumbotronData && isActive.value !== (props.jumbotronData.status === 'active')) {
+        return true
+    }
+    
+    // Check if new file is selected or current image should be removed
+    if (selectedFile.value || shouldRemoveCurrentImage.value) {
+        return true
+    }
+    
+    return false
+})
+
+// Initialize form with jumbotron data
+watch(
+    () => props.modelValue,
+    (newVal) => {
+        if (newVal && props.jumbotronData) {
+            isActive.value = props.jumbotronData.status === 'active'
+            selectedFile.value = null
+            imagePreview.value = null
+            fileError.value = null
+            submitError.value = null
+            shouldRemoveCurrentImage.value = false
+        }
+    }
+)
 
 const handleFileSelect = async (event: Event) => {
     const input = event.target as HTMLInputElement
@@ -312,25 +372,39 @@ const removeImage = () => {
     }
 }
 
+const removeCurrentImage = () => {
+    // Mark that current image should be removed
+    shouldRemoveCurrentImage.value = true
+    selectedFile.value = null
+    imagePreview.value = null
+    fileError.value = null
+}
+
 const handleSubmit = async () => {
-    if (!selectedFile.value) {
-        fileError.value = 'Gambar harus dipilih'
-        return
-    }
+    if (!props.jumbotronData) return
 
     isSubmitting.value = true
     submitError.value = null
 
     try {
-        const payload: JumbotronCreatePayload = {
-            file: selectedFile.value,
+        const payload: any = {
             status: isActive.value ? 'active' : 'inactive'
         }
 
-        await createJumbotron(payload)
+        // Only add file if a new one was selected
+        if (selectedFile.value) {
+            payload.file = selectedFile.value
+        }
+
+        // Mark that current image should be removed if user clicked the delete button
+        if (shouldRemoveCurrentImage.value && !selectedFile.value) {
+            payload.remove_file = true
+        }
+
+        await updateJumbotron(props.jumbotronData.id, payload)
 
         // Success
-        emit('success', 'Jumbotron berhasil ditambahkan')
+        emit('success', 'Jumbotron berhasil diperbarui')
         
         // Reset form
         resetForm()
@@ -339,8 +413,8 @@ const handleSubmit = async () => {
         isSubmitting.value = false
         emit('update:modelValue', false)
     } catch (err: any) {
-        submitError.value = err.data?.message || err.message || 'Gagal menambahkan jumbotron'
-        console.error('Error creating jumbotron:', err)
+        submitError.value = err.data?.message || err.message || 'Gagal memperbarui jumbotron'
+        console.error('Error updating jumbotron:', err)
         isSubmitting.value = false
     }
 }
@@ -351,6 +425,7 @@ const resetForm = () => {
     isActive.value = true
     fileError.value = null
     submitError.value = null
+    shouldRemoveCurrentImage.value = false
     if (fileInput.value) {
         fileInput.value.value = ''
     }
