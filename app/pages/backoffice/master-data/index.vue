@@ -414,12 +414,12 @@ const openCreateUserModal = () => {
 
 // Handle create user success
 const handleCreateUserSuccess = (message: string) => {
-  console.log('Create user success:', message)
-  success('User Berhasil Ditambahkan', message)
-  
-  // Reset to page 1 after successful create
-  pagination.value.page = 1
-  fetchUserData()
+    console.log('Create user success:', message)
+    success('User Berhasil Ditambahkan', message)
+
+    // Reset to page 1 after successful create
+    pagination.value.page = 1
+    fetchUserData()
 }
 
 // Handle create user error
@@ -438,12 +438,12 @@ const openEditUserModal = (item: UserData) => {
 
 // Handle edit user success
 const handleEditUserSuccess = (message: string) => {
-  console.log('Edit user success:', message)
-  success('User Berhasil Diperbarui', message)
-  
-  // Reset to page 1 after successful edit
-  pagination.value.page = 1
-  fetchUserData()
+    console.log('Edit user success:', message)
+    success('User Berhasil Diperbarui', message)
+
+    // Reset to page 1 after successful edit
+    pagination.value.page = 1
+    fetchUserData()
 }
 
 // Handle edit user error
@@ -460,39 +460,39 @@ const openDeleteConfirm = (item: UserData) => {
 
 // Handle delete confirmation
 const handleDeleteConfirm = async () => {
-  if (!selectedUser.value) return
-  
-  isDeleting.value = true
-  try {
-    const result = await userStore.removeUser(selectedUser.value.id)
-    
-    if (result.success) {
-      success('User Berhasil Dihapus', result.message)
-      showDeleteConfirm.value = false
-      selectedUser.value = null
-      
-      // Calculate max page after deletion
-      const totalAfterDelete = userStore.total
-      const maxPage = Math.ceil(totalAfterDelete / pagination.value.limit)
-      
-      // If current page is beyond max page, go to previous page
-      if (pagination.value.page > maxPage && maxPage > 0) {
-        pagination.value.page = maxPage
-      } else if (maxPage === 0) {
-        pagination.value.page = 1
-      }
-      
-      // Fetch data for the appropriate page
-      await fetchUserData()
-    } else {
-      error('Gagal Menghapus User', result.message)
+    if (!selectedUser.value) return
+
+    isDeleting.value = true
+    try {
+        const result = await userStore.removeUser(selectedUser.value.id)
+
+        if (result.success) {
+            success('User Berhasil Dihapus', result.message)
+            showDeleteConfirm.value = false
+            selectedUser.value = null
+
+            // Calculate max page after deletion
+            const totalAfterDelete = userStore.total
+            const maxPage = Math.ceil(totalAfterDelete / pagination.value.limit)
+
+            // If current page is beyond max page, go to previous page
+            if (pagination.value.page > maxPage && maxPage > 0) {
+                pagination.value.page = maxPage
+            } else if (maxPage === 0) {
+                pagination.value.page = 1
+            }
+
+            // Fetch data for the appropriate page
+            await fetchUserData()
+        } else {
+            error('Gagal Menghapus User', result.message)
+        }
+    } catch (err: any) {
+        error('Gagal Menghapus User', err.message || 'Terjadi kesalahan saat menghapus user')
+        console.error('Delete user error:', err)
+    } finally {
+        isDeleting.value = false
     }
-  } catch (err: any) {
-    error('Gagal Menghapus User', err.message || 'Terjadi kesalahan saat menghapus user')
-    console.error('Delete user error:', err)
-  } finally {
-    isDeleting.value = false
-  }
 }
 
 // Lifecycle
