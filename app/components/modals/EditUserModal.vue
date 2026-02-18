@@ -268,15 +268,18 @@ const originalForm = ref({
 const roles = ref<Role[]>([])
 const rolesLoading = ref(false)
 
-// Computed: Group roles by system_id
+// Computed: Group roles by system_id (only active roles)
 const rolesBySystem = computed(() => {
   const grouped: Record<number, Role[]> = {}
   
   roles.value.forEach(role => {
-    if (!grouped[role.system_id]) {
-      grouped[role.system_id] = []
+    // Filter hanya role yang status-nya active
+    if (role.status === 'active') {
+      if (!grouped[role.system_id]) {
+        grouped[role.system_id] = []
+      }
+      grouped[role.system_id].push(role)
     }
-    grouped[role.system_id].push(role)
   })
   
   return grouped
