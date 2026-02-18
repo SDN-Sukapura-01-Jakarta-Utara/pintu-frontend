@@ -43,6 +43,7 @@ export interface Role {
   name: string
   description: string
   system: string
+  system_id: number
   status: string
   created_at: string
   updated_at: string
