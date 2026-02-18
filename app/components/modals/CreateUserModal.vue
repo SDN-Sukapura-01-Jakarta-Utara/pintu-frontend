@@ -322,13 +322,11 @@ const fetchRoles = async () => {
     }
 }
 
-// Get system name by ID (from role definitions)
+// Get system name by ID
 const getSystemNameById = (systemId: number): string => {
     const roleWithSystem = roles.value.find(r => r.system_id === systemId)
-    if (roleWithSystem && roleWithSystem.description) {
-        // Extract system name from role name pattern like "Administrator (PINTU)"
-        const match = roleWithSystem.name.match(/\(([^)]+)\)/)
-        if (match) return match[1]
+    if (roleWithSystem && roleWithSystem.system) {
+        return roleWithSystem.system.nama
     }
     return `System ${systemId}`
 }
