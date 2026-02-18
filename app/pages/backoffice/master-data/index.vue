@@ -350,7 +350,8 @@
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                             <!-- Data Table -->
                             <div v-if="systems.length > 0">
-                                <Table :items="systems" :columns="systemTableColumns" :is-loading="systemLoading">
+                                <Table :items="systems" :columns="systemTableColumns" :is-loading="systemLoading"
+                                    :current-page="1" :current-limit="10" :total="systemTotal">
                                     <!-- Custom cell for Status column -->
                                     <template #cell-status="{ item }">
                                         <span :class="[
@@ -367,7 +368,7 @@
                                         </span>
                                     </template>
 
-                                    <!-- Custom actions slot -->
+                                    <!-- Custom actions slot (override default) -->
                                     <template #actions="{ item }">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                             <!-- View Button -->
@@ -375,7 +376,8 @@
                                                 @click="openDetailSystemModal(item)" />
 
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit" @click="openEditSystemModal(item)" />
+                                            <EditButton title="Edit" label="Edit"
+                                                @click="openEditSystemModal(item)" />
 
                                             <!-- Delete Button -->
                                             <DeleteButton title="Hapus" label="Hapus"
@@ -634,6 +636,7 @@ const selectedSystem = ref<any | null>(null)
 const selectedSystemId = ref<number | null>(null)
 const systemLoading = ref(false)
 const systemError = ref<string | null>(null)
+const systemTotal = ref(0)
 
 // System Filter state
 const systemFilters = ref({
@@ -883,11 +886,11 @@ const fetchRoles = async () => {
     }
 }
 
-// Fetch systems for filter dropdown
+// Fetch systems for filter dropdown (only active systems)
 const fetchSystems = async () => {
     try {
         const { getSystemList } = await import('~/services/user')
-        const response = await getSystemList()
+        const response = await getSystemList(1, 100, { status: 'active' })
         systems.value = response.data || []
     } catch (err: any) {
         console.error('Error fetching systems:', err)
@@ -1054,6 +1057,7 @@ const fetchSystemData = async () => {
         
         const response = await getSystemList(1, 10, search)
         systems.value = response.data || []
+        systemTotal.value = response.pagination?.total || (response.data?.length || 0)
     } catch (err: any) {
         console.error('Error fetching systems:', err)
         systemError.value = err.data?.message || err.message || 'Gagal memuat data sistem'

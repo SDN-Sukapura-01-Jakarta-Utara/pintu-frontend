@@ -192,7 +192,7 @@ const resetForm = () => {
 const fetchSystems = async () => {
   systemsLoading.value = true
   try {
-    const response = await getSystemList()
+    const response = await getSystemList(1, 100, { status: 'active' })
     systems.value = response.data || []
   } catch (err: any) {
     console.error('Error fetching systems:', err)
