@@ -26,11 +26,10 @@
           </div>
 
           <!-- Close Button -->
-          <button @click="closeModal" :disabled="isSubmitting"
-            class="absolute top-4 right-4 z-10 p-2 rounded-lg bg-white/20 hover:bg-white/30 transition-colors disabled:opacity-50 backdrop-blur-sm cursor-pointer hover:cursor-pointer">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"></path>
+          <button type="button" @click.stop="closeModal" :disabled="isSubmitting"
+            class="absolute top-0.5 right-1.5 sm:right-4 z-10 p-2 sm:p-2.5 rounded-lg bg-white/20 hover:bg-white/30 active:bg-white/40 transition-all duration-150 disabled:opacity-50 backdrop-blur-sm cursor-pointer disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-white/50">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
 

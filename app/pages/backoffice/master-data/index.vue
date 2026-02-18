@@ -4,6 +4,9 @@
         <CreateUserModal v-model="showCreateUserModal" @success="handleCreateUserSuccess"
             @error="handleCreateUserError" />
 
+        <!-- User Detail Modal -->
+        <UserDetailModal v-model="showDetailUserModal" :user-id="selectedUserId" />
+
         <!-- Edit User Modal -->
         <EditUserModal v-model="showEditUserModal" :user-data="selectedUser" @success="handleEditUserSuccess"
             @error="handleEditUserError" />
@@ -186,6 +189,32 @@
                                             {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
                                         </span>
                                     </template>
+
+                                    <!-- Custom actions slot -->
+                                    <template #actions="{ item }">
+                                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                            <!-- View Button -->
+                                            <ViewButton
+                                                title="Lihat Detail"
+                                                label="Lihat"
+                                                @click="openDetailUserModal(item)"
+                                            />
+
+                                            <!-- Edit Button -->
+                                            <EditButton
+                                                title="Edit"
+                                                label="Edit"
+                                                @click="openEditUserModal(item)"
+                                            />
+
+                                            <!-- Delete Button -->
+                                            <DeleteButton
+                                                title="Hapus"
+                                                label="Hapus"
+                                                @click="openDeleteConfirm(item)"
+                                            />
+                                        </div>
+                                    </template>
                                 </Table>
                             </div>
 
@@ -233,7 +262,11 @@ import { useUserStore } from '~/stores/UserStore'
 import { useAuthGuard } from '~/composables/useAuthGuard'
 import { useToast } from '~/composables/useToast'
 import AddButton from '~/components/common/AddButton.vue'
+import ViewButton from '~/components/common/ViewButton.vue'
+import EditButton from '~/components/common/EditButton.vue'
+import DeleteButton from '~/components/common/DeleteButton.vue'
 import CreateUserModal from '~/components/modals/CreateUserModal.vue'
+import UserDetailModal from '~/components/modals/UserDetailModal.vue'
 import EditUserModal from '~/components/modals/EditUserModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 
@@ -247,10 +280,12 @@ const { success, error } = useToast()
 
 // Modal state
 const showCreateUserModal = ref(false)
+const showDetailUserModal = ref(false)
 const showEditUserModal = ref(false)
 const showDeleteConfirm = ref(false)
 const isDeleting = ref(false)
 const selectedUser = ref<UserData | null>(null)
+const selectedUserId = ref<number | null>(null)
 
 // Pagination state
 const pagination = ref({
@@ -456,6 +491,13 @@ const handleCreateUserSuccess = (message: string) => {
 const handleCreateUserError = (errorMessage: string) => {
     console.error('Create user error:', errorMessage)
     error('Gagal Menambahkan User', errorMessage)
+}
+
+// Open detail user modal
+const openDetailUserModal = (item: UserData) => {
+    console.log('Opening Detail User Modal for:', item)
+    selectedUserId.value = item.id
+    showDetailUserModal.value = true
 }
 
 // Open edit user modal
