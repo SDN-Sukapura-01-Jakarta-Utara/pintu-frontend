@@ -36,6 +36,14 @@ export const useUserStore = defineStore('user', () => {
         message: 'Data user berhasil dimuat'
       }
     } catch (err: any) {
+      // Skip error handling for 401 - already handled globally
+      if (err?.status === 401 || err?.response?.status === 401) {
+        return {
+          success: false,
+          message: 'Session expired'
+        }
+      }
+
       const apiError = err.data?.message || err.message || 'Gagal memuat data user'
       error.value = apiError
       console.error('Error fetching users:', err)

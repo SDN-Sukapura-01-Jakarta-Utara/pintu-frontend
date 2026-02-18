@@ -8,6 +8,19 @@ import type { GetUsersResponse, GetRolesResponse, CreateUserRequest } from '~/ty
 const config = useRuntimeConfig()
 
 /**
+ * Helper function to handle API errors globally
+ */
+const handleApiError = (error: any) => {
+  if (typeof window !== 'undefined') {
+    const nuxtApp = useNuxtApp()
+    const status = error?.status || error?.response?.status
+    if (status === 401) {
+      nuxtApp.$handleFetchError(error)
+    }
+  }
+}
+
+/**
  * Get all users with pagination and search filters
  * @param page - Page number (default: 1)
  * @param limit - Items per page (default: 10)
@@ -17,25 +30,30 @@ const config = useRuntimeConfig()
 export async function getUserList(page: number = 1, limit: number = 10, search: any = {}): Promise<GetUsersResponse> {
   const token = localStorage.getItem('auth_token')
   
-  const response = await $fetch<GetUsersResponse>(
-    `${config.public.apiBase}/api/v1/users/get-users`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: {
-        search,
-        pagination: {
-          page,
-          limit
-        }
-      },
-    }
-  )
+  try {
+    const response = await $fetch<GetUsersResponse>(
+      `${config.public.apiBase}/api/v1/users/get-users`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: {
+          search,
+          pagination: {
+            page,
+            limit
+          }
+        },
+      }
+    )
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -45,19 +63,24 @@ export async function getUserList(page: number = 1, limit: number = 10, search: 
 export async function getRoleList(): Promise<GetRolesResponse> {
   const token = localStorage.getItem('auth_token')
   
-  const response = await $fetch<GetRolesResponse>(
-    `${config.public.apiBase}/api/v1/roles/get-roles`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: {},
-    }
-  )
+  try {
+    const response = await $fetch<GetRolesResponse>(
+      `${config.public.apiBase}/api/v1/roles/get-roles`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: {},
+      }
+    )
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -68,19 +91,24 @@ export async function getRoleList(): Promise<GetRolesResponse> {
 export async function getUserById(id: number) {
   const token = localStorage.getItem('auth_token')
   
-  const response = await $fetch(
-    `${config.public.apiBase}/api/v1/users/get-user-by-id`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: { id },
-    }
-  )
+  try {
+    const response = await $fetch(
+      `${config.public.apiBase}/api/v1/users/get-user-by-id`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: { id },
+      }
+    )
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -91,19 +119,24 @@ export async function getUserById(id: number) {
 export async function createUser(userData: CreateUserRequest) {
   const token = localStorage.getItem('auth_token')
   
-  const response = await $fetch(
-    `${config.public.apiBase}/api/v1/users/create-user`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: userData,
-    }
-  )
+  try {
+    const response = await $fetch(
+      `${config.public.apiBase}/api/v1/users/create-user`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: userData,
+      }
+    )
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -115,19 +148,24 @@ export async function createUser(userData: CreateUserRequest) {
 export async function updateUser(id: number, userData: any) {
   const token = localStorage.getItem('auth_token')
   
-  const response = await $fetch(
-    `${config.public.apiBase}/api/v1/users/update-user`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: { id, ...userData },
-    }
-  )
+  try {
+    const response = await $fetch(
+      `${config.public.apiBase}/api/v1/users/update-user`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: { id, ...userData },
+      }
+    )
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -138,19 +176,24 @@ export async function updateUser(id: number, userData: any) {
 export async function deleteUser(id: number) {
   const token = localStorage.getItem('auth_token')
   
-  const response = await $fetch(
-    `${config.public.apiBase}/api/v1/users/delete-user`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: { id },
-    }
-  )
+  try {
+    const response = await $fetch(
+      `${config.public.apiBase}/api/v1/users/delete-user`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: { id },
+      }
+    )
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -161,17 +204,22 @@ export async function deleteUser(id: number) {
 export async function deleteRole(id: number) {
   const token = localStorage.getItem('auth_token')
   
-  const response = await $fetch(
-    `${config.public.apiBase}/api/v1/roles/delete-role`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: { id },
-    }
-  )
+  try {
+    const response = await $fetch(
+      `${config.public.apiBase}/api/v1/roles/delete-role`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: { id },
+      }
+    )
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }

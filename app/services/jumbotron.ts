@@ -8,25 +8,43 @@ import type { JumbotronResponse, JumbotronCreatePayload, JumbotronUpdatePayload 
 const config = useRuntimeConfig()
 
 /**
+ * Helper function to handle API errors globally
+ */
+const handleApiError = (error: any) => {
+  if (typeof window !== 'undefined') {
+    const nuxtApp = useNuxtApp()
+    const status = error?.status || error?.response?.status
+    if (status === 401) {
+      nuxtApp.$handleFetchError(error)
+    }
+  }
+}
+
+/**
  * Get all jumbotron data
  * @param limit - Number of items per page
  * @param offset - Pagination offset
  * @returns Jumbotron data with pagination
  */
 export async function getJumbotronList(limit: number = 10, offset: number = 0): Promise<JumbotronResponse> {
-  const response = await $fetch<JumbotronResponse>(`${config.public.apiBase}/api/v1/jumbotron/get-jumbotron`, {
-    method: 'POST',
-    body: {
-      limit,
-      offset,
-    },
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-    },
-  })
+  try {
+    const response = await $fetch<JumbotronResponse>(`${config.public.apiBase}/api/v1/jumbotron/get-jumbotron`, {
+      method: 'POST',
+      body: {
+        limit,
+        offset,
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    })
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -35,16 +53,21 @@ export async function getJumbotronList(limit: number = 10, offset: number = 0): 
  * @returns Jumbotron data
  */
 export async function getJumbotronById(id: number) {
-  const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/get-jumbotron-by-id`, {
-    method: 'POST',
-    body: { id },
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-    },
-  })
+  try {
+    const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/get-jumbotron-by-id`, {
+      method: 'POST',
+      body: { id },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    })
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -53,19 +76,24 @@ export async function getJumbotronById(id: number) {
  * @returns Created jumbotron data
  */
 export async function createJumbotron(payload: JumbotronCreatePayload) {
-  const formData = new FormData()
-  formData.append('file', payload.file)
-  formData.append('status', payload.status)
+  try {
+    const formData = new FormData()
+    formData.append('file', payload.file)
+    formData.append('status', payload.status)
 
-  const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/create-jumbotron`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-    },
-  })
+    const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/create-jumbotron`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    })
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -75,27 +103,32 @@ export async function createJumbotron(payload: JumbotronCreatePayload) {
  * @returns Updated jumbotron data
  */
 export async function updateJumbotron(id: number, payload: Partial<JumbotronCreatePayload> & { remove_file?: boolean }) {
-  const formData = new FormData()
-  formData.append('id', id.toString())
-  if (payload.file) {
-    formData.append('file', payload.file)
-  }
-  if (payload.status) {
-    formData.append('status', payload.status)
-  }
-  if (payload.remove_file) {
-    formData.append('remove_file', 'true')
-  }
+  try {
+    const formData = new FormData()
+    formData.append('id', id.toString())
+    if (payload.file) {
+      formData.append('file', payload.file)
+    }
+    if (payload.status) {
+      formData.append('status', payload.status)
+    }
+    if (payload.remove_file) {
+      formData.append('remove_file', 'true')
+    }
 
-  const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/update-jumbotron`, {
-    method: 'POST',
-    body: formData,
-    headers: {
-      'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-    },
-  })
+    const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/update-jumbotron`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    })
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
 
 /**
@@ -104,14 +137,19 @@ export async function updateJumbotron(id: number, payload: Partial<JumbotronCrea
  * @returns Delete response
  */
 export async function deleteJumbotron(id: number) {
-  const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/delete-jumbotron`, {
-    method: 'POST',
-    body: { id },
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-    },
-  })
+  try {
+    const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/delete-jumbotron`, {
+      method: 'POST',
+      body: { id },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    })
 
-  return response
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
 }
