@@ -5,14 +5,13 @@
 
 import type { LoginCredentials, LoginResponse, LogoutResponse } from '~/types/AuthType'
 
-const config = useRuntimeConfig()
-
 /**
  * Login dengan username dan password
  * @param credentials - Username dan password
  * @returns Login response dengan token dan user data
  */
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
+  const config = useRuntimeConfig()
   const response = await $fetch<LoginResponse>(`${config.public.apiBase}/api/v1/auth/login`, {
     method: 'POST',
     body: credentials,
@@ -30,6 +29,7 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
  * @returns Logout response
  */
 export async function logout(token: string): Promise<LogoutResponse> {
+  const config = useRuntimeConfig()
   try {
     const response = await $fetch<LogoutResponse>(`${config.public.apiBase}/api/v1/auth/logout`, {
       method: 'POST',
@@ -56,6 +56,7 @@ export async function logout(token: string): Promise<LogoutResponse> {
  * @returns Current user data
  */
 export async function getCurrentUser(token: string) {
+  const config = useRuntimeConfig()
   const response = await $fetch(`${config.public.apiBase}/api/v1/auth/me`, {
     method: 'GET',
     headers: {
@@ -72,6 +73,7 @@ export async function getCurrentUser(token: string) {
  * @returns Token validity
  */
 export async function validateToken(token: string): Promise<boolean> {
+  const config = useRuntimeConfig()
   try {
     const response = await $fetch<{ valid: boolean }>(
       `${config.public.apiBase}/api/v1/auth/validate`,

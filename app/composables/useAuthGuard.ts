@@ -3,6 +3,8 @@
  * Handle 401 errors dan auto-redirect ke login
  */
 
+import { useAuthStore } from '~/stores/AuthStore'
+
 export function useAuthGuard() {
   const router = useRouter()
   const authStore = useAuthStore()

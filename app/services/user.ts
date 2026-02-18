@@ -5,8 +5,6 @@
 
 import type { GetUsersResponse, GetRolesResponse, CreateUserRequest } from '~/types/UserType'
 
-const config = useRuntimeConfig()
-
 /**
  * Helper function to handle API errors globally
  */
@@ -28,6 +26,7 @@ const handleApiError = (error: any) => {
  * @returns Users list response
  */
 export async function getUserList(page: number = 1, limit: number = 10, search: any = {}): Promise<GetUsersResponse> {
+  const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
   
   try {
@@ -61,6 +60,7 @@ export async function getUserList(page: number = 1, limit: number = 10, search: 
  * @returns Roles list response
  */
 export async function getRoleList(): Promise<GetRolesResponse> {
+  const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
   
   try {
@@ -89,6 +89,7 @@ export async function getRoleList(): Promise<GetRolesResponse> {
  * @returns User data
  */
 export async function getUserById(id: number) {
+  const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
   
   try {
@@ -117,6 +118,7 @@ export async function getUserById(id: number) {
  * @returns Created user data
  */
 export async function createUser(userData: CreateUserRequest) {
+  const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
   
   try {
@@ -146,6 +148,7 @@ export async function createUser(userData: CreateUserRequest) {
  * @returns Updated user data
  */
 export async function updateUser(id: number, userData: any) {
+  const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
   
   try {
@@ -174,6 +177,7 @@ export async function updateUser(id: number, userData: any) {
  * @returns Delete response
  */
 export async function deleteUser(id: number) {
+  const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
   
   try {
@@ -202,6 +206,7 @@ export async function deleteUser(id: number) {
  * @returns Delete response
  */
 export async function deleteRole(id: number) {
+  const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
   
   try {

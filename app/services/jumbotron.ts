@@ -5,8 +5,6 @@
 
 import type { JumbotronResponse, JumbotronCreatePayload, JumbotronUpdatePayload } from '~/types/JumbotronType'
 
-const config = useRuntimeConfig()
-
 /**
  * Helper function to handle API errors globally
  */
@@ -27,6 +25,7 @@ const handleApiError = (error: any) => {
  * @returns Jumbotron data with pagination
  */
 export async function getJumbotronList(limit: number = 10, offset: number = 0): Promise<JumbotronResponse> {
+  const config = useRuntimeConfig()
   try {
     const response = await $fetch<JumbotronResponse>(`${config.public.apiBase}/api/v1/jumbotron/get-jumbotron`, {
       method: 'POST',
@@ -53,6 +52,7 @@ export async function getJumbotronList(limit: number = 10, offset: number = 0): 
  * @returns Jumbotron data
  */
 export async function getJumbotronById(id: number) {
+  const config = useRuntimeConfig()
   try {
     const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/get-jumbotron-by-id`, {
       method: 'POST',
@@ -76,6 +76,7 @@ export async function getJumbotronById(id: number) {
  * @returns Created jumbotron data
  */
 export async function createJumbotron(payload: JumbotronCreatePayload) {
+  const config = useRuntimeConfig()
   try {
     const formData = new FormData()
     formData.append('file', payload.file)
@@ -103,6 +104,7 @@ export async function createJumbotron(payload: JumbotronCreatePayload) {
  * @returns Updated jumbotron data
  */
 export async function updateJumbotron(id: number, payload: Partial<JumbotronCreatePayload> & { remove_file?: boolean }) {
+  const config = useRuntimeConfig()
   try {
     const formData = new FormData()
     formData.append('id', id.toString())
@@ -137,6 +139,7 @@ export async function updateJumbotron(id: number, payload: Partial<JumbotronCrea
  * @returns Delete response
  */
 export async function deleteJumbotron(id: number) {
+  const config = useRuntimeConfig()
   try {
     const response = await $fetch(`${config.public.apiBase}/api/v1/jumbotron/delete-jumbotron`, {
       method: 'POST',

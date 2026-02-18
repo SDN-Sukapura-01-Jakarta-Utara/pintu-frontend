@@ -3,6 +3,9 @@
  * Handle 401 Unauthorized errors and show session expired modal
  */
 
+import { useAuthStore } from '~/stores/AuthStore'
+import { useToastStore } from '~/stores/ToastStore'
+
 export default defineNuxtPlugin(() => {
   const router = useRouter()
   const authStore = useAuthStore()
