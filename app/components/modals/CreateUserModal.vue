@@ -18,25 +18,25 @@
 
         <!-- Header with Red Gradient Background -->
         <div
-          class="bg-gradient-to-r from-red-600 via-red-500 to-pink-600 px-4 sm:px-8 py-3 sm:py-4 relative overflow-hidden flex-shrink-0">
+          class="bg-gradient-to-r from-red-600 via-red-500 to-pink-600 px-4 sm:px-8 py-3 sm:py-4 relative overflow-hidden flex-shrink-0 flex items-center justify-between gap-4">
           <!-- Animated gradient blobs -->
           <div class="absolute top-0 right-0 w-40 h-40 bg-red-400/20 rounded-full blur-3xl -z-0">
           </div>
           <div class="absolute bottom-0 left-0 w-32 h-32 bg-pink-400/20 rounded-full blur-3xl -z-0">
           </div>
 
+          <!-- Header Content -->
+          <div class="relative z-10 flex-1">
+            <h2 class="text-lg sm:text-xl font-bold text-white">Tambah User</h2>
+          </div>
+
           <!-- Close Button -->
-          <button type="button" @click.stop="closeModal" :disabled="isSubmitting"
-            class="absolute top-0.5 right-1.5 sm:right-4 z-10 p-2 sm:p-2.5 rounded-lg bg-white/20 hover:bg-white/30 active:bg-white/40 transition-all duration-150 disabled:opacity-50 backdrop-blur-sm cursor-pointer disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-white/50">
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white pointer-events-none flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+          <button type="button" @click.stop="closeModal" :disabled="isSubmitting" :title="'Tutup'"
+            class="relative z-10 flex-shrink-0 inline-flex items-center justify-center p-2 sm:p-2.5 rounded-lg bg-white/20 hover:bg-white/30 active:bg-white/40 transition-all duration-150 disabled:opacity-50 backdrop-blur-sm cursor-pointer disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-white/50">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
               <path d="M6 18L18 6M6 6l12 12"></path>
             </svg>
           </button>
-
-          <!-- Header Content -->
-          <div class="relative z-10">
-            <h2 class="text-lg sm:text-xl font-bold text-white">Tambah User</h2>
-          </div>
         </div>
 
         <!-- Body with padding and scrollbar -->
