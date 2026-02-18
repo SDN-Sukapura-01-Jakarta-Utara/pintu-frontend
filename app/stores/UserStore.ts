@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserData } from '~/types/UserType'
 import { getUserList, deleteUser, updateUser } from '~/services/user'
+import { parseRoleName } from '~/utils/parseRoleName'
 
 export const useUserStore = defineStore('user', () => {
   // State
@@ -21,10 +22,10 @@ export const useUserStore = defineStore('user', () => {
     try {
       const response = await getUserList(page, limit, search)
       
-      // Map data to add accessible_system_display for table
-      // Backend now returns role_name directly and accessible_system as array
+      // Map data to add computed fields for table
       const mappedData = response.data.map(user => ({
         ...user,
+        role_names: parseRoleName(user.roles),
         accessible_system_display: formatAccessibleSystem(user.accessible_system)
       }))
       

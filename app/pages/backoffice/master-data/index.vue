@@ -327,7 +327,7 @@ const userTableColumns: TableColumn[] = [
         label: 'Username',
     },
     {
-        key: 'role_name',
+        key: 'role_names',
         label: 'Role',
     },
     {

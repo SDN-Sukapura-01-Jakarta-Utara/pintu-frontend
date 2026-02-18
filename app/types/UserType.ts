@@ -2,6 +2,30 @@
  * User-related types
  */
 
+export interface SystemData {
+  id: number
+  nama: string
+  description: string
+  status: string
+  created_at: string
+  updated_at: string
+  created_by_id: number | null
+  updated_by_id: number | null
+}
+
+export interface RoleData {
+  id: number
+  name: string
+  description: string
+  system_id: number
+  system: SystemData
+  status: string
+  created_at: string
+  updated_at: string
+  created_by_id: number | null
+  updated_by_id: number | null
+}
+
 export interface Role {
   id: number
   name: string
@@ -19,8 +43,7 @@ export interface UserData {
   id: number
   nama: string
   username: string
-  role_id: number
-  role_name: string
+  roles: RoleData[]
   accessible_system: string[]
   status: string
   created_at: string
@@ -28,10 +51,21 @@ export interface UserData {
   created_by_id: number | null
   updated_by_id: number | null
   deleted_at?: string | null
+  // Computed fields for display
+  role_name?: string
+  role_names?: string
+  accessible_system_display?: string
 }
 
 export interface GetUsersResponse {
   data: UserData[]
+  pagination?: {
+    limit: number
+    offset: number
+    page: number
+    total: number
+    total_pages: number
+  }
   message?: string
 }
 
