@@ -22,15 +22,18 @@ export const useUserStore = defineStore('user', () => {
     try {
       const response = await getUserList(page, limit, search)
       
+      // Handle null or empty data response
+      const responseData = response.data || []
+      
       // Map data to add computed fields for table
-      const mappedData = response.data.map(user => ({
+      const mappedData = responseData.map(user => ({
         ...user,
         role_names: parseRoleName(user.roles),
         accessible_system_display: formatSystemNames(user.roles)
       }))
       
       users.value = mappedData
-      total.value = response.pagination?.total || response.data.length
+      total.value = response.pagination?.total || responseData.length
       
       return {
         success: true,

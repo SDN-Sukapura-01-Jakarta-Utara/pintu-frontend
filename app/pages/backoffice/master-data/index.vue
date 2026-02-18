@@ -58,8 +58,8 @@
                         </div>
                     </div>
 
-                    <!-- Error State -->
-                    <div v-else-if="userStore.error" class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                    <!-- Error State - Only show if there's no filter applied (actual error, not empty results) -->
+                    <div v-else-if="userStore.error && !hasActiveFilters" class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
                         <div class="flex items-start gap-3 sm:gap-4">
                             <div class="flex-shrink-0">
                                 <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
@@ -111,7 +111,7 @@
                                     <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
                                         Role
                                     </label>
-                                    <select v-model.number="filters.role_id"
+                                    <select v-model.number="filters.role_id_selected"
                                         class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
                                         <option :value="0">Semua Role</option>
                                         <option v-for="role in roles" :key="role.id" :value="role.id">
@@ -120,17 +120,17 @@
                                     </select>
                                 </div>
 
-                                <!-- Accessible System Filter -->
+                                <!-- System Filter -->
                                 <div>
                                     <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
                                         Sistem
                                     </label>
-                                    <select v-model="filters.accessible_system"
+                                    <select v-model.number="filters.system_id"
                                         class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
-                                        <option value="">Semua Sistem</option>
-                                        <option value="PINTU">PINTU</option>
-                                        <option value="SIPERSA">SIPERSA</option>
-                                        <option value="SIEKSA">SIEKSA</option>
+                                        <option :value="0">Semua Sistem</option>
+                                        <option v-for="system in systems" :key="system.id" :value="system.id">
+                                            {{ system.nama }}
+                                        </option>
                                     </select>
                                 </div>
 
@@ -193,11 +193,16 @@
                             <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
                                 <div
                                     class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
-                                    <i class="fa-solid fa-users text-2xl sm:text-4xl text-gray-400"></i>
+                                    <i :class="[
+                                        hasActiveFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-users',
+                                        'text-2xl sm:text-4xl text-gray-400'
+                                    ]"></i>
                                 </div>
-                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">Belum ada user</h3>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    {{ hasActiveFilters ? 'Data tidak ditemukan' : 'Belum ada user' }}
+                                </h3>
                                 <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
-                                    Mulai dengan menambahkan user baru ke sistem
+                                    {{ hasActiveFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan user baru ke sistem' }}
                                 </p>
                             </div>
                         </div>
@@ -221,7 +226,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import type { TableColumn } from '~/components/Table.vue'
 import type { UserData } from '~/types/UserType'
 import { useUserStore } from '~/stores/UserStore'
@@ -257,13 +262,14 @@ const pagination = ref({
 const filters = ref({
     nama: '',
     username: '',
-    role_id: 0,
-    accessible_system: '',
+    role_id_selected: 0, // For dropdown display
+    system_id: 0,
     status: ''
 })
 
-// Roles for filter dropdown
+// Roles and Systems for filter dropdowns
 const roles = ref<any[]>([])
+const systems = ref<any[]>([])
 
 interface Tab {
     id: string
@@ -272,6 +278,17 @@ interface Tab {
 }
 
 const activeTab = ref('user')
+
+// Computed: Check if any filter is active
+const hasActiveFilters = computed(() => {
+    return (
+        filters.value.nama !== '' ||
+        filters.value.username !== '' ||
+        filters.value.role_id_selected !== 0 ||
+        filters.value.system_id !== 0 ||
+        filters.value.status !== ''
+    )
+})
 
 const tabs: Tab[] = [
     {
@@ -348,8 +365,10 @@ const fetchUserData = async () => {
     const search: any = {}
     if (filters.value.nama) search.nama = filters.value.nama
     if (filters.value.username) search.username = filters.value.username
-    if (filters.value.role_id && filters.value.role_id !== 0) search.role_id = filters.value.role_id
-    if (filters.value.accessible_system) search.accessible_system = filters.value.accessible_system
+    if (filters.value.role_id_selected && filters.value.role_id_selected !== 0) {
+        search.role_ids = [filters.value.role_id_selected]
+    }
+    if (filters.value.system_id && filters.value.system_id !== 0) search.system_id = filters.value.system_id
     if (filters.value.status) search.status = filters.value.status
 
     const result = await userStore.fetchUsers(pagination.value.page, pagination.value.limit, search)
@@ -388,8 +407,8 @@ const clearFilter = () => {
     filters.value = {
         nama: '',
         username: '',
-        role_id: 0,
-        accessible_system: '',
+        role_id_selected: 0,
+        system_id: 0,
         status: ''
     }
     pagination.value.page = 1
@@ -404,6 +423,17 @@ const fetchRoles = async () => {
         roles.value = response.data || []
     } catch (err: any) {
         console.error('Error fetching roles:', err)
+    }
+}
+
+// Fetch systems for filter dropdown
+const fetchSystems = async () => {
+    try {
+        const { getSystemList } = await import('~/services/user')
+        const response = await getSystemList()
+        systems.value = response.data || []
+    } catch (err: any) {
+        console.error('Error fetching systems:', err)
     }
 }
 
@@ -499,6 +529,7 @@ const handleDeleteConfirm = async () => {
 onMounted(() => {
     console.log('Master Data component mounted')
     fetchRoles()
+    fetchSystems()
     fetchUserData()
 })
 </script>
