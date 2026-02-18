@@ -3,7 +3,7 @@
  * Handle API calls untuk user management
  */
 
-import type { GetUsersResponse, GetRolesResponse, CreateUserRequest } from '~/types/UserType'
+import type { GetUsersResponse, GetRolesResponse, CreateUserRequest, GetSystemsResponse } from '~/types/UserType'
 
 /**
  * Helper function to handle API errors globally
@@ -219,6 +219,34 @@ export async function deleteRole(id: number) {
           'Content-Type': 'application/json',
         },
         body: { id },
+      }
+    )
+
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
+}
+
+/**
+ * Get all systems
+ * @returns Systems list response
+ */
+export async function getSystemList(): Promise<GetSystemsResponse> {
+  const config = useRuntimeConfig()
+  const token = localStorage.getItem('auth_token')
+  
+  try {
+    const response = await $fetch<GetSystemsResponse>(
+      `${config.public.apiBase}/api/v1/systems/get-systems`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: {},
       }
     )
 

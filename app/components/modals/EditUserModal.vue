@@ -127,40 +127,51 @@
               </p>
             </div>
 
-            <!-- Role Dropdown -->
+            <!-- Role Grouped by System -->
             <div>
               <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                 Role
                 <span class="text-red-600 ml-1">*</span>
               </label>
-              <select v-model="form.role_id" required :disabled="isSubmitting || rolesLoading"
-                class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-                <option v-for="role in roles" :key="role.id" :value="role.id">
-                  {{ role.name }}
-                </option>
-              </select>
-            </div>
-
-            <!-- Sistem Accessible (Multi-select) -->
-            <div>
-              <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
-                Sistem yang Dapat Diakses
-                <span class="text-red-600 ml-1">*</span>
-              </label>
-              <div class="space-y-2">
-                <label v-for="sistem in systems" :key="sistem" class="flex items-center gap-3 cursor-pointer">
-                  <input 
-                    v-model="form.accessible_system" 
-                    type="checkbox" 
-                    :value="sistem" 
-                    :disabled="isSubmitting"
-                    :checked="form.accessible_system.includes(sistem)"
-                    class="w-4 h-4 rounded border-2 border-gray-300 text-red-600 focus:ring-2 focus:ring-red-500 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" />
-                  <span class="text-xs sm:text-sm font-medium text-gray-700">{{ sistem }}</span>
-                </label>
+              <div v-if="rolesLoading" class="flex items-center gap-2 text-gray-600">
+                <div class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600"></div>
+                <span class="text-xs sm:text-sm">Memuat role...</span>
               </div>
-              <!-- Debug Info (remove in production) -->
-              <p class="text-xs text-gray-500 mt-2">Selected: {{ form.accessible_system.join(', ') || 'None' }}</p>
+              <div v-else-if="Object.keys(rolesBySystem).length === 0" class="text-xs sm:text-sm text-gray-600">
+                Belum ada role yang tersedia
+              </div>
+              <div v-else class="space-y-4">
+                <div v-for="(roleGroup, systemId) in rolesBySystem" :key="systemId" class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <!-- System Header -->
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-xs sm:text-sm font-semibold text-gray-900">{{ getSystemNameById(Number(systemId)) }}</h4>
+                    <button 
+                      type="button"
+                      @click="resetRoleGroup(Number(systemId))"
+                      :disabled="isSubmitting"
+                      class="px-2 py-1 text-xs font-medium bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                      Reset
+                    </button>
+                  </div>
+                  
+                  <!-- Roles Radio Group -->
+                  <div class="space-y-2">
+                    <label v-for="role in roleGroup" :key="role.id" class="flex items-center gap-3 cursor-pointer">
+                      <input 
+                        :value="role.id" 
+                        v-model.number="form.role_by_system[Number(systemId)]" 
+                        type="radio" 
+                        :name="`role-system-${systemId}`"
+                        :disabled="isSubmitting"
+                        class="w-4 h-4 rounded-full border-2 border-gray-300 text-red-600 focus:ring-2 focus:ring-red-500 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" />
+                      <div class="flex-1">
+                        <span class="text-xs sm:text-sm font-medium text-gray-700 block">{{ role.name }}</span>
+                        <span class="text-xs text-gray-500">{{ role.description }}</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Status Toggle -->
@@ -216,8 +227,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue'
-import type { Role, UserData } from '~/types/UserType'
-import { getRoleList, updateUser } from '~/services/user'
+import type { Role, UserData, SystemData } from '~/types/UserType'
+import { getRoleList, updateUser, getUserById } from '~/services/user'
 import { useUserStore } from '~/stores/UserStore'
 
 const emit = defineEmits<{
@@ -240,8 +251,7 @@ const form = ref({
   username: '',
   password: '',
   password_confirm: '',
-  role_id: 0,
-  accessible_system: [] as string[],
+  role_by_system: {} as Record<number, number>,
   status: 'active' as 'active' | 'inactive'
 })
 
@@ -252,32 +262,42 @@ const originalForm = ref({
   username: '',
   password: '',
   password_confirm: '',
-  role_id: 0,
-  accessible_system: [] as string[],
+  role_by_system: {} as Record<number, number>,
   status: 'active' as 'active' | 'inactive'
 })
 
 const roles = ref<Role[]>([])
 const rolesLoading = ref(false)
+
+// Computed: Group roles by system_id
+const rolesBySystem = computed(() => {
+  const grouped: Record<number, Role[]> = {}
+  
+  roles.value.forEach(role => {
+    if (!grouped[role.system_id]) {
+      grouped[role.system_id] = []
+    }
+    grouped[role.system_id].push(role)
+  })
+  
+  return grouped
+})
 const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
 const showPassword = ref(false)
 const showPasswordConfirm = ref(false)
 
-const systems = ['PINTU', 'SIPERSA', 'SIEKSA']
-
 // Check if form has changes
 const hasChanges = computed(() => {
   const nameChanged = form.value.nama !== originalForm.value.nama
   const usernameChanged = form.value.username !== originalForm.value.username
-  const roleChanged = form.value.role_id !== originalForm.value.role_id
   const statusChanged = form.value.status !== originalForm.value.status
   const passwordChanged = form.value.password !== ''
   
-  const systemsChanged = JSON.stringify(form.value.accessible_system.sort()) !== 
-                        JSON.stringify(originalForm.value.accessible_system.sort())
+  const roleChanged = JSON.stringify(form.value.role_by_system) !== 
+                     JSON.stringify(originalForm.value.role_by_system)
 
-  return nameChanged || usernameChanged || roleChanged || statusChanged || passwordChanged || systemsChanged
+  return nameChanged || usernameChanged || roleChanged || statusChanged || passwordChanged
 })
 
 // Close modal
@@ -296,8 +316,7 @@ const resetForm = () => {
     username: '',
     password: '',
     password_confirm: '',
-    role_id: 0,
-    accessible_system: [],
+    role_by_system: {},
     status: 'active'
   }
   submitError.value = null
@@ -318,24 +337,37 @@ const fetchRoles = async () => {
   }
 }
 
+// Get system name by ID (from role definitions)
+const getSystemNameById = (systemId: number): string => {
+  const roleWithSystem = roles.value.find(r => r.system_id === systemId)
+  if (roleWithSystem && roleWithSystem.description) {
+    // Extract system name from role name pattern like "Administrator (PINTU)"
+    const match = roleWithSystem.name.match(/\(([^)]+)\)/)
+    if (match) return match[1]
+  }
+  return `System ${systemId}`
+}
+
+// Reset specific role group
+const resetRoleGroup = (systemId: number) => {
+  delete form.value.role_by_system[systemId]
+}
+
 // Initialize form with user data when modal opens
 watch(
   () => props.userData,
   async (newVal) => {
-    console.log('=== EditUserModal Watch Triggered ===')
-    console.log('Props userData changed:', newVal)
-    
     if (newVal && props.modelValue) {
       // Fetch roles when opening modal
       await fetchRoles()
       
-      console.log('Initializing form with user data...')
-      
-      // Backend now returns accessible_system as array directly
-      const accessibleSystem = Array.isArray(newVal.accessible_system) 
-        ? newVal.accessible_system 
-        : []
-      console.log('Accessible system from API:', accessibleSystem)
+      // Map roles by system from API response
+      const roleBySystem: Record<number, number> = {}
+      if (newVal.roles && Array.isArray(newVal.roles)) {
+        newVal.roles.forEach((role: any) => {
+          roleBySystem[role.system_id] = role.id
+        })
+      }
 
       // Create new form object
       const newFormValue = {
@@ -344,28 +376,20 @@ watch(
         username: newVal.username,
         password: '',
         password_confirm: '',
-        role_id: newVal.role_id,
-        accessible_system: accessibleSystem,
+        role_by_system: roleBySystem,
         status: newVal.status as 'active' | 'inactive'
       }
-      
-      console.log('New form value to set:', newFormValue)
       
       // Set form value
       form.value = newFormValue
       
       // Wait for next tick to ensure DOM is updated
       await nextTick()
-      console.log('After nextTick, form.value:', form.value)
-      console.log('Checkbox values:', form.value.accessible_system)
       
       // Store original for comparison
       originalForm.value = JSON.parse(JSON.stringify(form.value))
       submitError.value = null
       showPassword.value = false
-      
-      console.log('Form initialized successfully')
-      console.log('=== End Watch ===')
     }
   },
   { immediate: false }
@@ -386,13 +410,13 @@ watch(
 // Handle submit
 const handleSubmit = async () => {
   // Validate form
-  if (!form.value.nama || !form.value.username || !form.value.role_id) {
-    submitError.value = 'Semua field wajib diisi'
+  if (!form.value.nama || !form.value.username) {
+    submitError.value = 'Nama dan username wajib diisi'
     return
   }
 
-  if (form.value.accessible_system.length === 0) {
-    submitError.value = 'Pilih minimal satu sistem'
+  if (Object.keys(form.value.role_by_system).length === 0) {
+    submitError.value = 'Pilih minimal satu role untuk setiap sistem'
     return
   }
 
@@ -402,17 +426,22 @@ const handleSubmit = async () => {
     return
   }
 
+  if (form.value.password && form.value.password.length < 6) {
+    submitError.value = 'Password minimal 6 karakter'
+    return
+  }
+
   isSubmitting.value = true
   submitError.value = null
 
   try {
-    // Prepare request body - only include password if it's filled
+    // Prepare request body
+    const role_ids = Object.values(form.value.role_by_system)
     const requestBody: any = {
       id: form.value.id,
       nama: form.value.nama,
       username: form.value.username,
-      role_id: Number(form.value.role_id),
-      accessible_system: form.value.accessible_system,
+      role_ids: role_ids,
       status: form.value.status
     }
 

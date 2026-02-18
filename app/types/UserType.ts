@@ -13,6 +13,18 @@ export interface SystemData {
   updated_by_id: number | null
 }
 
+export interface GetSystemsResponse {
+  data: SystemData[]
+  pagination?: {
+    limit: number
+    offset: number
+    page: number
+    total: number
+    total_pages: number
+  }
+  message?: string
+}
+
 export interface RoleData {
   id: number
   name: string

@@ -26,7 +26,7 @@ export const useUserStore = defineStore('user', () => {
       const mappedData = response.data.map(user => ({
         ...user,
         role_names: parseRoleName(user.roles),
-        accessible_system_display: formatAccessibleSystem(user.accessible_system)
+        accessible_system_display: formatSystemNames(user.roles)
       }))
       
       users.value = mappedData
@@ -122,7 +122,26 @@ export const useUserStore = defineStore('user', () => {
     error.value = null
   }
 
-  // Format accessible system array for display
+  // Format system names from roles array for display
+  const formatSystemNames = (roles: any[]): string => {
+    if (!roles || roles.length === 0) return '-'
+    
+    try {
+      const systemNames = new Set<string>()
+      roles.forEach(role => {
+        if (role.system && role.system.nama) {
+          systemNames.add(role.system.nama)
+        }
+      })
+      
+      if (systemNames.size === 0) return '-'
+      return Array.from(systemNames).join(', ')
+    } catch {
+      return '-'
+    }
+  }
+
+  // Format accessible system array for display (legacy fallback)
   const formatAccessibleSystem = (systems: string[]): string => {
     if (!systems || systems.length === 0) return '-'
     
