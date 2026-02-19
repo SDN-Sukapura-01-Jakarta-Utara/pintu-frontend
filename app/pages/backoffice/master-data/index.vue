@@ -235,11 +235,11 @@
                                             <ViewButton title="Lihat Detail" label="Lihat"
                                                 @click="openDetailUserModal(item)" />
 
-                                            <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit" @click="openEditUserModal(item)" />
+                                            <!-- Edit Button (Disabled for user id 1) -->
+                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit" @click="openEditUserModal(item)" />
 
-                                            <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <!-- Delete Button (Disabled for user id 1) -->
+                                            <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
                                                 @click="openDeleteConfirm(item)" />
                                         </div>
                                     </template>
@@ -375,12 +375,12 @@
                                             <ViewButton title="Lihat Detail" label="Lihat"
                                                 @click="openDetailSystemModal(item)" />
 
-                                            <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit"
+                                            <!-- Edit Button (Disabled for system id 1) -->
+                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit"
                                                 @click="openEditSystemModal(item)" />
 
-                                            <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <!-- Delete Button (Disabled for system id 1) -->
+                                            <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
                                                 @click="openDeleteSystemConfirm(item)" />
                                         </div>
                                     </template>
@@ -536,11 +536,11 @@
                                             <ViewButton title="Lihat Detail" label="Lihat"
                                                 @click="openDetailRoleModal(item)" />
 
-                                            <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit" @click="openEditRoleModal(item)" />
+                                            <!-- Edit Button (Disabled for role id 1) -->
+                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit" @click="openEditRoleModal(item)" />
 
-                                            <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <!-- Delete Button (Disabled for role id 1) -->
+                                            <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
                                                 @click="openDeleteRoleConfirm(item)" />
                                         </div>
                                     </template>
