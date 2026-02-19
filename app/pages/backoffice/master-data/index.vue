@@ -5,7 +5,7 @@
             @error="handleCreateUserError" />
 
         <!-- User Detail Modal -->
-        <UserDetailModal v-model="showDetailUserModal" :user-id="selectedUserId" />
+        <UserDetailModal v-model="showDetailUserModal" :user-id="selectedUserId ?? 0" />
 
         <!-- Edit User Modal -->
         <EditUserModal v-model="showEditUserModal" :user-data="selectedUser" @success="handleEditUserSuccess"
@@ -21,7 +21,7 @@
             @error="handleCreateRoleError" />
 
         <!-- Role Detail Modal -->
-        <RoleDetailModal v-model="showDetailRoleModal" :role-id="selectedRoleId" />
+        <RoleDetailModal v-model="showDetailRoleModal" :role-id="selectedRoleId ?? 0" />
 
         <!-- Edit Role Modal -->
         <EditRoleModal v-model="showEditRoleModal" :role-data="selectedRole" @success="handleEditRoleSuccess"
@@ -37,7 +37,7 @@
             @error="handleCreateSystemError" />
 
         <!-- System Detail Modal -->
-        <SystemDetailModal v-model="showDetailSystemModal" :system-id="selectedSystemId" />
+        <SystemDetailModal v-model="showDetailSystemModal" :system-id="selectedSystemId ?? 0" />
 
         <!-- Edit System Modal -->
         <EditSystemModal v-model="showEditSystemModal" :system-data="selectedSystem" @success="handleEditSystemSuccess"
@@ -47,6 +47,22 @@
         <ConfirmationDeleteModal v-model="showDeleteSystemConfirm" title="Hapus Sistem"
             :message="`Apakah Anda yakin ingin menghapus sistem ${selectedSystem?.nama}? Tindakan ini tidak dapat dibatalkan.`"
             :is-loading="isDeletingSystem" @confirm="handleDeleteSystemConfirm" />
+
+        <!-- Create Permission Modal -->
+        <CreatePermissionModal v-model="showCreatePermissionModal" @success="handleCreatePermissionSuccess"
+            @error="handleCreatePermissionError" />
+
+        <!-- Permission Detail Modal -->
+        <PermissionDetailModal v-model="showDetailPermissionModal" :permission-id="selectedPermissionId ?? 0" />
+
+        <!-- Edit Permission Modal -->
+        <EditPermissionModal v-model="showEditPermissionModal" :permission-data="selectedPermission"
+            @success="handleEditPermissionSuccess" @error="handleEditPermissionError" />
+
+        <!-- Delete Permission Confirmation Modal -->
+        <ConfirmationDeleteModal v-model="showDeletePermissionConfirm" title="Hapus Permission"
+            :message="`Apakah Anda yakin ingin menghapus permission ${selectedPermission?.name}? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeletingPermission" @confirm="handleDeletePermissionConfirm" />
 
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
@@ -65,6 +81,8 @@
                     @click="openCreateSystemModal" />
                 <AddButton v-if="activeTab === 'role'" label="Tambah Role" iconClass="fa-solid fa-plus"
                     @click="openCreateRoleModal" />
+                <AddButton v-if="activeTab === 'permission'" label="Tambah Permission" iconClass="fa-solid fa-plus"
+                    @click="openCreatePermissionModal" />
             </div>
         </div>
 
@@ -236,7 +254,8 @@
                                                 @click="openDetailUserModal(item)" />
 
                                             <!-- Edit Button (Disabled for user id 1) -->
-                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit" @click="openEditUserModal(item)" />
+                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit"
+                                                @click="openEditUserModal(item)" />
 
                                             <!-- Delete Button (Disabled for user id 1) -->
                                             <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
@@ -258,9 +277,7 @@
                                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                                     {{ hasActiveFilters ? 'Data tidak ditemukan' : 'Belum ada user' }}
                                 </h3>
-                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
-                                    {{ hasActiveFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan user baru ke sistem' }}
-                                </p>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActiveFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan user baru ke sistem' }}</p>
                             </div>
                         </div>
                     </template>
@@ -537,7 +554,8 @@
                                                 @click="openDetailRoleModal(item)" />
 
                                             <!-- Edit Button (Disabled for role id 1) -->
-                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit" @click="openEditRoleModal(item)" />
+                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit"
+                                                @click="openEditRoleModal(item)" />
 
                                             <!-- Delete Button (Disabled for role id 1) -->
                                             <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
@@ -559,16 +577,189 @@
                                 <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
                                     {{ hasActiveRoleFilters ? 'Data tidak ditemukan' : 'Belum ada role' }}
                                 </h3>
-                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
-                                    {{ hasActiveRoleFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan role baru ke sistem' }}
-                                </p>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActiveRoleFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan role baru ke sistem' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Permission Tab -->
+                <div v-if="activeTab === 'permission'" class="animate-slide-up">
+                    <!-- Loading State -->
+                    <div v-if="permissionStore.isLoading" class="flex items-center justify-center py-8 sm:py-12">
+                        <div class="flex flex-col items-center gap-3 sm:gap-4">
+                            <div
+                                class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
+                            </div>
+                            <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data permission...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="permissionStore.error"
+                        class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                        <div class="flex items-start gap-3 sm:gap-4">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
+                                <p class="mt-1 text-sm sm:text-base text-red-800">{{ permissionStore.error }}</p>
+                                <button @click="fetchPermissionData"
+                                    class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success State: Filter & Table Section -->
+                    <template v-else>
+                        <!-- Filter Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Permission
+                            </h3>
+
+                            <!-- Filter Form -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Nama Hak Akses Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Nama Hak Akses
+                                    </label>
+                                    <input v-model="permissionFilters.name" type="text"
+                                        placeholder="Cari nama hak akses..."
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                                </div>
+
+                                <!-- Nama Grup Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Nama Grup Akses
+                                    </label>
+                                    <input v-model="permissionFilters.group_name" type="text"
+                                        placeholder="Cari nama grup..."
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                                </div>
+
+                                <!-- Sistem Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Sistem
+                                    </label>
+                                    <select v-model.number="permissionFilters.system_id"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option :value="0">Semua Sistem</option>
+                                        <option v-for="system in systems" :key="system.id" :value="system.id">
+                                            {{ system.nama }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Status
+                                    </label>
+                                    <select v-model="permissionFilters.status"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option value="">Semua Status</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filter Buttons -->
+                            <div class="flex gap-3 mt-4">
+                                <button @click="applyPermissionFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
+                                    Cari
+                                </button>
+                                <button @click="clearPermissionFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-left w-4 h-4"></i>
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <!-- Data Table -->
+                            <div v-if="permissionStore.permissions.length > 0">
+                                <Table :items="permissionStore.permissions" :columns="permissionTableColumns"
+                                    :current-page="permissionPagination.page"
+                                    :current-limit="permissionPagination.limit" :total="permissionStore.total"
+                                    :is-loading="permissionStore.isLoading" @edit="openEditPermissionModal"
+                                    @delete="openDeletePermissionConfirm" @pageChange="onPermissionPageChange"
+                                    @limitChange="onPermissionLimitChange">
+                                    <!-- Custom cell for System Name column -->
+                                    <template #cell-system_name="{ item }">
+                                        {{ item.system?.nama || '-' }}
+                                    </template>
+
+                                    <!-- Custom cell for Status column -->
+                                    <template #cell-status="{ item }">
+                                        <span :class="[
+                                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                                            item.status === 'active'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800',
+                                        ]">
+                                            <span :class="[
+                                                'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                                item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                                            ]"></span>
+                                            {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </template>
+
+                                    <!-- Custom actions slot -->
+                                    <template #actions="{ item }">
+                                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                            <!-- View Button -->
+                                            <ViewButton title="Lihat Detail" label="Lihat"
+                                                @click="openDetailPermissionModal(item)" />
+
+                                            <!-- Edit Button -->
+                                            <EditButton title="Edit" label="Edit"
+                                                @click="openEditPermissionModal(item)" />
+
+                                            <!-- Delete Button -->
+                                            <DeleteButton title="Hapus" label="Hapus"
+                                                @click="openDeletePermissionConfirm(item)" />
+                                        </div>
+                                    </template>
+                                </Table>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                                <div
+                                    class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
+                                    <i :class="[
+                                        hasActivePermissionFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-lock',
+                                        'text-2xl sm:text-4xl text-gray-400'
+                                    ]"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    {{ hasActivePermissionFilters ? 'Data tidak ditemukan' : 'Belum ada permission' }}
+                                </h3>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActivePermissionFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan permission baru ke sistem' }}</p>
                             </div>
                         </div>
                     </template>
                 </div>
 
                 <!-- Other Tabs -->
-                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role')"
+                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission')"
                     :key="tab.id">
                     <div v-if="activeTab === tab.id" class="animate-slide-up">
                         <div class="flex flex-col items-center justify-center py-12">
@@ -589,8 +780,10 @@ import { ref, onMounted, computed, watch } from 'vue'
 import type { TableColumn } from '~/components/Table.vue'
 import type { UserData } from '~/types/UserType'
 import type { RoleData } from '~/types/RoleType'
+import type { PermissionData } from '~/types/PermissionType'
 import { useUserStore } from '~/stores/UserStore'
 import { useRoleStore } from '~/stores/RoleStore'
+import { usePermissionStore } from '~/stores/PermissionStore'
 import { useAuthGuard } from '~/composables/useAuthGuard'
 import { useToast } from '~/composables/useToast'
 import AddButton from '~/components/common/AddButton.vue'
@@ -606,6 +799,9 @@ import EditRoleModal from '~/components/modals/EditRoleModal.vue'
 import CreateSystemModal from '~/components/modals/CreateSystemModal.vue'
 import SystemDetailModal from '~/components/modals/SystemDetailModal.vue'
 import EditSystemModal from '~/components/modals/EditSystemModal.vue'
+import CreatePermissionModal from '~/components/modals/CreatePermissionModal.vue'
+import PermissionDetailModal from '~/components/modals/PermissionDetailModal.vue'
+import EditPermissionModal from '~/components/modals/EditPermissionModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 
 definePageMeta({
@@ -615,6 +811,7 @@ definePageMeta({
 
 const userStore = useUserStore()
 const roleStore = useRoleStore()
+const permissionStore = usePermissionStore()
 const { success, error } = useToast()
 
 // User Modal state
@@ -681,6 +878,29 @@ const roleFilters = ref({
     status: ''
 })
 
+// Permission Modal state
+const showCreatePermissionModal = ref(false)
+const showDetailPermissionModal = ref(false)
+const showEditPermissionModal = ref(false)
+const showDeletePermissionConfirm = ref(false)
+const isDeletingPermission = ref(false)
+const selectedPermission = ref<PermissionData | null>(null)
+const selectedPermissionId = ref<number | null>(null)
+
+// Permission Pagination state
+const permissionPagination = ref({
+    page: 1,
+    limit: 10
+})
+
+// Permission Filter state
+const permissionFilters = ref({
+    name: '',
+    group_name: '',
+    system_id: 0,
+    status: ''
+})
+
 // Roles and Systems for filter dropdowns
 const roles = ref<any[]>([])
 const systems = ref<any[]>([])
@@ -710,6 +930,16 @@ const hasActiveRoleFilters = computed(() => {
         roleFilters.value.name !== '' ||
         roleFilters.value.system_id !== 0 ||
         roleFilters.value.status !== ''
+    )
+})
+
+// Computed: Check if any permission filter is active
+const hasActivePermissionFilters = computed(() => {
+    return (
+        permissionFilters.value.name !== '' ||
+        permissionFilters.value.group_name !== '' ||
+        permissionFilters.value.system_id !== 0 ||
+        permissionFilters.value.status !== ''
     )
 })
 
@@ -810,6 +1040,26 @@ const systemTableColumns: TableColumn[] = [
     {
         key: 'description',
         label: 'Deskripsi',
+    },
+    {
+        key: 'status',
+        label: 'Status',
+    },
+]
+
+// Table columns configuration for permission
+const permissionTableColumns: TableColumn[] = [
+    {
+        key: 'name',
+        label: 'Nama Hak Akses',
+    },
+    {
+        key: 'group_name',
+        label: 'Nama Grup Akses',
+    },
+    {
+        key: 'system_name',
+        label: 'Sistem',
     },
     {
         key: 'status',
@@ -1049,12 +1299,12 @@ const fetchSystemData = async () => {
     systemError.value = null
     try {
         const { getSystemList } = await import('~/services/user')
-        
+
         // Build search object (only include non-empty values)
         const search: any = {}
         if (systemFilters.value.nama) search.nama = systemFilters.value.nama
         if (systemFilters.value.status) search.status = systemFilters.value.status
-        
+
         const response = await getSystemList(1, 10, search)
         systems.value = response.data || []
         systemTotal.value = response.pagination?.total || (response.data?.length || 0)
@@ -1120,7 +1370,7 @@ const handleDeleteSystemConfirm = async () => {
     try {
         const { deleteSystem } = await import('~/services/user')
         await deleteSystem(selectedSystem.value.id)
-        
+
         success('Sistem Berhasil Dihapus', `Sistem ${selectedSystem.value.nama} berhasil dihapus`)
         selectedSystem.value = null
         showDeleteSystemConfirm.value = false
@@ -1253,6 +1503,145 @@ const handleDeleteRoleConfirm = async () => {
     }
 }
 
+// Fetch permission data with pagination and filters
+const fetchPermissionData = async () => {
+    console.log('Fetching permission data...', { pagination: permissionPagination.value, filters: permissionFilters.value })
+
+    // Build search object (only include non-empty values)
+    const search: any = {}
+    if (permissionFilters.value.name) search.name = permissionFilters.value.name
+    if (permissionFilters.value.group_name) search.group_name = permissionFilters.value.group_name
+    if (permissionFilters.value.system_id && permissionFilters.value.system_id !== 0) search.system_id = permissionFilters.value.system_id
+    if (permissionFilters.value.status) search.status = permissionFilters.value.status
+
+    await permissionStore.fetchPermissions(permissionPagination.value.page, permissionPagination.value.limit, search)
+}
+
+// Handle permission page change
+const onPermissionPageChange = (newPage: number) => {
+    permissionPagination.value.page = newPage
+    fetchPermissionData()
+}
+
+// Handle permission limit change
+const onPermissionLimitChange = (newLimit: number) => {
+    permissionPagination.value.limit = newLimit
+    permissionPagination.value.page = 1 // Reset to first page
+    fetchPermissionData()
+}
+
+// Apply permission filter
+const applyPermissionFilter = () => {
+    permissionPagination.value.page = 1 // Reset to first page when filtering
+    fetchPermissionData()
+}
+
+// Clear permission filter
+const clearPermissionFilter = () => {
+    permissionFilters.value = {
+        name: '',
+        group_name: '',
+        system_id: 0,
+        status: ''
+    }
+    permissionPagination.value.page = 1
+    fetchPermissionData()
+}
+
+// Open create permission modal
+const openCreatePermissionModal = () => {
+    showCreatePermissionModal.value = true
+}
+
+// Open detail permission modal
+const openDetailPermissionModal = (item: PermissionData) => {
+    console.log('Opening Detail Permission Modal for:', item)
+    selectedPermissionId.value = item.id
+    showDetailPermissionModal.value = true
+}
+
+// Open edit permission modal
+const openEditPermissionModal = (item: PermissionData) => {
+    console.log('Opening Edit Permission Modal for:', item)
+    selectedPermission.value = item
+    showEditPermissionModal.value = true
+}
+
+// Open delete permission confirmation
+const openDeletePermissionConfirm = (item: PermissionData) => {
+    selectedPermission.value = item
+    showDeletePermissionConfirm.value = true
+}
+
+// Handle create permission success
+const handleCreatePermissionSuccess = (message: string) => {
+    console.log('Create permission success:', message)
+    success('Permission Berhasil Ditambahkan', message)
+
+    // Reset to page 1 after successful create
+    permissionPagination.value.page = 1
+    fetchPermissionData()
+}
+
+// Handle create permission error
+const handleCreatePermissionError = (errorMessage: string) => {
+    console.error('Create permission error:', errorMessage)
+    error('Gagal Menambahkan Permission', errorMessage)
+}
+
+// Handle edit permission success
+const handleEditPermissionSuccess = (message: string) => {
+    console.log('Edit permission success:', message)
+    success('Permission Berhasil Diperbarui', message)
+
+    // Reset to page 1 after successful edit
+    permissionPagination.value.page = 1
+    fetchPermissionData()
+}
+
+// Handle edit permission error
+const handleEditPermissionError = (errorMessage: string) => {
+    console.error('Edit permission error:', errorMessage)
+    error('Gagal Mengupdate Permission', errorMessage)
+}
+
+// Handle delete permission confirmation
+const handleDeletePermissionConfirm = async () => {
+    if (!selectedPermission.value) return
+
+    isDeletingPermission.value = true
+    try {
+        const result = await permissionStore.removePermission(selectedPermission.value.id)
+
+        if (result.success) {
+            success('Permission Berhasil Dihapus', result.message)
+            showDeletePermissionConfirm.value = false
+            selectedPermission.value = null
+
+            // Calculate max page after deletion
+            const totalAfterDelete = permissionStore.total
+            const maxPage = Math.ceil(totalAfterDelete / permissionPagination.value.limit)
+
+            // If current page is beyond max page, go to previous page
+            if (permissionPagination.value.page > maxPage && maxPage > 0) {
+                permissionPagination.value.page = maxPage
+            } else if (maxPage === 0) {
+                permissionPagination.value.page = 1
+            }
+
+            // Fetch data for the appropriate page
+            await fetchPermissionData()
+        } else {
+            error('Gagal Menghapus Permission', result.message)
+        }
+    } catch (err: any) {
+        error('Gagal Menghapus Permission', err.message || 'Terjadi kesalahan saat menghapus permission')
+        console.error('Delete permission error:', err)
+    } finally {
+        isDeletingPermission.value = false
+    }
+}
+
 // Watch activeTab to reload data when switching tabs
 watch(() => activeTab.value, (newTab) => {
     console.log('Tab changed to:', newTab)
@@ -1267,6 +1656,8 @@ watch(() => activeTab.value, (newTab) => {
         fetchUserData()
     } else if (newTab === 'role') {
         fetchRoleData()
+    } else if (newTab === 'permission') {
+        fetchPermissionData()
     }
 })
 
@@ -1278,6 +1669,7 @@ onMounted(() => {
     fetchSystemData()
     fetchUserData()
     fetchRoleData()
+    fetchPermissionData()
 })
 </script>
 
