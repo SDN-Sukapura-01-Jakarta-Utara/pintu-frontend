@@ -197,6 +197,74 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Permissions Section -->
+                        <div v-if="roleDetail.permissions && roleDetail.permissions.length > 0"
+                            class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                            <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                                <h3
+                                    class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
+                                    <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-red-600 flex-shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12l2 2 4-4m7.538-4.854a.5.5 0 00-.847-.5l-4.096 6.763-1.864-1.991a.5.5 0 00-.745.746l2.592 2.791a.5.5 0 00.747-.013l4.213-6.996zM21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                                        </path>
+                                    </svg>
+                                    <span class="truncate">Izin (Permissions)</span>
+                                </h3>
+                            </div>
+
+                            <!-- Permissions Groups -->
+                            <div class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-5">
+                                <div v-for="(permissions, groupName) in groupedPermissions" :key="groupName"
+                                    class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg sm:rounded-xl border-2 border-blue-200 p-3 sm:p-4">
+                                    <!-- Group Header -->
+                                    <div class="flex items-center gap-2 mb-3 sm:mb-4">
+                                        <div
+                                            class="flex-shrink-0 w-8 sm:w-9 h-8 sm:h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                                            <svg class="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path
+                                                    d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.657 14.243a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM11 17a1 1 0 102 0v-1a1 1 0 10-2 0v1zM5.757 15.657a1 1 0 00-1.414-1.414l-.707.707a1 1 0 101.414 1.414l.707-.707zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zM5.757 4.343a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707z">
+                                                </path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xs sm:text-sm font-bold text-gray-900">{{
+                                                formatGroupName(groupName) }}</h4>
+                                            <p class="text-[11px] sm:text-xs text-gray-600">{{ permissions.length }}
+                                                izin</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Permissions List -->
+                                    <div class="space-y-2">
+                                        <div v-for="permission in permissions" :key="permission.id"
+                                            class="bg-white rounded-lg p-2.5 sm:p-3 border border-blue-100">
+                                            <div class="flex items-start gap-2 sm:gap-3">
+                                                <!-- Permission Icon -->
+                                                <div
+                                                    class="flex-shrink-0 w-6 sm:w-7 h-6 sm:h-7 rounded-md bg-blue-100 flex items-center justify-center">
+                                                    <svg class="w-3 sm:w-4 h-3 sm:h-4 text-blue-600" fill="currentColor"
+                                                        viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd"
+                                                            d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 3.062v6.372a3.066 3.066 0 01-2.812 3.062 3.066 3.066 0 01-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 01-1.745-.723 3.066 3.066 0 01-2.812-3.062V6.517a3.066 3.066 0 012.812-3.062zM9 6a1 1 0 100 2 1 1 0 000-2zm0 7a1 1 0 100 2 1 1 0 000-2z"
+                                                            clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </div>
+                                                <!-- Permission Info -->
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{
+                                                        permission.name }}</p>
+                                                    <p class="text-[11px] sm:text-xs text-gray-600 mt-0.5 line-clamp-2">
+                                                        {{ permission.description }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -213,8 +281,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import type { RoleData } from '~/types/RoleType'
+import { ref, onMounted, watch, computed } from 'vue'
+import type { RoleData, PermissionData } from '~/types/RoleType'
 import { getRoleById } from '~/services/role'
 
 const emit = defineEmits<{
@@ -229,6 +297,23 @@ const props = defineProps<{
 const roleDetail = ref<RoleData | null>(null)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
+
+// Group permissions by group_name
+const groupedPermissions = computed(() => {
+    if (!roleDetail.value?.permissions) return {}
+
+    const grouped: Record<string, PermissionData[]> = {}
+
+    roleDetail.value.permissions.forEach(permission => {
+        const groupName = permission.group_name
+        if (!grouped[groupName]) {
+            grouped[groupName] = []
+        }
+        grouped[groupName].push(permission)
+    })
+
+    return grouped
+})
 
 // Close modal
 const closeModal = () => {
@@ -271,6 +356,14 @@ const formatDate = (dateString: string | undefined): string => {
     } catch {
         return dateString
     }
+}
+
+// Format group name from snake_case to Title Case
+const formatGroupName = (groupName: string): string => {
+    return groupName
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ')
 }
 
 // Watch modelValue to load role data when modal opens

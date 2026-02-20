@@ -56,6 +56,35 @@ export async function getPermissionList(page: number = 1, limit: number = 10, se
 }
 
 /**
+ * Get permissions by system ID
+ * @param systemId - System ID
+ * @returns Permissions list response
+ */
+export async function getPermissionsBySystem(systemId: number): Promise<GetPermissionsResponse> {
+  const config = useRuntimeConfig()
+  const token = localStorage.getItem('auth_token')
+  
+  try {
+    const response = await $fetch<GetPermissionsResponse>(
+      `${config.public.apiBase}/api/v1/permissions/get-permissions-by-system`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: { system_id: systemId },
+      }
+    )
+
+    return response
+  } catch (error: any) {
+    handleApiError(error)
+    throw error
+  }
+}
+
+/**
  * Get permission by ID
  * @param id - Permission ID
  * @returns Permission data
