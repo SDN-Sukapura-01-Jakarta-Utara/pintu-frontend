@@ -204,12 +204,7 @@
                             <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                                 <h3
                                     class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
-                                    <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-red-600 flex-shrink-0" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12l2 2 4-4m7.538-4.854a.5.5 0 00-.847-.5l-4.096 6.763-1.864-1.991a.5.5 0 00-.745.746l2.592 2.791a.5.5 0 00.747-.013l4.213-6.996zM21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                        </path>
-                                    </svg>
+                                    <i class="fa-solid fa-unlock text-red-600 flex-shrink-0"></i>
                                     <span class="truncate">Izin (Permissions)</span>
                                 </h3>
                             </div>
@@ -222,12 +217,7 @@
                                     <div class="flex items-center gap-2 mb-3 sm:mb-4">
                                         <div
                                             class="flex-shrink-0 w-8 sm:w-9 h-8 sm:h-9 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                                            <svg class="w-4 sm:w-5 h-4 sm:h-5 text-white" fill="currentColor"
-                                                viewBox="0 0 20 20">
-                                                <path
-                                                    d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.657 14.243a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM11 17a1 1 0 102 0v-1a1 1 0 10-2 0v1zM5.757 15.657a1 1 0 00-1.414-1.414l-.707.707a1 1 0 101.414 1.414l.707-.707zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zM5.757 4.343a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707z">
-                                                </path>
-                                            </svg>
+                                            <i class="fa-solid fa-layer-group text-white text-sm sm:text-base"></i>
                                         </div>
                                         <div>
                                             <h4 class="text-xs sm:text-sm font-bold text-gray-900">{{
@@ -240,7 +230,12 @@
                                     <!-- Permissions List -->
                                     <div class="space-y-2">
                                         <div v-for="permission in permissions" :key="permission.id"
-                                            class="bg-white rounded-lg p-2.5 sm:p-3 border border-blue-100">
+                                            :class="[
+                                                'bg-white rounded-lg p-2.5 sm:p-3 border',
+                                                permission.status === 'inactive'
+                                                    ? 'border-gray-200 opacity-60'
+                                                    : 'border-blue-100'
+                                            ]">
                                             <div class="flex items-start gap-2 sm:gap-3">
                                                 <!-- Permission Icon -->
                                                 <div
@@ -254,9 +249,25 @@
                                                 </div>
                                                 <!-- Permission Info -->
                                                 <div class="flex-1 min-w-0">
-                                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{
-                                                        permission.name }}</p>
-                                                    <p class="text-[11px] sm:text-xs text-gray-600 mt-0.5 line-clamp-2">
+                                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                                        <p :class="[
+                                                            'text-xs sm:text-sm font-semibold',
+                                                            permission.status === 'inactive' ? 'text-gray-600' : 'text-gray-900'
+                                                        ]">{{
+                                                            permission.name }}</p>
+                                                        <span :class="[
+                                                            'text-[10px] px-1.5 py-0.5 rounded font-semibold flex-shrink-0',
+                                                            permission.status === 'inactive'
+                                                                ? 'bg-red-100 text-red-700'
+                                                                : 'bg-green-100 text-green-700'
+                                                        ]">
+                                                            {{ permission.status === 'inactive' ? 'Nonaktif' : 'Aktif' }}
+                                                        </span>
+                                                    </div>
+                                                    <p :class="[
+                                                        'text-[11px] sm:text-xs mt-0.5 line-clamp-2',
+                                                        permission.status === 'inactive' ? 'text-gray-500' : 'text-gray-600'
+                                                    ]">
                                                         {{ permission.description }}</p>
                                                 </div>
                                             </div>

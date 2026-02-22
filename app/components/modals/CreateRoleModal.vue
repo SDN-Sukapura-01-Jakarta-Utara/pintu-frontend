@@ -121,17 +121,12 @@
                         </div>
 
                         <!-- Permissions Section -->
-                        <div v-if="form.system_id !== 0"
-                            class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200 p-4 sm:p-6">
-                            <div class="flex items-center gap-2 mb-4 sm:mb-6">
-                                <svg class="w-4 sm:w-5 h-4 sm:h-5 text-red-600 flex-shrink-0" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m7.538-4.854a.5.5 0 00-.847-.5l-4.096 6.763-1.864-1.991a.5.5 0 00-.745.746l2.592 2.791a.5.5 0 00.747-.013l4.213-6.996zM21 12a9 9 0 11-18 0 9 9 0 0118 0z">
-                                    </path>
-                                </svg>
-                                <h3 class="text-sm sm:text-base font-bold text-gray-900">Izin (Permissions)</h3>
-                            </div>
+                         <div v-if="form.system_id !== 0"
+                             class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200 p-4 sm:p-6">
+                             <div class="flex items-center gap-2 mb-4 sm:mb-6">
+                                 <i class="fa-solid fa-unlock text-red-600 flex-shrink-0"></i>
+                                 <h3 class="text-sm sm:text-base font-bold text-gray-900">Izin (Permissions)</h3>
+                             </div>
 
                             <!-- Loading Permissions -->
                             <div v-if="permissionsLoading" class="flex items-center justify-center py-8">
@@ -153,12 +148,7 @@
                                         <div class="flex items-center gap-2 mb-3">
                                             <div
                                                 class="flex-shrink-0 w-6 sm:w-7 h-6 sm:h-7 rounded-md bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
-                                                <svg class="w-3 sm:w-4 h-3 sm:h-4 text-white" fill="currentColor"
-                                                    viewBox="0 0 20 20">
-                                                    <path
-                                                        d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM15.657 14.243a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM11 17a1 1 0 102 0v-1a1 1 0 10-2 0v1zM5.757 15.657a1 1 0 00-1.414-1.414l-.707.707a1 1 0 101.414 1.414l.707-.707zM2 10a1 1 0 011-1h1a1 1 0 110 2H3a1 1 0 01-1-1zM5.757 4.343a1 1 0 00-1.414 1.414l.707.707a1 1 0 101.414-1.414l-.707-.707z">
-                                                    </path>
-                                                </svg>
+                                                <i class="fa-solid fa-layer-group text-white text-xs sm:text-sm"></i>
                                             </div>
                                             <div class="min-w-0 flex-1">
                                                 <h4 class="text-xs sm:text-sm font-bold text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">{{
