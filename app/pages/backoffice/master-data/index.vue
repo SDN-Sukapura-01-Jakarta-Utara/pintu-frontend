@@ -77,6 +77,19 @@
             :message="`Apakah Anda yakin ingin menghapus tahun pelajaran ${selectedTahunPelajaran?.tahun_pelajaran}? Tindakan ini tidak dapat dibatalkan.`"
             :is-loading="isDeletingTahunPelajaran" @confirm="handleDeleteTahunPelajaranConfirm" />
 
+        <!-- Create Kelas Modal -->
+        <CreateKelasModal v-model="showCreateKelasModal" @success="handleCreateKelasSuccess"
+            @error="handleCreateKelasError" />
+
+        <!-- Edit Kelas Modal -->
+        <EditKelasModal v-model="showEditKelasModal" :kelas-data="selectedKelas" @success="handleEditKelasSuccess"
+            @error="handleEditKelasError" />
+
+        <!-- Delete Kelas Confirmation Modal -->
+        <ConfirmationDeleteModal v-model="showDeleteKelasConfirm" title="Hapus Kelas"
+            :message="`Apakah Anda yakin ingin menghapus kelas ${selectedKelas?.name}? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeletingKelas" @confirm="handleDeleteKelasConfirm" />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
@@ -98,6 +111,8 @@
                     @click="openCreatePermissionModal" />
                 <AddButton v-if="activeTab === 'tahun-pelajaran'" label="Tambah Tahun Pelajaran"
                     iconClass="fa-solid fa-plus" @click="openCreateTahunPelajaranModal" />
+                <AddButton v-if="activeTab === 'kelas'" label="Tambah Kelas" iconClass="fa-solid fa-plus"
+                    @click="openCreateKelasModal" />
             </div>
         </div>
 
@@ -812,7 +827,8 @@
                     <template v-else>
                         <!-- Filter Section -->
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Tahun Pelajaran</h3>
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Tahun
+                                Pelajaran</h3>
 
                             <!-- Filter Form -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -821,7 +837,8 @@
                                     <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
                                         Tahun Pelajaran
                                     </label>
-                                    <input v-model="tahunPelajaranFilters.tahun_pelajaran" type="text" placeholder="Cari tahun pelajaran..."
+                                    <input v-model="tahunPelajaranFilters.tahun_pelajaran" type="text"
+                                        placeholder="Cari tahun pelajaran..."
                                         class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
                                 </div>
 
@@ -858,7 +875,12 @@
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200">
                             <!-- Data Table -->
                             <div v-if="tahunPelajaranStore.tahunPelajarans.length > 0">
-                                <Table :items="tahunPelajaranStore.tahunPelajarans" :columns="tahunPelajaranTableColumns" :current-page="tahunPelajaranPagination.page" :current-limit="tahunPelajaranPagination.limit" :total="tahunPelajaranStore.total" :is-loading="tahunPelajaranStore.isLoading" @edit="openEditTahunPelajaranModal" @delete="openDeleteTahunPelajaranConfirm" @pageChange="onTahunPelajaranPageChange" @limitChange="onTahunPelajaranLimitChange">
+                                <Table :items="tahunPelajaranStore.tahunPelajarans"
+                                    :columns="tahunPelajaranTableColumns" :current-page="tahunPelajaranPagination.page"
+                                    :current-limit="tahunPelajaranPagination.limit" :total="tahunPelajaranStore.total"
+                                    :is-loading="tahunPelajaranStore.isLoading" @edit="openEditTahunPelajaranModal"
+                                    @delete="openDeleteTahunPelajaranConfirm" @pageChange="onTahunPelajaranPageChange"
+                                    @limitChange="onTahunPelajaranLimitChange">
                                     <!-- Custom cell for Status column -->
                                     <template #cell-status="{ item }">
                                         <span :class="[
@@ -908,8 +930,146 @@
                     </template>
                 </div>
 
+                <!-- Kelas Tab -->
+                <div v-if="activeTab === 'kelas'" class="animate-slide-up">
+                    <!-- Loading State -->
+                    <div v-if="kelasStore.isLoading" class="flex items-center justify-center py-8 sm:py-12">
+                        <div class="flex flex-col items-center gap-3 sm:gap-4">
+                            <div
+                                class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
+                            </div>
+                            <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data kelas...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="kelasStore.error && !hasActiveKelasFilters"
+                        class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                        <div class="flex items-start gap-3 sm:gap-4">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
+                                <p class="mt-1 text-sm sm:text-base text-red-800">{{ kelasStore.error }}</p>
+                                <button @click="fetchKelasData"
+                                    class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success State: Filter & Table Section -->
+                    <template v-else>
+                        <!-- Filter Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Kelas</h3>
+
+                            <!-- Filter Form -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Nama Kelas Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Nama Kelas
+                                    </label>
+                                    <input v-model="kelasFilters.name" type="text" placeholder="Cari nama kelas..."
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Status
+                                    </label>
+                                    <select v-model="kelasFilters.status"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option value="">Semua Status</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filter Buttons -->
+                            <div class="flex gap-3 mt-4">
+                                <button @click="applyKelasFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
+                                    Cari
+                                </button>
+                                <button @click="clearKelasFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-left w-4 h-4"></i>
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <!-- Data Table -->
+                            <div v-if="kelasStore.kelases.length > 0">
+                                <Table :items="kelasStore.kelases" :columns="kelasTableColumns"
+                                    :current-page="kelasPagination.page" :current-limit="kelasPagination.limit"
+                                    :total="kelasStore.total" :is-loading="kelasStore.isLoading"
+                                    @edit="openEditKelasModal" @delete="openDeleteKelasConfirm"
+                                    @pageChange="onKelasPageChange" @limitChange="onKelasLimitChange">
+                                    <!-- Custom cell for Status column -->
+                                    <template #cell-status="{ item }">
+                                        <span :class="[
+                                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                                            item.status === 'active'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800',
+                                        ]">
+                                            <span :class="[
+                                                'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                                item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                                            ]"></span>
+                                            {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </template>
+
+                                    <!-- Custom actions slot -->
+                                    <template #actions="{ item }">
+                                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                            <!-- Edit Button -->
+                                            <EditButton title="Edit" label="Edit" @click="openEditKelasModal(item)" />
+
+                                            <!-- Delete Button -->
+                                            <DeleteButton title="Hapus" label="Hapus"
+                                                @click="openDeleteKelasConfirm(item)" />
+                                        </div>
+                                    </template>
+                                </Table>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                                <div
+                                    class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
+                                    <i :class="[
+                                        hasActiveKelasFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-door-open',
+                                        'text-2xl sm:text-4xl text-gray-400'
+                                    ]"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    {{ hasActiveKelasFilters ? 'Data tidak ditemukan' : 'Belum ada kelas' }}
+                                </h3>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActiveKelasFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan kelas baru ke sistem' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
                 <!-- Other Tabs -->
-                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran')"
+                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran' && t.id !== 'kelas')"
                     :key="tab.id">
                     <div v-if="activeTab === tab.id" class="animate-slide-up">
                         <div class="flex flex-col items-center justify-center py-12">
@@ -931,9 +1091,11 @@ import type { TableColumn } from '~/components/Table.vue'
 import type { UserData } from '~/types/UserType'
 import type { RoleData } from '~/types/RoleType'
 import type { PermissionData } from '~/types/PermissionType'
+import type { KelasData } from '~/types/KelasType'
 import { useUserStore } from '~/stores/UserStore'
 import { useRoleStore } from '~/stores/RoleStore'
 import { usePermissionStore } from '~/stores/PermissionStore'
+import { useKelasStore } from '~/stores/KelasStore'
 import { useAuthGuard } from '~/composables/useAuthGuard'
 import { useToast } from '~/composables/useToast'
 import AddButton from '~/components/common/AddButton.vue'
@@ -954,6 +1116,8 @@ import PermissionDetailModal from '~/components/modals/PermissionDetailModal.vue
 import EditPermissionModal from '~/components/modals/EditPermissionModal.vue'
 import CreateTahunPelajaranModal from '~/components/modals/CreateTahunPelajaranModal.vue'
 import EditTahunPelajaranModal from '~/components/modals/EditTahunPelajaranModal.vue'
+import CreateKelasModal from '~/components/modals/CreateKelasModal.vue'
+import EditKelasModal from '~/components/modals/EditKelasModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import type { TahunPelajaranData } from '~/types/TahunPelajaranType'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
@@ -967,6 +1131,7 @@ const userStore = useUserStore()
 const roleStore = useRoleStore()
 const permissionStore = usePermissionStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
+const kelasStore = useKelasStore()
 const { success, error } = useToast()
 
 // User Modal state
@@ -1072,6 +1237,25 @@ const tahunPelajaranPagination = ref({
 // Tahun Pelajaran Filter state
 const tahunPelajaranFilters = ref({
     tahun_pelajaran: '',
+    status: ''
+})
+
+// Kelas Modal state
+const showCreateKelasModal = ref(false)
+const showEditKelasModal = ref(false)
+const showDeleteKelasConfirm = ref(false)
+const isDeletingKelas = ref(false)
+const selectedKelas = ref<KelasData | null>(null)
+
+// Kelas Pagination state
+const kelasPagination = ref({
+    page: 1,
+    limit: 10
+})
+
+// Kelas Filter state
+const kelasFilters = ref({
+    name: '',
     status: ''
 })
 
@@ -1246,6 +1430,18 @@ const tahunPelajaranTableColumns: TableColumn[] = [
     {
         key: 'tahun_pelajaran',
         label: 'Tahun Pelajaran',
+    },
+    {
+        key: 'status',
+        label: 'Status',
+    },
+]
+
+// Table columns configuration for kelas
+const kelasTableColumns: TableColumn[] = [
+    {
+        key: 'name',
+        label: 'Nama Kelas',
     },
     {
         key: 'status',
@@ -1968,6 +2164,146 @@ const handleDeleteTahunPelajaranConfirm = async () => {
     }
 }
 
+// Computed for active filters check
+const hasActiveKelasFilters = computed(() => {
+    return kelasFilters.value.name !== '' || kelasFilters.value.status !== ''
+})
+
+// Fetch kelas data with pagination and filters
+const fetchKelasData = async () => {
+    console.log('Fetching kelas data...', { pagination: kelasPagination.value, filters: kelasFilters.value })
+
+    // Build search object (only include non-empty values)
+    const search: any = {}
+    if (kelasFilters.value.name) search.name = kelasFilters.value.name
+    if (kelasFilters.value.status) search.status = kelasFilters.value.status
+
+    const result = await kelasStore.fetchKelases(kelasPagination.value.page, kelasPagination.value.limit, search)
+
+    if (!result.success && kelasStore.error) {
+        const { handle401 } = useAuthGuard()
+        if (result.message?.includes('401') || result.message?.includes('Unauthorized')) {
+            await handle401()
+        }
+    }
+}
+
+// Handle kelas page change
+const onKelasPageChange = (newPage: number) => {
+    kelasPagination.value.page = newPage
+    fetchKelasData()
+}
+
+// Handle kelas limit change
+const onKelasLimitChange = (newLimit: number) => {
+    kelasPagination.value.limit = newLimit
+    kelasPagination.value.page = 1 // Reset to first page
+    fetchKelasData()
+}
+
+// Apply kelas filter
+const applyKelasFilter = () => {
+    kelasPagination.value.page = 1 // Reset to first page when filtering
+    fetchKelasData()
+}
+
+// Clear kelas filter
+const clearKelasFilter = () => {
+    kelasFilters.value = {
+        name: '',
+        status: ''
+    }
+    kelasPagination.value.page = 1
+    fetchKelasData()
+}
+
+// Open create kelas modal
+const openCreateKelasModal = () => {
+    showCreateKelasModal.value = true
+}
+
+// Open edit kelas modal
+const openEditKelasModal = (item: KelasData) => {
+    console.log('Opening Edit Kelas Modal for:', item)
+    selectedKelas.value = item
+    showEditKelasModal.value = true
+}
+
+// Open delete kelas confirmation
+const openDeleteKelasConfirm = (item: KelasData) => {
+    selectedKelas.value = item
+    showDeleteKelasConfirm.value = true
+}
+
+// Handle create kelas success
+const handleCreateKelasSuccess = (message: string) => {
+    console.log('Create kelas success:', message)
+    success('Kelas Berhasil Ditambahkan', message)
+
+    // Reset to page 1 after successful create
+    kelasPagination.value.page = 1
+    fetchKelasData()
+}
+
+// Handle create kelas error
+const handleCreateKelasError = (errorMessage: string) => {
+    console.error('Create kelas error:', errorMessage)
+    error('Gagal Menambahkan Kelas', errorMessage)
+}
+
+// Handle edit kelas success
+const handleEditKelasSuccess = (message: string) => {
+    console.log('Edit kelas success:', message)
+    success('Kelas Berhasil Diperbarui', message)
+
+    // Reset to page 1 after successful edit
+    kelasPagination.value.page = 1
+    fetchKelasData()
+}
+
+// Handle edit kelas error
+const handleEditKelasError = (errorMessage: string) => {
+    console.error('Edit kelas error:', errorMessage)
+    error('Gagal Mengupdate Kelas', errorMessage)
+}
+
+// Handle delete kelas confirmation
+const handleDeleteKelasConfirm = async () => {
+    if (!selectedKelas.value) return
+
+    isDeletingKelas.value = true
+    try {
+        const result = await kelasStore.removeKelas(selectedKelas.value.id)
+
+        if (result.success) {
+            success('Kelas Berhasil Dihapus', result.message)
+            showDeleteKelasConfirm.value = false
+            selectedKelas.value = null
+
+            // Calculate max page after deletion
+            const totalAfterDelete = kelasStore.total
+            const maxPage = Math.ceil(totalAfterDelete / kelasPagination.value.limit)
+
+            // If current page is beyond max page, go to previous page
+            if (kelasPagination.value.page > maxPage && maxPage > 0) {
+                kelasPagination.value.page = maxPage
+            } else if (maxPage === 0) {
+                kelasPagination.value.page = 1
+            }
+
+            // Fetch data for the appropriate page
+            await fetchKelasData()
+        } else {
+            error('Gagal Menghapus Kelas', result.message)
+        }
+    } catch (err: any) {
+        error('Gagal Menghapus Kelas', err.message || 'Terjadi kesalahan saat menghapus kelas')
+        console.error('Delete kelas error:', err)
+    } finally {
+        isDeletingKelas.value = false
+    }
+}
+
 // Watch activeTab to reload data when switching tabs
 watch(() => activeTab.value, (newTab) => {
     console.log('Tab changed to:', newTab)
@@ -1986,6 +2322,8 @@ watch(() => activeTab.value, (newTab) => {
         fetchPermissionData()
     } else if (newTab === 'tahun-pelajaran') {
         fetchTahunPelajaranData()
+    } else if (newTab === 'kelas') {
+        fetchKelasData()
     }
 })
 
@@ -1999,6 +2337,7 @@ onMounted(() => {
     fetchRoleData()
     fetchPermissionData()
     fetchTahunPelajaranData()
+    fetchKelasData()
 })
 </script>
 
