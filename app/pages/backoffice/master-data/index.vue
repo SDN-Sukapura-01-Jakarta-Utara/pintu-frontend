@@ -103,6 +103,19 @@
             :message="`Apakah Anda yakin ingin menghapus rombel ${selectedRombel?.name}? Tindakan ini tidak dapat dibatalkan.`"
             :is-loading="isDeletingRombel" @confirm="handleDeleteRombelConfirm" />
 
+        <!-- Create Bidang Studi Modal -->
+        <CreateBidangStudiModal v-model="showCreateBidangStudiModal" @success="handleCreateBidangStudiSuccess"
+            @error="handleCreateBidangStudiError" />
+
+        <!-- Edit Bidang Studi Modal -->
+        <EditBidangStudiModal v-model="showEditBidangStudiModal" :bidang-studi-data="selectedBidangStudi"
+            @success="handleEditBidangStudiSuccess" @error="handleEditBidangStudiError" />
+
+        <!-- Delete Bidang Studi Confirmation Modal -->
+        <ConfirmationDeleteModal v-model="showDeleteBidangStudiConfirm" title="Hapus Bidang Studi"
+            :message="`Apakah Anda yakin ingin menghapus bidang studi ${selectedBidangStudi?.name}? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeletingBidangStudi" @confirm="handleDeleteBidangStudiConfirm" />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
@@ -128,6 +141,8 @@
                     @click="openCreateKelasModal" />
                 <AddButton v-if="activeTab === 'rombel'" label="Tambah Rombel" iconClass="fa-solid fa-plus"
                     @click="openCreateRombelModal" />
+                <AddButton v-if="activeTab === 'bidang-studi'" label="Tambah Bidang Studi" iconClass="fa-solid fa-plus"
+                    @click="openCreateBidangStudiModal" />
             </div>
         </div>
 
@@ -1249,8 +1264,147 @@
                     </template>
                 </div>
 
+                <!-- Bidang Studi Tab -->
+                <div v-if="activeTab === 'bidang-studi'" class="animate-slide-up">
+                    <!-- Loading State -->
+                    <div v-if="bidangStudiStore.isLoading" class="flex items-center justify-center py-8 sm:py-12">
+                        <div class="flex flex-col items-center gap-3 sm:gap-4">
+                            <div
+                                class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
+                            </div>
+                            <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data bidang studi...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="bidangStudiStore.error && !hasActiveBidangStudiFilters"
+                        class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                        <div class="flex items-start gap-3 sm:gap-4">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
+                                <p class="mt-1 text-sm sm:text-base text-red-800">{{ bidangStudiStore.error }}</p>
+                                <button @click="fetchBidangStudiData"
+                                    class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success State: Filter & Table Section -->
+                    <template v-else>
+                        <!-- Filter Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Bidang Studi</h3>
+
+                            <!-- Filter Form -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Nama Bidang Studi Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Nama Bidang Studi
+                                    </label>
+                                    <input v-model="bidangStudiFilters.name" type="text" placeholder="Cari nama bidang studi..."
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Status
+                                    </label>
+                                    <select v-model="bidangStudiFilters.status"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option value="">Semua Status</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filter Buttons -->
+                            <div class="flex gap-3 mt-4">
+                                <button @click="applyBidangStudiFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
+                                    Cari
+                                </button>
+                                <button @click="clearBidangStudiFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-left w-4 h-4"></i>
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <!-- Data Table -->
+                            <div v-if="bidangStudiStore.bidangStudis.length > 0">
+                                <Table :items="bidangStudiStore.bidangStudis" :columns="bidangStudiTableColumns"
+                                    :current-page="bidangStudiPagination.page" :current-limit="bidangStudiPagination.limit"
+                                    :total="bidangStudiStore.total" :is-loading="bidangStudiStore.isLoading"
+                                    @edit="openEditBidangStudiModal" @delete="openDeleteBidangStudiConfirm"
+                                    @pageChange="onBidangStudiPageChange" @limitChange="onBidangStudiLimitChange">
+                                    <!-- Custom cell for Status column -->
+                                    <template #cell-status="{ item }">
+                                        <span :class="[
+                                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                                            item.status === 'active'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800',
+                                        ]">
+                                            <span :class="[
+                                                'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                                item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                                            ]"></span>
+                                            {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </template>
+
+                                    <!-- Custom actions slot -->
+                                    <template #actions="{ item }">
+                                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                            <!-- Edit Button -->
+                                            <EditButton title="Edit" label="Edit"
+                                                @click="openEditBidangStudiModal(item)" />
+
+                                            <!-- Delete Button -->
+                                            <DeleteButton title="Hapus" label="Hapus"
+                                                @click="openDeleteBidangStudiConfirm(item)" />
+                                        </div>
+                                    </template>
+                                </Table>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                                <div
+                                    class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
+                                    <i :class="[
+                                        hasActiveBidangStudiFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-book',
+                                        'text-2xl sm:text-4xl text-gray-400'
+                                    ]"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    {{ hasActiveBidangStudiFilters ? 'Data tidak ditemukan' : 'Belum ada bidang studi' }}
+                                </h3>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActiveBidangStudiFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan bidang studi baru ke sistem' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
                 <!-- Other Tabs -->
-                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran' && t.id !== 'kelas' && t.id !== 'rombel')"
+                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran' && t.id !== 'kelas' && t.id !== 'rombel' && t.id !== 'bidang-studi')"
                     :key="tab.id">
                     <div v-if="activeTab === tab.id" class="animate-slide-up">
                         <div class="flex flex-col items-center justify-center py-12">
@@ -1301,11 +1455,15 @@ import CreateKelasModal from '~/components/modals/CreateKelasModal.vue'
 import EditKelasModal from '~/components/modals/EditKelasModal.vue'
 import CreateRombelModal from '~/components/modals/CreateRombelModal.vue'
 import EditRombelModal from '~/components/modals/EditRombelModal.vue'
+import CreateBidangStudiModal from '~/components/modals/CreateBidangStudiModal.vue'
+import EditBidangStudiModal from '~/components/modals/EditBidangStudiModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import type { TahunPelajaranData } from '~/types/TahunPelajaranType'
 import type { RombelData } from '~/types/RombelType'
+import type { BidangStudiData } from '~/types/BidangStudiType'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useRombelStore } from '~/stores/RombelStore'
+import { useBidangStudiStore } from '~/stores/BidangStudiStore'
 
 definePageMeta({
     middleware: 'auth',
@@ -1318,6 +1476,7 @@ const permissionStore = usePermissionStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const kelasStore = useKelasStore()
 const rombelStore = useRombelStore()
+const bidangStudiStore = useBidangStudiStore()
 const { success, error } = useToast()
 
 // User Modal state
@@ -1465,6 +1624,25 @@ const rombelFilters = ref({
     status: ''
 })
 
+// Bidang Studi Modal state
+const showCreateBidangStudiModal = ref(false)
+const showEditBidangStudiModal = ref(false)
+const showDeleteBidangStudiConfirm = ref(false)
+const isDeletingBidangStudi = ref(false)
+const selectedBidangStudi = ref<BidangStudiData | null>(null)
+
+// Bidang Studi Pagination state
+const bidangStudiPagination = ref({
+    page: 1,
+    limit: 10
+})
+
+// Bidang Studi Filter state
+const bidangStudiFilters = ref({
+    name: '',
+    status: ''
+})
+
 // Roles and Systems for filter dropdowns
 const roles = ref<any[]>([])
 const systems = ref<any[]>([])
@@ -1513,6 +1691,14 @@ const hasActiveRombelFilters = computed(() => {
         rombelFilters.value.name !== '' ||
         rombelFilters.value.kelas_id !== 0 ||
         rombelFilters.value.status !== ''
+    )
+})
+
+// Computed: Check if any bidang studi filter is active
+const hasActiveBidangStudiFilters = computed(() => {
+    return (
+        bidangStudiFilters.value.name !== '' ||
+        bidangStudiFilters.value.status !== ''
     )
 })
 
@@ -1673,6 +1859,18 @@ const rombelTableColumns: TableColumn[] = [
     {
         key: 'kelas_name',
         label: 'Kelas',
+    },
+    {
+        key: 'status',
+        label: 'Status',
+    },
+]
+
+// Table columns configuration for bidang studi
+const bidangStudiTableColumns: TableColumn[] = [
+    {
+        key: 'name',
+        label: 'Nama Bidang Studi',
     },
     {
         key: 'status',
@@ -2672,6 +2870,141 @@ const handleDeleteRombelConfirm = async () => {
     }
 }
 
+// Fetch bidang studi data with pagination and filters
+const fetchBidangStudiData = async () => {
+    console.log('Fetching bidang studi data...', { pagination: bidangStudiPagination.value, filters: bidangStudiFilters.value })
+
+    // Build search object (only include non-empty values)
+    const search: any = {}
+    if (bidangStudiFilters.value.name) search.name = bidangStudiFilters.value.name
+    if (bidangStudiFilters.value.status) search.status = bidangStudiFilters.value.status
+
+    const result = await bidangStudiStore.fetchBidangStudis(bidangStudiPagination.value.page, bidangStudiPagination.value.limit, search)
+
+    if (!result.success && bidangStudiStore.error) {
+        const { handle401 } = useAuthGuard()
+        if (result.message?.includes('401') || result.message?.includes('Unauthorized')) {
+            await handle401()
+        }
+    }
+}
+
+// Handle bidang studi page change
+const onBidangStudiPageChange = (newPage: number) => {
+    bidangStudiPagination.value.page = newPage
+    fetchBidangStudiData()
+}
+
+// Handle bidang studi limit change
+const onBidangStudiLimitChange = (newLimit: number) => {
+    bidangStudiPagination.value.limit = newLimit
+    bidangStudiPagination.value.page = 1 // Reset to first page
+    fetchBidangStudiData()
+}
+
+// Apply bidang studi filter
+const applyBidangStudiFilter = () => {
+    bidangStudiPagination.value.page = 1 // Reset to first page when filtering
+    fetchBidangStudiData()
+}
+
+// Clear bidang studi filter
+const clearBidangStudiFilter = () => {
+    bidangStudiFilters.value = {
+        name: '',
+        status: ''
+    }
+    bidangStudiPagination.value.page = 1
+    fetchBidangStudiData()
+}
+
+// Open create bidang studi modal
+const openCreateBidangStudiModal = () => {
+    showCreateBidangStudiModal.value = true
+}
+
+// Open edit bidang studi modal
+const openEditBidangStudiModal = (item: BidangStudiData) => {
+    console.log('Opening Edit Bidang Studi Modal for:', item)
+    selectedBidangStudi.value = item
+    showEditBidangStudiModal.value = true
+}
+
+// Open delete bidang studi confirmation
+const openDeleteBidangStudiConfirm = (item: BidangStudiData) => {
+    selectedBidangStudi.value = item
+    showDeleteBidangStudiConfirm.value = true
+}
+
+// Handle create bidang studi success
+const handleCreateBidangStudiSuccess = (message: string) => {
+    console.log('Create bidang studi success:', message)
+    success('Bidang Studi Berhasil Ditambahkan', message)
+
+    // Reset to page 1 after successful create
+    bidangStudiPagination.value.page = 1
+    fetchBidangStudiData()
+}
+
+// Handle create bidang studi error
+const handleCreateBidangStudiError = (errorMessage: string) => {
+    console.error('Create bidang studi error:', errorMessage)
+    error('Gagal Menambahkan Bidang Studi', errorMessage)
+}
+
+// Handle edit bidang studi success
+const handleEditBidangStudiSuccess = (message: string) => {
+    console.log('Edit bidang studi success:', message)
+    success('Bidang Studi Berhasil Diperbarui', message)
+
+    // Reset to page 1 after successful edit
+    bidangStudiPagination.value.page = 1
+    fetchBidangStudiData()
+}
+
+// Handle edit bidang studi error
+const handleEditBidangStudiError = (errorMessage: string) => {
+    console.error('Edit bidang studi error:', errorMessage)
+    error('Gagal Mengupdate Bidang Studi', errorMessage)
+}
+
+// Handle delete bidang studi confirmation
+const handleDeleteBidangStudiConfirm = async () => {
+    if (!selectedBidangStudi.value) return
+
+    isDeletingBidangStudi.value = true
+    try {
+        const result = await bidangStudiStore.removeBidangStudi(selectedBidangStudi.value.id)
+
+        if (result.success) {
+            success('Bidang Studi Berhasil Dihapus', result.message)
+            showDeleteBidangStudiConfirm.value = false
+            selectedBidangStudi.value = null
+
+            // Calculate max page after deletion
+            const totalAfterDelete = bidangStudiStore.total
+            const maxPage = Math.ceil(totalAfterDelete / bidangStudiPagination.value.limit)
+
+            // If current page is beyond max page, go to previous page
+            if (bidangStudiPagination.value.page > maxPage && maxPage > 0) {
+                bidangStudiPagination.value.page = maxPage
+            } else if (maxPage === 0) {
+                bidangStudiPagination.value.page = 1
+            }
+
+            // Fetch data for the appropriate page
+            await fetchBidangStudiData()
+        } else {
+            error('Gagal Menghapus Bidang Studi', result.message)
+        }
+    } catch (err: any) {
+        error('Gagal Menghapus Bidang Studi', err.message || 'Terjadi kesalahan saat menghapus bidang studi')
+        console.error('Delete bidang studi error:', err)
+    } finally {
+        isDeletingBidangStudi.value = false
+    }
+}
+
 // Watch activeTab to reload data when switching tabs
 watch(() => activeTab.value, (newTab) => {
     console.log('Tab changed to:', newTab)
@@ -2694,6 +3027,8 @@ watch(() => activeTab.value, (newTab) => {
         fetchKelasData()
     } else if (newTab === 'rombel') {
         fetchRombelData()
+    } else if (newTab === 'bidang-studi') {
+        fetchBidangStudiData()
     }
 })
 
@@ -2709,6 +3044,7 @@ onMounted(() => {
     fetchTahunPelajaranData()
     fetchKelasData()
     fetchRombelData()
+    fetchBidangStudiData()
 })
 </script>
 
