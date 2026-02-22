@@ -116,6 +116,19 @@
             :message="`Apakah Anda yakin ingin menghapus bidang studi ${selectedBidangStudi?.name}? Tindakan ini tidak dapat dibatalkan.`"
             :is-loading="isDeletingBidangStudi" @confirm="handleDeleteBidangStudiConfirm" />
 
+        <!-- Create Ekstrakurikuler Modal -->
+        <CreateEkstrakurikulerModal v-model="showCreateEkstrakurikulerModal"
+            @success="handleCreateEkstrakurikulerSuccess" @error="handleCreateEkstrakurikulerError" />
+
+        <!-- Edit Ekstrakurikuler Modal -->
+        <EditEkstrakurikulerModal v-model="showEditEkstrakurikulerModal" :ekstrakurikuler-data="selectedEkstrakurikuler"
+            @success="handleEditEkstrakurikulerSuccess" @error="handleEditEkstrakurikulerError" />
+
+        <!-- Delete Ekstrakurikuler Confirmation Modal -->
+        <ConfirmationDeleteModal v-model="showDeleteEkstrakurikulerConfirm" title="Hapus Ekstrakurikuler"
+            :message="`Apakah Anda yakin ingin menghapus ekstrakurikuler ${selectedEkstrakurikuler?.name}? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeletingEkstrakurikuler" @confirm="handleDeleteEkstrakurikulerConfirm" />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
@@ -143,6 +156,8 @@
                     @click="openCreateRombelModal" />
                 <AddButton v-if="activeTab === 'bidang-studi'" label="Tambah Bidang Studi" iconClass="fa-solid fa-plus"
                     @click="openCreateBidangStudiModal" />
+                <AddButton v-if="activeTab === 'ekstrakurikuler'" label="Tambah Ekstrakurikuler"
+                    iconClass="fa-solid fa-plus" @click="openCreateEkstrakurikulerModal" />
             </div>
         </div>
 
@@ -1235,8 +1250,7 @@
                                     <template #actions="{ item }">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit"
-                                                @click="openEditRombelModal(item)" />
+                                            <EditButton title="Edit" label="Edit" @click="openEditRombelModal(item)" />
 
                                             <!-- Delete Button -->
                                             <DeleteButton title="Hapus" label="Hapus"
@@ -1303,7 +1317,8 @@
                     <template v-else>
                         <!-- Filter Section -->
                         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Bidang Studi</h3>
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Bidang Studi
+                            </h3>
 
                             <!-- Filter Form -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1312,7 +1327,8 @@
                                     <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
                                         Nama Bidang Studi
                                     </label>
-                                    <input v-model="bidangStudiFilters.name" type="text" placeholder="Cari nama bidang studi..."
+                                    <input v-model="bidangStudiFilters.name" type="text"
+                                        placeholder="Cari nama bidang studi..."
                                         class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
                                 </div>
 
@@ -1350,10 +1366,11 @@
                             <!-- Data Table -->
                             <div v-if="bidangStudiStore.bidangStudis.length > 0">
                                 <Table :items="bidangStudiStore.bidangStudis" :columns="bidangStudiTableColumns"
-                                    :current-page="bidangStudiPagination.page" :current-limit="bidangStudiPagination.limit"
-                                    :total="bidangStudiStore.total" :is-loading="bidangStudiStore.isLoading"
-                                    @edit="openEditBidangStudiModal" @delete="openDeleteBidangStudiConfirm"
-                                    @pageChange="onBidangStudiPageChange" @limitChange="onBidangStudiLimitChange">
+                                    :current-page="bidangStudiPagination.page"
+                                    :current-limit="bidangStudiPagination.limit" :total="bidangStudiStore.total"
+                                    :is-loading="bidangStudiStore.isLoading" @edit="openEditBidangStudiModal"
+                                    @delete="openDeleteBidangStudiConfirm" @pageChange="onBidangStudiPageChange"
+                                    @limitChange="onBidangStudiLimitChange">
                                     <!-- Custom cell for Status column -->
                                     <template #cell-status="{ item }">
                                         <span :class="[
@@ -1403,8 +1420,201 @@
                     </template>
                 </div>
 
+                <!-- Ekstrakurikuler Tab -->
+                <div v-if="activeTab === 'ekstrakurikuler'" class="animate-slide-up">
+                    <!-- Loading State -->
+                    <div v-if="ekstrakurikulerStore.isLoading" class="flex items-center justify-center py-8 sm:py-12">
+                        <div class="flex flex-col items-center gap-3 sm:gap-4">
+                            <div
+                                class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
+                            </div>
+                            <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data ekstrakurikuler...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="ekstrakurikulerStore.error && !hasActiveEkstrakurikulerFilters"
+                        class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                        <div class="flex items-start gap-3 sm:gap-4">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
+                                <p class="mt-1 text-sm sm:text-base text-red-800">{{ ekstrakurikulerStore.error }}</p>
+                                <button @click="fetchEkstrakurikulerData"
+                                    class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success State: Filter & Table Section -->
+                    <template v-else>
+                        <!-- Filter Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data
+                                Ekstrakurikuler</h3>
+
+                            <!-- Filter Form -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Nama Ekstrakurikuler Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Nama Ekstrakurikuler
+                                    </label>
+                                    <input v-model="ekstrakurikulerFilters.name" type="text"
+                                        placeholder="Cari nama ekstrakurikuler..."
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                                </div>
+
+                                <!-- Kelas Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Kelas
+                                    </label>
+                                    <select v-model.number="ekstrakurikulerFilters.kelas_id"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option :value="0">Semua Kelas</option>
+                                        <option v-for="kelas in kelasStore.kelases.filter(k => k.status === 'active')"
+                                            :key="kelas.id" :value="kelas.id">
+                                            {{ kelas.name }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Kategori Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Kategori
+                                    </label>
+                                    <select v-model="ekstrakurikulerFilters.kategori"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option value="">Semua Kategori</option>
+                                        <option value="wajib">Wajib</option>
+                                        <option value="tidak wajib">Tidak Wajib</option>
+                                    </select>
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Status
+                                    </label>
+                                    <select v-model="ekstrakurikulerFilters.status"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option value="">Semua Status</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filter Buttons -->
+                            <div class="flex gap-3 mt-4">
+                                <button @click="applyEkstrakurikulerFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
+                                    Cari
+                                </button>
+                                <button @click="clearEkstrakurikulerFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-left w-4 h-4"></i>
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <!-- Data Table -->
+                            <div v-if="ekstrakurikulerStore.ekstrakurikulers.length > 0">
+                                <Table :items="ekstrakurikulerStore.ekstrakurikulers"
+                                    :columns="ekstrakurikulerTableColumns"
+                                    :current-page="ekstrakurikulerPagination.page"
+                                    :current-limit="ekstrakurikulerPagination.limit" :total="ekstrakurikulerStore.total"
+                                    :is-loading="ekstrakurikulerStore.isLoading" @edit="openEditEkstrakurikulerModal"
+                                    @delete="openDeleteEkstrakurikulerConfirm" @pageChange="onEkstrakurikulerPageChange"
+                                    @limitChange="onEkstrakurikulerLimitChange">
+                                    <!-- Custom cell for Kelas column -->
+                                    <template #cell-kelas_names="{ item }">
+                                        <div class="flex flex-wrap gap-1">
+                                            <span v-for="kelas in item.kelas" :key="kelas.id"
+                                                class="inline-block px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                                {{ kelas.name }}
+                                            </span>
+                                        </div>
+                                    </template>
+
+                                    <!-- Custom cell for Kategori column -->
+                                    <template #cell-kategori="{ item }">
+                                        <span :class="[
+                                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm font-semibold',
+                                            item.kategori === 'wajib'
+                                                ? 'bg-purple-100 text-purple-800'
+                                                : 'bg-yellow-100 text-yellow-800',
+                                        ]">
+                                            {{ item.kategori === 'wajib' ? 'Wajib' : 'Tidak Wajib' }}
+                                        </span>
+                                    </template>
+
+                                    <!-- Custom cell for Status column -->
+                                    <template #cell-status="{ item }">
+                                        <span :class="[
+                                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                                            item.status === 'active'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800',
+                                        ]">
+                                            <span :class="[
+                                                'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                                item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                                            ]"></span>
+                                            {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </template>
+
+                                    <!-- Custom actions slot -->
+                                    <template #actions="{ item }">
+                                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                            <!-- Edit Button -->
+                                            <EditButton title="Edit" label="Edit"
+                                                @click="openEditEkstrakurikulerModal(item)" />
+
+                                            <!-- Delete Button -->
+                                            <DeleteButton title="Hapus" label="Hapus"
+                                                @click="openDeleteEkstrakurikulerConfirm(item)" />
+                                        </div>
+                                    </template>
+                                </Table>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                                <div
+                                    class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
+                                    <i :class="[
+                                        hasActiveEkstrakurikulerFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-basketball',
+                                        'text-2xl sm:text-4xl text-gray-400'
+                                    ]"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    {{ hasActiveEkstrakurikulerFilters ? 'Data tidak ditemukan' : 'Belum ada ekstrakurikuler' }}
+                                </h3>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActiveEkstrakurikulerFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan ekstrakurikuler baru ke sistem' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
                 <!-- Other Tabs -->
-                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran' && t.id !== 'kelas' && t.id !== 'rombel' && t.id !== 'bidang-studi')"
+                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran' && t.id !== 'kelas' && t.id !== 'rombel' && t.id !== 'bidang-studi' && t.id !== 'ekstrakurikuler')"
                     :key="tab.id">
                     <div v-if="activeTab === tab.id" class="animate-slide-up">
                         <div class="flex flex-col items-center justify-center py-12">
@@ -1457,13 +1667,17 @@ import CreateRombelModal from '~/components/modals/CreateRombelModal.vue'
 import EditRombelModal from '~/components/modals/EditRombelModal.vue'
 import CreateBidangStudiModal from '~/components/modals/CreateBidangStudiModal.vue'
 import EditBidangStudiModal from '~/components/modals/EditBidangStudiModal.vue'
+import CreateEkstrakurikulerModal from '~/components/modals/CreateEkstrakurikulerModal.vue'
+import EditEkstrakurikulerModal from '~/components/modals/EditEkstrakurikulerModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import type { TahunPelajaranData } from '~/types/TahunPelajaranType'
 import type { RombelData } from '~/types/RombelType'
 import type { BidangStudiData } from '~/types/BidangStudiType'
+import type { EkstrakurikulerData } from '~/types/EkstrakurikulerType'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useRombelStore } from '~/stores/RombelStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
+import { useEkstrakurikulerStore } from '~/stores/EkstrakurikulerStore'
 
 definePageMeta({
     middleware: 'auth',
@@ -1477,6 +1691,7 @@ const tahunPelajaranStore = useTahunPelajaranStore()
 const kelasStore = useKelasStore()
 const rombelStore = useRombelStore()
 const bidangStudiStore = useBidangStudiStore()
+const ekstrakurikulerStore = useEkstrakurikulerStore()
 const { success, error } = useToast()
 
 // User Modal state
@@ -1643,6 +1858,27 @@ const bidangStudiFilters = ref({
     status: ''
 })
 
+// Ekstrakurikuler Modal state
+const showCreateEkstrakurikulerModal = ref(false)
+const showEditEkstrakurikulerModal = ref(false)
+const showDeleteEkstrakurikulerConfirm = ref(false)
+const isDeletingEkstrakurikuler = ref(false)
+const selectedEkstrakurikuler = ref<EkstrakurikulerData | null>(null)
+
+// Ekstrakurikuler Pagination state
+const ekstrakurikulerPagination = ref({
+    page: 1,
+    limit: 10
+})
+
+// Ekstrakurikuler Filter state
+const ekstrakurikulerFilters = ref({
+    name: '',
+    kelas_id: 0,
+    kategori: '',
+    status: ''
+})
+
 // Roles and Systems for filter dropdowns
 const roles = ref<any[]>([])
 const systems = ref<any[]>([])
@@ -1699,6 +1935,16 @@ const hasActiveBidangStudiFilters = computed(() => {
     return (
         bidangStudiFilters.value.name !== '' ||
         bidangStudiFilters.value.status !== ''
+    )
+})
+
+// Computed: Check if any ekstrakurikuler filter is active
+const hasActiveEkstrakurikulerFilters = computed(() => {
+    return (
+        ekstrakurikulerFilters.value.name !== '' ||
+        ekstrakurikulerFilters.value.kelas_id !== 0 ||
+        ekstrakurikulerFilters.value.kategori !== '' ||
+        ekstrakurikulerFilters.value.status !== ''
     )
 })
 
@@ -1871,6 +2117,26 @@ const bidangStudiTableColumns: TableColumn[] = [
     {
         key: 'name',
         label: 'Nama Bidang Studi',
+    },
+    {
+        key: 'status',
+        label: 'Status',
+    },
+]
+
+// Table columns configuration for ekstrakurikuler
+const ekstrakurikulerTableColumns: TableColumn[] = [
+    {
+        key: 'name',
+        label: 'Nama Ekstrakurikuler',
+    },
+    {
+        key: 'kelas_names',
+        label: 'Kelas',
+    },
+    {
+        key: 'kategori',
+        label: 'Kategori',
     },
     {
         key: 'status',
@@ -3005,6 +3271,146 @@ const handleDeleteBidangStudiConfirm = async () => {
     }
 }
 
+// Fetch ekstrakurikuler data with pagination and filters
+const fetchEkstrakurikulerData = async () => {
+    console.log('Fetching ekstrakurikuler data...', { pagination: ekstrakurikulerPagination.value, filters: ekstrakurikulerFilters.value })
+
+    // Build search object (only include non-empty values)
+    const search: any = {}
+    if (ekstrakurikulerFilters.value.name) search.name = ekstrakurikulerFilters.value.name
+    if (ekstrakurikulerFilters.value.kelas_id && ekstrakurikulerFilters.value.kelas_id !== 0) search.kelas_id = ekstrakurikulerFilters.value.kelas_id
+    if (ekstrakurikulerFilters.value.kategori) search.kategori = ekstrakurikulerFilters.value.kategori
+    if (ekstrakurikulerFilters.value.status) search.status = ekstrakurikulerFilters.value.status
+
+    const result = await ekstrakurikulerStore.fetchEkstrakurikulers(ekstrakurikulerPagination.value.page, ekstrakurikulerPagination.value.limit, search)
+    console.log('Fetch ekstrakurikuler result:', result)
+
+    if (!result.success && ekstrakurikulerStore.error) {
+        const { handle401 } = useAuthGuard()
+        if (result.message?.includes('401') || result.message?.includes('Unauthorized')) {
+            await handle401()
+        }
+    }
+}
+
+// Handle ekstrakurikuler page change
+const onEkstrakurikulerPageChange = (newPage: number) => {
+    ekstrakurikulerPagination.value.page = newPage
+    fetchEkstrakurikulerData()
+}
+
+// Handle ekstrakurikuler limit change
+const onEkstrakurikulerLimitChange = (newLimit: number) => {
+    ekstrakurikulerPagination.value.limit = newLimit
+    ekstrakurikulerPagination.value.page = 1 // Reset to first page
+    fetchEkstrakurikulerData()
+}
+
+// Apply ekstrakurikuler filter
+const applyEkstrakurikulerFilter = () => {
+    ekstrakurikulerPagination.value.page = 1 // Reset to first page when filtering
+    fetchEkstrakurikulerData()
+}
+
+// Clear ekstrakurikuler filter
+const clearEkstrakurikulerFilter = () => {
+    ekstrakurikulerFilters.value = {
+        name: '',
+        kelas_id: 0,
+        kategori: '',
+        status: ''
+    }
+    ekstrakurikulerPagination.value.page = 1
+    fetchEkstrakurikulerData()
+}
+
+// Open create ekstrakurikuler modal
+const openCreateEkstrakurikulerModal = () => {
+    showCreateEkstrakurikulerModal.value = true
+}
+
+// Open edit ekstrakurikuler modal
+const openEditEkstrakurikulerModal = (item: EkstrakurikulerData) => {
+    console.log('Opening Edit Ekstrakurikuler Modal for:', item)
+    selectedEkstrakurikuler.value = item
+    showEditEkstrakurikulerModal.value = true
+}
+
+// Open delete ekstrakurikuler confirmation
+const openDeleteEkstrakurikulerConfirm = (item: EkstrakurikulerData) => {
+    selectedEkstrakurikuler.value = item
+    showDeleteEkstrakurikulerConfirm.value = true
+}
+
+// Handle create ekstrakurikuler success
+const handleCreateEkstrakurikulerSuccess = (message: string) => {
+    console.log('Create ekstrakurikuler success:', message)
+    success('Ekstrakurikuler Berhasil Ditambahkan', message)
+
+    // Reset to page 1 after successful create
+    ekstrakurikulerPagination.value.page = 1
+    fetchEkstrakurikulerData()
+}
+
+// Handle create ekstrakurikuler error
+const handleCreateEkstrakurikulerError = (errorMessage: string) => {
+    console.error('Create ekstrakurikuler error:', errorMessage)
+    error('Gagal Menambahkan Ekstrakurikuler', errorMessage)
+}
+
+// Handle edit ekstrakurikuler success
+const handleEditEkstrakurikulerSuccess = (message: string) => {
+    console.log('Edit ekstrakurikuler success:', message)
+    success('Ekstrakurikuler Berhasil Diperbarui', message)
+
+    // Reset to page 1 after successful edit
+    ekstrakurikulerPagination.value.page = 1
+    fetchEkstrakurikulerData()
+}
+
+// Handle edit ekstrakurikuler error
+const handleEditEkstrakurikulerError = (errorMessage: string) => {
+    console.error('Edit ekstrakurikuler error:', errorMessage)
+    error('Gagal Mengupdate Ekstrakurikuler', errorMessage)
+}
+
+// Handle delete ekstrakurikuler confirmation
+const handleDeleteEkstrakurikulerConfirm = async () => {
+    if (!selectedEkstrakurikuler.value) return
+
+    isDeletingEkstrakurikuler.value = true
+    try {
+        const result = await ekstrakurikulerStore.removeEkstrakurikuler(selectedEkstrakurikuler.value.id)
+
+        if (result.success) {
+            success('Ekstrakurikuler Berhasil Dihapus', result.message)
+            showDeleteEkstrakurikulerConfirm.value = false
+            selectedEkstrakurikuler.value = null
+
+            // Calculate max page after deletion
+            const totalAfterDelete = ekstrakurikulerStore.total
+            const maxPage = Math.ceil(totalAfterDelete / ekstrakurikulerPagination.value.limit)
+
+            // If current page is beyond max page, go to previous page
+            if (ekstrakurikulerPagination.value.page > maxPage && maxPage > 0) {
+                ekstrakurikulerPagination.value.page = maxPage
+            } else if (maxPage === 0) {
+                ekstrakurikulerPagination.value.page = 1
+            }
+
+            // Fetch data for the appropriate page
+            await fetchEkstrakurikulerData()
+        } else {
+            error('Gagal Menghapus Ekstrakurikuler', result.message)
+        }
+    } catch (err: any) {
+        error('Gagal Menghapus Ekstrakurikuler', err.message || 'Terjadi kesalahan saat menghapus ekstrakurikuler')
+        console.error('Delete ekstrakurikuler error:', err)
+    } finally {
+        isDeletingEkstrakurikuler.value = false
+    }
+}
+
 // Watch activeTab to reload data when switching tabs
 watch(() => activeTab.value, (newTab) => {
     console.log('Tab changed to:', newTab)
@@ -3029,6 +3435,8 @@ watch(() => activeTab.value, (newTab) => {
         fetchRombelData()
     } else if (newTab === 'bidang-studi') {
         fetchBidangStudiData()
+    } else if (newTab === 'ekstrakurikuler') {
+        fetchEkstrakurikulerData()
     }
 })
 
@@ -3045,6 +3453,7 @@ onMounted(() => {
     fetchKelasData()
     fetchRombelData()
     fetchBidangStudiData()
+    fetchEkstrakurikulerData()
 })
 </script>
 
