@@ -64,6 +64,19 @@
             :message="`Apakah Anda yakin ingin menghapus permission ${selectedPermission?.name}? Tindakan ini tidak dapat dibatalkan.`"
             :is-loading="isDeletingPermission" @confirm="handleDeletePermissionConfirm" />
 
+        <!-- Create Tahun Pelajaran Modal -->
+        <CreateTahunPelajaranModal v-model="showCreateTahunPelajaranModal" @success="handleCreateTahunPelajaranSuccess"
+            @error="handleCreateTahunPelajaranError" />
+
+        <!-- Edit Tahun Pelajaran Modal -->
+        <EditTahunPelajaranModal v-model="showEditTahunPelajaranModal" :tahun-pelajaran-data="selectedTahunPelajaran"
+            @success="handleEditTahunPelajaranSuccess" @error="handleEditTahunPelajaranError" />
+
+        <!-- Delete Tahun Pelajaran Confirmation Modal -->
+        <ConfirmationDeleteModal v-model="showDeleteTahunPelajaranConfirm" title="Hapus Tahun Pelajaran"
+            :message="`Apakah Anda yakin ingin menghapus tahun pelajaran ${selectedTahunPelajaran?.tahun_pelajaran}? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeletingTahunPelajaran" @confirm="handleDeleteTahunPelajaranConfirm" />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
@@ -83,6 +96,8 @@
                     @click="openCreateRoleModal" />
                 <AddButton v-if="activeTab === 'permission'" label="Tambah Permission" iconClass="fa-solid fa-plus"
                     @click="openCreatePermissionModal" />
+                <AddButton v-if="activeTab === 'tahun-pelajaran'" label="Tambah Tahun Pelajaran"
+                    iconClass="fa-solid fa-plus" @click="openCreateTahunPelajaranModal" />
             </div>
         </div>
 
@@ -758,8 +773,143 @@
                     </template>
                 </div>
 
+                <!-- Tahun Pelajaran Tab -->
+                <div v-if="activeTab === 'tahun-pelajaran'" class="animate-slide-up">
+                    <!-- Loading State -->
+                    <div v-if="tahunPelajaranStore.isLoading" class="flex items-center justify-center py-8 sm:py-12">
+                        <div class="flex flex-col items-center gap-3 sm:gap-4">
+                            <div
+                                class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
+                            </div>
+                            <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data tahun pelajaran...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="tahunPelajaranStore.error && !hasActiveTahunPelajaranFilters"
+                        class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                        <div class="flex items-start gap-3 sm:gap-4">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
+                                <p class="mt-1 text-sm sm:text-base text-red-800">{{ tahunPelajaranStore.error }}</p>
+                                <button @click="fetchTahunPelajaranData"
+                                    class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success State: Filter & Table Section -->
+                    <template v-else>
+                        <!-- Filter Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Tahun Pelajaran</h3>
+
+                            <!-- Filter Form -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Tahun Pelajaran Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Tahun Pelajaran
+                                    </label>
+                                    <input v-model="tahunPelajaranFilters.tahun_pelajaran" type="text" placeholder="Cari tahun pelajaran..."
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Status
+                                    </label>
+                                    <select v-model="tahunPelajaranFilters.status"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option value="">Semua Status</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filter Buttons -->
+                            <div class="flex gap-3 mt-4">
+                                <button @click="applyTahunPelajaranFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
+                                    Cari
+                                </button>
+                                <button @click="clearTahunPelajaranFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-left w-4 h-4"></i>
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <!-- Data Table -->
+                            <div v-if="tahunPelajaranStore.tahunPelajarans.length > 0">
+                                <Table :items="tahunPelajaranStore.tahunPelajarans" :columns="tahunPelajaranTableColumns" :current-page="tahunPelajaranPagination.page" :current-limit="tahunPelajaranPagination.limit" :total="tahunPelajaranStore.total" :is-loading="tahunPelajaranStore.isLoading" @edit="openEditTahunPelajaranModal" @delete="openDeleteTahunPelajaranConfirm" @pageChange="onTahunPelajaranPageChange" @limitChange="onTahunPelajaranLimitChange">
+                                    <!-- Custom cell for Status column -->
+                                    <template #cell-status="{ item }">
+                                        <span :class="[
+                                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                                            item.status === 'active'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800',
+                                        ]">
+                                            <span :class="[
+                                                'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                                item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                                            ]"></span>
+                                            {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </template>
+
+                                    <!-- Custom actions slot -->
+                                    <template #actions="{ item }">
+                                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                            <!-- Edit Button -->
+                                            <EditButton title="Edit" label="Edit"
+                                                @click="openEditTahunPelajaranModal(item)" />
+
+                                            <!-- Delete Button -->
+                                            <DeleteButton title="Hapus" label="Hapus"
+                                                @click="openDeleteTahunPelajaranConfirm(item)" />
+                                        </div>
+                                    </template>
+                                </Table>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                                <div
+                                    class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
+                                    <i :class="[
+                                        hasActiveTahunPelajaranFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-calendar',
+                                        'text-2xl sm:text-4xl text-gray-400'
+                                    ]"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    {{ hasActiveTahunPelajaranFilters ? 'Data tidak ditemukan' : 'Belum ada tahun pelajaran' }}
+                                </h3>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActiveTahunPelajaranFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan tahun pelajaran baru ke sistem' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
                 <!-- Other Tabs -->
-                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission')"
+                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran')"
                     :key="tab.id">
                     <div v-if="activeTab === tab.id" class="animate-slide-up">
                         <div class="flex flex-col items-center justify-center py-12">
@@ -802,7 +952,11 @@ import EditSystemModal from '~/components/modals/EditSystemModal.vue'
 import CreatePermissionModal from '~/components/modals/CreatePermissionModal.vue'
 import PermissionDetailModal from '~/components/modals/PermissionDetailModal.vue'
 import EditPermissionModal from '~/components/modals/EditPermissionModal.vue'
+import CreateTahunPelajaranModal from '~/components/modals/CreateTahunPelajaranModal.vue'
+import EditTahunPelajaranModal from '~/components/modals/EditTahunPelajaranModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
+import type { TahunPelajaranData } from '~/types/TahunPelajaranType'
+import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 
 definePageMeta({
     middleware: 'auth',
@@ -812,6 +966,7 @@ definePageMeta({
 const userStore = useUserStore()
 const roleStore = useRoleStore()
 const permissionStore = usePermissionStore()
+const tahunPelajaranStore = useTahunPelajaranStore()
 const { success, error } = useToast()
 
 // User Modal state
@@ -898,6 +1053,25 @@ const permissionFilters = ref({
     name: '',
     group_name: '',
     system_id: 0,
+    status: ''
+})
+
+// Tahun Pelajaran Modal state
+const showCreateTahunPelajaranModal = ref(false)
+const showEditTahunPelajaranModal = ref(false)
+const showDeleteTahunPelajaranConfirm = ref(false)
+const isDeletingTahunPelajaran = ref(false)
+const selectedTahunPelajaran = ref<TahunPelajaranData | null>(null)
+
+// Tahun Pelajaran Pagination state
+const tahunPelajaranPagination = ref({
+    page: 1,
+    limit: 10
+})
+
+// Tahun Pelajaran Filter state
+const tahunPelajaranFilters = ref({
+    tahun_pelajaran: '',
     status: ''
 })
 
@@ -1060,6 +1234,18 @@ const permissionTableColumns: TableColumn[] = [
     {
         key: 'system_name',
         label: 'Sistem',
+    },
+    {
+        key: 'status',
+        label: 'Status',
+    },
+]
+
+// Table columns configuration for tahun pelajaran
+const tahunPelajaranTableColumns: TableColumn[] = [
+    {
+        key: 'tahun_pelajaran',
+        label: 'Tahun Pelajaran',
     },
     {
         key: 'status',
@@ -1642,6 +1828,146 @@ const handleDeletePermissionConfirm = async () => {
     }
 }
 
+// Computed for active filters check
+const hasActiveTahunPelajaranFilters = computed(() => {
+    return tahunPelajaranFilters.value.tahun_pelajaran !== '' || tahunPelajaranFilters.value.status !== ''
+})
+
+// Fetch tahun pelajaran data with pagination and filters
+const fetchTahunPelajaranData = async () => {
+    console.log('Fetching tahun pelajaran data...', { pagination: tahunPelajaranPagination.value, filters: tahunPelajaranFilters.value })
+
+    // Build search object (only include non-empty values)
+    const search: any = {}
+    if (tahunPelajaranFilters.value.tahun_pelajaran) search.tahun_pelajaran = tahunPelajaranFilters.value.tahun_pelajaran
+    if (tahunPelajaranFilters.value.status) search.status = tahunPelajaranFilters.value.status
+
+    const result = await tahunPelajaranStore.fetchTahunPelajarans(tahunPelajaranPagination.value.page, tahunPelajaranPagination.value.limit, search)
+
+    if (!result.success && tahunPelajaranStore.error) {
+        const { handle401 } = useAuthGuard()
+        if (result.message?.includes('401') || result.message?.includes('Unauthorized')) {
+            await handle401()
+        }
+    }
+}
+
+// Handle tahun pelajaran page change
+const onTahunPelajaranPageChange = (newPage: number) => {
+    tahunPelajaranPagination.value.page = newPage
+    fetchTahunPelajaranData()
+}
+
+// Handle tahun pelajaran limit change
+const onTahunPelajaranLimitChange = (newLimit: number) => {
+    tahunPelajaranPagination.value.limit = newLimit
+    tahunPelajaranPagination.value.page = 1 // Reset to first page
+    fetchTahunPelajaranData()
+}
+
+// Apply tahun pelajaran filter
+const applyTahunPelajaranFilter = () => {
+    tahunPelajaranPagination.value.page = 1 // Reset to first page when filtering
+    fetchTahunPelajaranData()
+}
+
+// Clear tahun pelajaran filter
+const clearTahunPelajaranFilter = () => {
+    tahunPelajaranFilters.value = {
+        tahun_pelajaran: '',
+        status: ''
+    }
+    tahunPelajaranPagination.value.page = 1
+    fetchTahunPelajaranData()
+}
+
+// Open create tahun pelajaran modal
+const openCreateTahunPelajaranModal = () => {
+    showCreateTahunPelajaranModal.value = true
+}
+
+// Open edit tahun pelajaran modal
+const openEditTahunPelajaranModal = (item: TahunPelajaranData) => {
+    console.log('Opening Edit Tahun Pelajaran Modal for:', item)
+    selectedTahunPelajaran.value = item
+    showEditTahunPelajaranModal.value = true
+}
+
+// Open delete tahun pelajaran confirmation
+const openDeleteTahunPelajaranConfirm = (item: TahunPelajaranData) => {
+    selectedTahunPelajaran.value = item
+    showDeleteTahunPelajaranConfirm.value = true
+}
+
+// Handle create tahun pelajaran success
+const handleCreateTahunPelajaranSuccess = (message: string) => {
+    console.log('Create tahun pelajaran success:', message)
+    success('Tahun Pelajaran Berhasil Ditambahkan', message)
+
+    // Reset to page 1 after successful create
+    tahunPelajaranPagination.value.page = 1
+    fetchTahunPelajaranData()
+}
+
+// Handle create tahun pelajaran error
+const handleCreateTahunPelajaranError = (errorMessage: string) => {
+    console.error('Create tahun pelajaran error:', errorMessage)
+    error('Gagal Menambahkan Tahun Pelajaran', errorMessage)
+}
+
+// Handle edit tahun pelajaran success
+const handleEditTahunPelajaranSuccess = (message: string) => {
+    console.log('Edit tahun pelajaran success:', message)
+    success('Tahun Pelajaran Berhasil Diperbarui', message)
+
+    // Reset to page 1 after successful edit
+    tahunPelajaranPagination.value.page = 1
+    fetchTahunPelajaranData()
+}
+
+// Handle edit tahun pelajaran error
+const handleEditTahunPelajaranError = (errorMessage: string) => {
+    console.error('Edit tahun pelajaran error:', errorMessage)
+    error('Gagal Mengupdate Tahun Pelajaran', errorMessage)
+}
+
+// Handle delete tahun pelajaran confirmation
+const handleDeleteTahunPelajaranConfirm = async () => {
+    if (!selectedTahunPelajaran.value) return
+
+    isDeletingTahunPelajaran.value = true
+    try {
+        const result = await tahunPelajaranStore.removeTahunPelajaran(selectedTahunPelajaran.value.id)
+
+        if (result.success) {
+            success('Tahun Pelajaran Berhasil Dihapus', result.message)
+            showDeleteTahunPelajaranConfirm.value = false
+            selectedTahunPelajaran.value = null
+
+            // Calculate max page after deletion
+            const totalAfterDelete = tahunPelajaranStore.total
+            const maxPage = Math.ceil(totalAfterDelete / tahunPelajaranPagination.value.limit)
+
+            // If current page is beyond max page, go to previous page
+            if (tahunPelajaranPagination.value.page > maxPage && maxPage > 0) {
+                tahunPelajaranPagination.value.page = maxPage
+            } else if (maxPage === 0) {
+                tahunPelajaranPagination.value.page = 1
+            }
+
+            // Fetch data for the appropriate page
+            await fetchTahunPelajaranData()
+        } else {
+            error('Gagal Menghapus Tahun Pelajaran', result.message)
+        }
+    } catch (err: any) {
+        error('Gagal Menghapus Tahun Pelajaran', err.message || 'Terjadi kesalahan saat menghapus tahun pelajaran')
+        console.error('Delete tahun pelajaran error:', err)
+    } finally {
+        isDeletingTahunPelajaran.value = false
+    }
+}
+
 // Watch activeTab to reload data when switching tabs
 watch(() => activeTab.value, (newTab) => {
     console.log('Tab changed to:', newTab)
@@ -1658,6 +1984,8 @@ watch(() => activeTab.value, (newTab) => {
         fetchRoleData()
     } else if (newTab === 'permission') {
         fetchPermissionData()
+    } else if (newTab === 'tahun-pelajaran') {
+        fetchTahunPelajaranData()
     }
 })
 
@@ -1670,6 +1998,7 @@ onMounted(() => {
     fetchUserData()
     fetchRoleData()
     fetchPermissionData()
+    fetchTahunPelajaranData()
 })
 </script>
 
