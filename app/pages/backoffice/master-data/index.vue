@@ -90,6 +90,19 @@
             :message="`Apakah Anda yakin ingin menghapus kelas ${selectedKelas?.name}? Tindakan ini tidak dapat dibatalkan.`"
             :is-loading="isDeletingKelas" @confirm="handleDeleteKelasConfirm" />
 
+        <!-- Create Rombel Modal -->
+        <CreateRombelModal v-model="showCreateRombelModal" @success="handleCreateRombelSuccess"
+            @error="handleCreateRombelError" />
+
+        <!-- Edit Rombel Modal -->
+        <EditRombelModal v-model="showEditRombelModal" :rombel-data="selectedRombel" @success="handleEditRombelSuccess"
+            @error="handleEditRombelError" />
+
+        <!-- Delete Rombel Confirmation Modal -->
+        <ConfirmationDeleteModal v-model="showDeleteRombelConfirm" title="Hapus Rombel"
+            :message="`Apakah Anda yakin ingin menghapus rombel ${selectedRombel?.name}? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeletingRombel" @confirm="handleDeleteRombelConfirm" />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
@@ -113,6 +126,8 @@
                     iconClass="fa-solid fa-plus" @click="openCreateTahunPelajaranModal" />
                 <AddButton v-if="activeTab === 'kelas'" label="Tambah Kelas" iconClass="fa-solid fa-plus"
                     @click="openCreateKelasModal" />
+                <AddButton v-if="activeTab === 'rombel'" label="Tambah Rombel" iconClass="fa-solid fa-plus"
+                    @click="openCreateRombelModal" />
             </div>
         </div>
 
@@ -1068,8 +1083,174 @@
                     </template>
                 </div>
 
+                <!-- Rombel Tab -->
+                <div v-if="activeTab === 'rombel'" class="animate-slide-up">
+                    <!-- Loading State -->
+                    <div v-if="rombelStore.isLoading" class="flex items-center justify-center py-8 sm:py-12">
+                        <div class="flex flex-col items-center gap-3 sm:gap-4">
+                            <div
+                                class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
+                            </div>
+                            <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data rombel...</p>
+                        </div>
+                    </div>
+
+                    <!-- Error State -->
+                    <div v-else-if="rombelStore.error && !hasActiveRombelFilters"
+                        class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                        <div class="flex items-start gap-3 sm:gap-4">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                        clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
+                                <p class="mt-1 text-sm sm:text-base text-red-800">{{ rombelStore.error }}</p>
+                                <button @click="fetchRombelData"
+                                    class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
+                                    <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
+                                    Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Success State: Filter & Table Section -->
+                    <template v-else>
+                        <!-- Filter Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Rombel</h3>
+
+                            <!-- Filter Form -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Nama Rombel Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Nama Rombel
+                                    </label>
+                                    <input v-model="rombelFilters.name" type="text" placeholder="Cari nama rombel..."
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                                </div>
+
+                                <!-- Kelas Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Kelas
+                                    </label>
+                                    <select v-model.number="rombelFilters.kelas_id"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option :value="0">Semua Kelas</option>
+                                        <option v-for="kelas in kelasStore.kelases" :key="kelas.id" :value="kelas.id">
+                                            {{ kelas.name }}
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <!-- Status Filter -->
+                                <div>
+                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                        Status
+                                    </label>
+                                    <select v-model="rombelFilters.status"
+                                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                                        <option value="">Semua Status</option>
+                                        <option value="active">Aktif</option>
+                                        <option value="inactive">Nonaktif</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Filter Buttons -->
+                            <div class="flex gap-3 mt-4">
+                                <button @click="applyRombelFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
+                                    Cari
+                                </button>
+                                <button @click="clearRombelFilter"
+                                    class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-rotate-left w-4 h-4"></i>
+                                    Reset Filter
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Section -->
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                            <!-- Data Table -->
+                            <div v-if="rombelStore.rombels.length > 0">
+                                <Table :items="rombelStore.rombels" :columns="rombelTableColumns"
+                                    :current-page="rombelPagination.page" :current-limit="rombelPagination.limit"
+                                    :total="rombelStore.total" :is-loading="rombelStore.isLoading"
+                                    @edit="openEditRombelModal" @delete="openDeleteRombelConfirm"
+                                    @pageChange="onRombelPageChange" @limitChange="onRombelLimitChange">
+                                    <!-- Custom cell for Kelas Name column -->
+                                    <template #cell-kelas_name="{ item }">
+                                        <div class="flex items-center gap-2">
+                                            <span>{{ item.kelas?.name || '-' }}</span>
+                                            <span v-if="item.kelas?.status === 'inactive'" :class="[
+                                                'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold',
+                                                'bg-red-100 text-red-800',
+                                            ]">
+                                                Nonaktif
+                                            </span>
+                                        </div>
+                                    </template>
+
+                                    <!-- Custom cell for Status column -->
+                                    <template #cell-status="{ item }">
+                                        <span :class="[
+                                            'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                                            item.status === 'active'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800',
+                                        ]">
+                                            <span :class="[
+                                                'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                                item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                                            ]"></span>
+                                            {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                        </span>
+                                    </template>
+
+                                    <!-- Custom actions slot -->
+                                    <template #actions="{ item }">
+                                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                                            <!-- Edit Button -->
+                                            <EditButton title="Edit" label="Edit"
+                                                @click="openEditRombelModal(item)" />
+
+                                            <!-- Delete Button -->
+                                            <DeleteButton title="Hapus" label="Hapus"
+                                                @click="openDeleteRombelConfirm(item)" />
+                                        </div>
+                                    </template>
+                                </Table>
+                            </div>
+
+                            <!-- Empty State -->
+                            <div v-else class="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-6">
+                                <div
+                                    class="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4 sm:mb-6">
+                                    <i :class="[
+                                        hasActiveRombelFilters ? 'fa-solid fa-magnifying-glass' : 'fa-solid fa-sitemap',
+                                        'text-2xl sm:text-4xl text-gray-400'
+                                    ]"></i>
+                                </div>
+                                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
+                                    {{ hasActiveRombelFilters ? 'Data tidak ditemukan' : 'Belum ada rombel' }}
+                                </h3>
+                                <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">{{ hasActiveRombelFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan rombel baru ke sistem' }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
                 <!-- Other Tabs -->
-                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran' && t.id !== 'kelas')"
+                <div v-for="tab in tabs.filter(t => t.id !== 'user' && t.id !== 'system' && t.id !== 'role' && t.id !== 'permission' && t.id !== 'tahun-pelajaran' && t.id !== 'kelas' && t.id !== 'rombel')"
                     :key="tab.id">
                     <div v-if="activeTab === tab.id" class="animate-slide-up">
                         <div class="flex flex-col items-center justify-center py-12">
@@ -1118,9 +1299,13 @@ import CreateTahunPelajaranModal from '~/components/modals/CreateTahunPelajaranM
 import EditTahunPelajaranModal from '~/components/modals/EditTahunPelajaranModal.vue'
 import CreateKelasModal from '~/components/modals/CreateKelasModal.vue'
 import EditKelasModal from '~/components/modals/EditKelasModal.vue'
+import CreateRombelModal from '~/components/modals/CreateRombelModal.vue'
+import EditRombelModal from '~/components/modals/EditRombelModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import type { TahunPelajaranData } from '~/types/TahunPelajaranType'
+import type { RombelData } from '~/types/RombelType'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
+import { useRombelStore } from '~/stores/RombelStore'
 
 definePageMeta({
     middleware: 'auth',
@@ -1132,6 +1317,7 @@ const roleStore = useRoleStore()
 const permissionStore = usePermissionStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const kelasStore = useKelasStore()
+const rombelStore = useRombelStore()
 const { success, error } = useToast()
 
 // User Modal state
@@ -1259,6 +1445,26 @@ const kelasFilters = ref({
     status: ''
 })
 
+// Rombel Modal state
+const showCreateRombelModal = ref(false)
+const showEditRombelModal = ref(false)
+const showDeleteRombelConfirm = ref(false)
+const isDeletingRombel = ref(false)
+const selectedRombel = ref<RombelData | null>(null)
+
+// Rombel Pagination state
+const rombelPagination = ref({
+    page: 1,
+    limit: 10
+})
+
+// Rombel Filter state
+const rombelFilters = ref({
+    name: '',
+    kelas_id: 0,
+    status: ''
+})
+
 // Roles and Systems for filter dropdowns
 const roles = ref<any[]>([])
 const systems = ref<any[]>([])
@@ -1298,6 +1504,15 @@ const hasActivePermissionFilters = computed(() => {
         permissionFilters.value.group_name !== '' ||
         permissionFilters.value.system_id !== 0 ||
         permissionFilters.value.status !== ''
+    )
+})
+
+// Computed: Check if any rombel filter is active
+const hasActiveRombelFilters = computed(() => {
+    return (
+        rombelFilters.value.name !== '' ||
+        rombelFilters.value.kelas_id !== 0 ||
+        rombelFilters.value.status !== ''
     )
 })
 
@@ -1442,6 +1657,22 @@ const kelasTableColumns: TableColumn[] = [
     {
         key: 'name',
         label: 'Nama Kelas',
+    },
+    {
+        key: 'status',
+        label: 'Status',
+    },
+]
+
+// Table columns configuration for rombel
+const rombelTableColumns: TableColumn[] = [
+    {
+        key: 'name',
+        label: 'Nama Rombel',
+    },
+    {
+        key: 'kelas_name',
+        label: 'Kelas',
     },
     {
         key: 'status',
@@ -2304,6 +2535,143 @@ const handleDeleteKelasConfirm = async () => {
     }
 }
 
+// Fetch rombel data with pagination and filters
+const fetchRombelData = async () => {
+    console.log('Fetching rombel data...', { pagination: rombelPagination.value, filters: rombelFilters.value })
+
+    // Build search object (only include non-empty values)
+    const search: any = {}
+    if (rombelFilters.value.name) search.name = rombelFilters.value.name
+    if (rombelFilters.value.kelas_id && rombelFilters.value.kelas_id !== 0) search.kelas_id = rombelFilters.value.kelas_id
+    if (rombelFilters.value.status) search.status = rombelFilters.value.status
+
+    const result = await rombelStore.fetchRombels(rombelPagination.value.page, rombelPagination.value.limit, search)
+
+    if (!result.success && rombelStore.error) {
+        const { handle401 } = useAuthGuard()
+        if (result.message?.includes('401') || result.message?.includes('Unauthorized')) {
+            await handle401()
+        }
+    }
+}
+
+// Handle rombel page change
+const onRombelPageChange = (newPage: number) => {
+    rombelPagination.value.page = newPage
+    fetchRombelData()
+}
+
+// Handle rombel limit change
+const onRombelLimitChange = (newLimit: number) => {
+    rombelPagination.value.limit = newLimit
+    rombelPagination.value.page = 1 // Reset to first page
+    fetchRombelData()
+}
+
+// Apply rombel filter
+const applyRombelFilter = () => {
+    rombelPagination.value.page = 1 // Reset to first page when filtering
+    fetchRombelData()
+}
+
+// Clear rombel filter
+const clearRombelFilter = () => {
+    rombelFilters.value = {
+        name: '',
+        kelas_id: 0,
+        status: ''
+    }
+    rombelPagination.value.page = 1
+    fetchRombelData()
+}
+
+// Open create rombel modal
+const openCreateRombelModal = () => {
+    showCreateRombelModal.value = true
+}
+
+// Open edit rombel modal
+const openEditRombelModal = (item: RombelData) => {
+    console.log('Opening Edit Rombel Modal for:', item)
+    selectedRombel.value = item
+    showEditRombelModal.value = true
+}
+
+// Open delete rombel confirmation
+const openDeleteRombelConfirm = (item: RombelData) => {
+    selectedRombel.value = item
+    showDeleteRombelConfirm.value = true
+}
+
+// Handle create rombel success
+const handleCreateRombelSuccess = (message: string) => {
+    console.log('Create rombel success:', message)
+    success('Rombel Berhasil Ditambahkan', message)
+
+    // Reset to page 1 after successful create
+    rombelPagination.value.page = 1
+    fetchRombelData()
+}
+
+// Handle create rombel error
+const handleCreateRombelError = (errorMessage: string) => {
+    console.error('Create rombel error:', errorMessage)
+    error('Gagal Menambahkan Rombel', errorMessage)
+}
+
+// Handle edit rombel success
+const handleEditRombelSuccess = (message: string) => {
+    console.log('Edit rombel success:', message)
+    success('Rombel Berhasil Diperbarui', message)
+
+    // Reset to page 1 after successful edit
+    rombelPagination.value.page = 1
+    fetchRombelData()
+}
+
+// Handle edit rombel error
+const handleEditRombelError = (errorMessage: string) => {
+    console.error('Edit rombel error:', errorMessage)
+    error('Gagal Mengupdate Rombel', errorMessage)
+}
+
+// Handle delete rombel confirmation
+const handleDeleteRombelConfirm = async () => {
+    if (!selectedRombel.value) return
+
+    isDeletingRombel.value = true
+    try {
+        const result = await rombelStore.removeRombel(selectedRombel.value.id)
+
+        if (result.success) {
+            success('Rombel Berhasil Dihapus', result.message)
+            showDeleteRombelConfirm.value = false
+            selectedRombel.value = null
+
+            // Calculate max page after deletion
+            const totalAfterDelete = rombelStore.total
+            const maxPage = Math.ceil(totalAfterDelete / rombelPagination.value.limit)
+
+            // If current page is beyond max page, go to previous page
+            if (rombelPagination.value.page > maxPage && maxPage > 0) {
+                rombelPagination.value.page = maxPage
+            } else if (maxPage === 0) {
+                rombelPagination.value.page = 1
+            }
+
+            // Fetch data for the appropriate page
+            await fetchRombelData()
+        } else {
+            error('Gagal Menghapus Rombel', result.message)
+        }
+    } catch (err: any) {
+        error('Gagal Menghapus Rombel', err.message || 'Terjadi kesalahan saat menghapus rombel')
+        console.error('Delete rombel error:', err)
+    } finally {
+        isDeletingRombel.value = false
+    }
+}
+
 // Watch activeTab to reload data when switching tabs
 watch(() => activeTab.value, (newTab) => {
     console.log('Tab changed to:', newTab)
@@ -2324,6 +2692,8 @@ watch(() => activeTab.value, (newTab) => {
         fetchTahunPelajaranData()
     } else if (newTab === 'kelas') {
         fetchKelasData()
+    } else if (newTab === 'rombel') {
+        fetchRombelData()
     }
 })
 
@@ -2338,6 +2708,7 @@ onMounted(() => {
     fetchPermissionData()
     fetchTahunPelajaranData()
     fetchKelasData()
+    fetchRombelData()
 })
 </script>
 
