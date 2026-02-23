@@ -304,7 +304,6 @@ const formatGroupName = (groupName: string): string => {
 const closeModal = () => {
   if (!isSubmitting.value && !isLoading.value) {
     emit('update:modelValue', false)
-    resetForm()
   }
 }
 
@@ -454,14 +453,18 @@ const handleSubmit = async () => {
   }
 }
 
-// Watch modelValue to load role data when modal opens
+// Watch modelValue and roleData to load role data when modal opens
 watch(
-  () => props.modelValue,
-  (newVal) => {
-    if (newVal) {
+  () => [props.modelValue, props.roleData],
+  async ([isOpen, roleData]) => {
+    if (isOpen && roleData) {
       fetchRoleData()
+    } else if (!isOpen) {
+      // Reset form when modal closes
+      resetForm()
     }
-  }
+  },
+  { immediate: false, deep: true }
 )
 
 // Lifecycle
