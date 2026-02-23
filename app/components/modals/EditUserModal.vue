@@ -162,20 +162,29 @@
                                     </div>
 
                                     <!-- Roles Radio Group -->
-                                    <div class="space-y-2">
-                                        <label v-for="role in roleGroup" :key="role.id"
-                                            class="flex items-center gap-3 cursor-pointer">
-                                            <input :value="role.id"
-                                                v-model.number="form.role_by_system[Number(systemId)]" type="radio"
-                                                :name="`role-system-${systemId}`" :disabled="isSubmitting"
-                                                class="w-4 h-4 rounded-full border-2 border-gray-300 text-red-600 focus:ring-2 focus:ring-red-500 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" />
-                                            <div class="flex-1">
-                                                <span class="text-xs sm:text-sm font-medium text-gray-700 block">{{
-                                                    role.name }}</span>
-                                                <span class="text-xs text-gray-500">{{ role.description }}</span>
-                                            </div>
-                                        </label>
-                                    </div>
+                                     <div class="space-y-2">
+                                         <label v-for="role in roleGroup" :key="role.id"
+                                             :class="[
+                                                 'flex items-center gap-3 cursor-pointer px-3 py-2 rounded-lg transition-colors duration-200',
+                                                 role.status === 'inactive' ? 'bg-gray-100 opacity-75' : 'hover:bg-gray-100'
+                                             ]">
+                                             <input :value="role.id"
+                                                 v-model.number="form.role_by_system[Number(systemId)]" type="radio"
+                                                 :name="`role-system-${systemId}`" :disabled="isSubmitting || role.status === 'inactive'"
+                                                 class="w-4 h-4 rounded-full border-2 border-gray-300 text-red-600 focus:ring-2 focus:ring-red-500 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" />
+                                             <div class="flex-1">
+                                                 <div class="flex items-center gap-2">
+                                                     <span class="text-xs sm:text-sm font-medium text-gray-700 block">{{
+                                                         role.name }}</span>
+                                                     <span v-if="role.status === 'inactive'"
+                                                         class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-red-100 text-red-800">
+                                                         Nonaktif
+                                                     </span>
+                                                 </div>
+                                                 <span class="text-xs text-gray-500">{{ role.description }}</span>
+                                             </div>
+                                         </label>
+                                     </div>
                                 </div>
                             </div>
                         </div>
@@ -275,14 +284,19 @@ const originalForm = ref({
 
 const roles = ref<Role[]>([])
 const rolesLoading = ref(false)
+const selectedRoleIds = ref<Set<number>>(new Set()) // Track selected role IDs from userData
 
-// Computed: Group roles by system_id (only active roles)
+// Computed: Group roles by system_id (show active roles + inactive roles that are currently selected)
 const rolesBySystem = computed(() => {
     const grouped: Record<number, Role[]> = {}
 
     roles.value.forEach(role => {
-        // Filter hanya role yang status-nya active
-        if (role.status === 'active') {
+        // Show role if:
+        // 1. Role is active, OR
+        // 2. Role is inactive BUT currently selected by user
+        const isCurrentlySelected = selectedRoleIds.value.has(role.id)
+        
+        if (role.status === 'active' || isCurrentlySelected) {
             if (!grouped[role.system_id]) {
                 grouped[role.system_id] = []
             }
@@ -314,7 +328,6 @@ const hasChanges = computed(() => {
 const closeModal = () => {
     if (!isSubmitting.value) {
         emit('update:modelValue', false)
-        resetForm()
     }
 }
 
@@ -363,29 +376,31 @@ const resetRoleGroup = (systemId: number) => {
 
 // Initialize form with user data when modal opens
 watch(
-    () => props.userData,
-    async (newVal) => {
-        if (newVal && props.modelValue) {
+    () => [props.userData, props.modelValue],
+    async ([newUserData, isOpen]) => {
+        if (newUserData && isOpen) {
             // Fetch roles when opening modal
             await fetchRoles()
 
-            // Map roles by system from API response
+            // Track selected role IDs from userData
+            selectedRoleIds.value = new Set()
             const roleBySystem: Record<number, number> = {}
-            if (newVal.roles && Array.isArray(newVal.roles)) {
-                newVal.roles.forEach((role: any) => {
+            if (newUserData.roles && Array.isArray(newUserData.roles)) {
+                newUserData.roles.forEach((role: any) => {
+                    selectedRoleIds.value.add(role.id) // Track selected role IDs
                     roleBySystem[role.system_id] = role.id
                 })
             }
 
             // Create new form object
             const newFormValue = {
-                id: newVal.id,
-                nama: newVal.nama,
-                username: newVal.username,
+                id: newUserData.id,
+                nama: newUserData.nama,
+                username: newUserData.username,
                 password: '',
                 password_confirm: '',
                 role_by_system: roleBySystem,
-                status: newVal.status as 'active' | 'inactive'
+                status: newUserData.status as 'active' | 'inactive'
             }
 
             // Set form value
@@ -398,9 +413,13 @@ watch(
             originalForm.value = JSON.parse(JSON.stringify(form.value))
             submitError.value = null
             showPassword.value = false
+        } else if (!isOpen) {
+            // Reset form when modal closes
+            selectedRoleIds.value = new Set() // Clear selected role IDs
+            resetForm()
         }
     },
-    { immediate: false }
+    { immediate: false, deep: true }
 )
 
 // Watch for modal open to fetch roles
@@ -414,6 +433,7 @@ watch(
         }
     }
 )
+
 
 // Handle submit
 const handleSubmit = async () => {
