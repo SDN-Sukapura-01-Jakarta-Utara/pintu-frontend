@@ -166,7 +166,6 @@ const hasChanges = computed(() => {
 const closeModal = () => {
     if (!isSubmitting.value) {
         emit('update:modelValue', false)
-        resetForm()
     }
 }
 
@@ -183,32 +182,25 @@ const resetForm = () => {
 
 // Initialize form with system data when modal opens
 watch(
-    () => props.systemData,
-    (newVal) => {
-        if (newVal && props.modelValue) {
+    () => [props.systemData, props.modelValue],
+    async ([newSystemData, isOpen]) => {
+        if (newSystemData && isOpen) {
             const newFormValue = {
-                id: newVal.id,
-                nama: newVal.nama,
-                description: newVal.description,
-                status: newVal.status as 'active' | 'inactive'
+                id: newSystemData.id,
+                nama: newSystemData.nama,
+                description: newSystemData.description,
+                status: newSystemData.status as 'active' | 'inactive'
             }
 
             form.value = newFormValue
             originalForm.value = JSON.parse(JSON.stringify(form.value))
             submitError.value = null
-        }
-    },
-    { immediate: false }
-)
-
-// Watch for modal open to reset
-watch(
-    () => props.modelValue,
-    (newVal) => {
-        if (!newVal) {
+        } else if (!isOpen) {
+            // Reset form when modal closes
             resetForm()
         }
-    }
+    },
+    { immediate: false, deep: true }
 )
 
 // Handle submit
