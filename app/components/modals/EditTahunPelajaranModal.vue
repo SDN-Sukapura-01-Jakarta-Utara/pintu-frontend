@@ -190,22 +190,29 @@ const showConfirmation = ref(false)
 const isConfirming = ref(false)
 
 // Watch for tahunPelajaranData changes and populate form
-watch(() => props.tahunPelajaranData, (newData) => {
-    if (newData) {
-        form.value = {
-            id: newData.id,
-            tahun_pelajaran: newData.tahun_pelajaran,
-            status: newData.status
+watch(
+    () => [props.tahunPelajaranData, props.modelValue],
+    ([newData, isOpen]) => {
+        if (newData && isOpen) {
+            form.value = {
+                id: newData.id,
+                tahun_pelajaran: newData.tahun_pelajaran,
+                status: newData.status
+            }
+            originalStatus.value = newData.status
+            submitError.value = null
+        } else if (!isOpen) {
+            // Reset form when modal closes
+            resetForm()
         }
-        originalStatus.value = newData.status
-    }
-}, { immediate: true })
+    },
+    { immediate: false, deep: true }
+)
 
 // Close modal
 const closeModal = () => {
     if (!isSubmitting.value) {
         emit('update:modelValue', false)
-        resetForm()
     }
 }
 

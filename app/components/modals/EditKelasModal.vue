@@ -133,21 +133,27 @@ const isSubmitting = ref(false)
 const submitError = ref<string | null>(null)
 
 // Watch kelasData prop and populate form
-watch(() => props.kelasData, (newData) => {
-    if (newData) {
-        form.value = {
-            name: newData.name,
-            status: newData.status
+watch(
+    () => [props.kelasData, props.modelValue],
+    ([newData, isOpen]) => {
+        if (newData && isOpen) {
+            form.value = {
+                name: newData.name,
+                status: newData.status
+            }
+            submitError.value = null
+        } else if (!isOpen) {
+            // Reset form when modal closes
+            resetForm()
         }
-        submitError.value = null
-    }
-}, { immediate: true })
+    },
+    { immediate: false, deep: true }
+)
 
 // Close modal
 const closeModal = () => {
     if (!isSubmitting.value) {
         emit('update:modelValue', false)
-        resetForm()
     }
 }
 

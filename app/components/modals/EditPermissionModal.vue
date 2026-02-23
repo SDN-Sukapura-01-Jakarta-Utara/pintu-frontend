@@ -187,7 +187,6 @@ const submitError = ref<string | null>(null)
 const closeModal = () => {
   if (!isSubmitting.value) {
     emit('update:modelValue', false)
-    resetForm()
   }
 }
 
@@ -269,19 +268,27 @@ const handleSubmit = async () => {
   }
 }
 
-// Watch permissionData prop to populate form
-watch(() => props.permissionData, (newData) => {
-  if (newData) {
-    form.value = {
-      id: newData.id,
-      name: newData.name,
-      description: newData.description,
-      group_name: newData.group_name,
-      system_id: newData.system_id,
-      status: newData.status
+// Watch permissionData and modelValue to populate form
+watch(
+  () => [props.permissionData, props.modelValue],
+  ([newData, isOpen]) => {
+    if (newData && isOpen) {
+      form.value = {
+        id: newData.id,
+        name: newData.name,
+        description: newData.description,
+        group_name: newData.group_name,
+        system_id: newData.system_id,
+        status: newData.status
+      }
+      submitError.value = null
+    } else if (!isOpen) {
+      // Reset form when modal closes
+      resetForm()
     }
-  }
-}, { deep: true })
+  },
+  { immediate: false, deep: true }
+)
 
 // Lifecycle
 onMounted(() => {

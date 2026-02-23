@@ -208,17 +208,27 @@ const isKelasDisabled = (kelasId: number) => {
     return kelasFromResponse?.status === 'inactive'
 }
 
-// Watch ekstrakurikulerData to update form
-watch(() => props.ekstrakurikulerData, (newData) => {
-    if (newData) {
-        form.value = {
-            name: newData.name,
-            kelas_ids: [...newData.kelas_ids],
-            kategori: newData.kategori,
-            status: newData.status
+// Watch ekstrakurikulerData and modelValue to update form
+watch(
+    () => [props.ekstrakurikulerData, props.modelValue],
+    async ([newData, isOpen]) => {
+        if (newData && isOpen) {
+            form.value = {
+                name: newData.name,
+                kelas_ids: [...newData.kelas_ids],
+                kategori: newData.kategori,
+                status: newData.status
+            }
+            submitError.value = null
+            // Fetch kelas when opening modal
+            await fetchKelasData()
+        } else if (!isOpen) {
+            // Reset form when modal closes
+            resetForm()
         }
-    }
-}, { deep: true })
+    },
+    { immediate: false, deep: true }
+)
 
 // Fetch kelas data
 const fetchKelasData = async () => {
@@ -240,19 +250,10 @@ onMounted(() => {
     fetchKelasData()
 })
 
-// Watch modelValue - fetch kelas setiap kali modal dibuka
-watch(() => props.modelValue, (newVal) => {
-    if (newVal) {
-        // Modal dibuka - refresh kelas data
-        fetchKelasData()
-    }
-})
-
 // Close modal
 const closeModal = () => {
     if (!isSubmitting.value) {
         emit('update:modelValue', false)
-        resetForm()
     }
 }
 

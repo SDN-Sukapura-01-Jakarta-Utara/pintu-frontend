@@ -177,16 +177,26 @@ const submitError = ref<string | null>(null)
 const kelasLoading = ref(false)
 const kelases = ref<any[]>([])
 
-// Watch rombelData to update form
-watch(() => props.rombelData, (newData) => {
-    if (newData) {
-        form.value = {
-            name: newData.name,
-            status: newData.status,
-            kelas_id: newData.kelas_id
+// Watch rombelData and modelValue to update form
+watch(
+    () => [props.rombelData, props.modelValue],
+    async ([newData, isOpen]) => {
+        if (newData && isOpen) {
+            form.value = {
+                name: newData.name,
+                status: newData.status,
+                kelas_id: newData.kelas_id
+            }
+            submitError.value = null
+            // Fetch kelas when opening modal
+            await fetchKelasData()
+        } else if (!isOpen) {
+            // Reset form when modal closes
+            resetForm()
         }
-    }
-}, { deep: true })
+    },
+    { immediate: false, deep: true }
+)
 
 // Fetch kelas data
 const fetchKelasData = async () => {
@@ -208,19 +218,10 @@ onMounted(() => {
     fetchKelasData()
 })
 
-// Watch modelValue - fetch kelas setiap kali modal dibuka
-watch(() => props.modelValue, (newVal) => {
-    if (newVal) {
-        // Modal dibuka - refresh kelas data
-        fetchKelasData()
-    }
-})
-
 // Close modal
 const closeModal = () => {
     if (!isSubmitting.value) {
         emit('update:modelValue', false)
-        resetForm()
     }
 }
 
