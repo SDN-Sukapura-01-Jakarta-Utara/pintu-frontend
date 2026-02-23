@@ -185,27 +185,27 @@ const submitError = ref<string | null>(null)
 const kelasLoading = ref(false)
 const kelases = ref<any[]>([])
 
-// Computed: Get all kelas (active and inactive)
+// Computed: Get all kelas (active and inactive that were previously selected)
 const allKelases = computed(() => {
     const activeKelas = kelases.value.filter(k => k.status === 'active')
     
-    // If editing, add inactive kelas that were selected
+    // If editing, add inactive kelas from response data (historis data)
     if (props.ekstrakurikulerData?.kelas) {
-        const selectedKelasIds = form.value.kelas_ids
-        const inactiveSelectedKelas = props.ekstrakurikulerData.kelas.filter(k => 
-            k.status === 'inactive' && selectedKelasIds.includes(k.id)
+        const inactiveKelasFromResponse = props.ekstrakurikulerData.kelas.filter(k => 
+            k.status === 'inactive'
         )
         
-        return [...activeKelas, ...inactiveSelectedKelas]
+        return [...activeKelas, ...inactiveKelasFromResponse]
     }
     
     return activeKelas
 })
 
-// Check if kelas is disabled (inactive but not selected in form)
+// Check if kelas is disabled (inactive kelas dari response data asli)
 const isKelasDisabled = (kelasId: number) => {
-    const kelas = kelases.value.find(k => k.id === kelasId)
-    return kelas?.status === 'inactive' && !form.value.kelas_ids.includes(kelasId)
+    // Cek apakah kelas ini ada di response data ekstrakurikuler dan statusnya inactive
+    const kelasFromResponse = props.ekstrakurikulerData?.kelas?.find(k => k.id === kelasId)
+    return kelasFromResponse?.status === 'inactive'
 }
 
 // Watch ekstrakurikulerData to update form
