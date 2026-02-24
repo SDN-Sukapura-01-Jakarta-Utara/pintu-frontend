@@ -22,8 +22,8 @@
         
         <!-- Photo Section -->
         <div class="mb-8">
-          <label class="block text-[13px] sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
-            Foto Kepala Sekolah (3x4)
+          <label class="block text-sm sm:text-base font-semibold text-gray-900 mb-2 sm:mb-3">
+            Masukkan Foto Kepala Sekolah (3x4)
             <span class="text-red-600 ml-1">*</span>
           </label>
 
@@ -110,7 +110,7 @@
 
         <!-- Nama Kepala Sekolah -->
         <div class="mb-6 sm:mb-8">
-          <label class="block text-[13px] sm:text-sm font-semibold text-gray-900 mb-2">
+          <label class="block text-sm sm:text-base font-semibold text-gray-900 mb-2">
             Nama Kepala Sekolah
             <span class="text-red-600 ml-1">*</span>
           </label>
@@ -118,18 +118,18 @@
             v-model="formData.nama_kepsek"
             type="text"
             placeholder="Masukkan nama kepala sekolah"
-            class="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-xs sm:text-sm"
+            class="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm sm:text-base"
             :disabled="isSubmitting"
           />
         </div>
 
         <!-- Kutipan Kepala Sekolah -->
         <div class="mb-6 sm:mb-8">
-          <label class="block text-[13px] sm:text-sm font-semibold text-gray-900 mb-2">
+          <label class="block text-sm sm:text-base font-semibold text-gray-900 mb-3">
             Kutipan Kepala Sekolah
             <span class="text-red-600 ml-1">*</span>
           </label>
-          <p class="text-[11px] sm:text-xs text-gray-600 mb-2">Format teks dengan toolbar di bawah</p>
+          <p class="text-[12px] sm:text-xs text-gray-600 mb-3">Masukkan kutipan kepala sekolah dengan format teks yang dapat diformat</p>
           <div class="overflow-x-auto">
             <RichTextEditor v-model="formData.kutipan_kepsek" />
           </div>
