@@ -128,16 +128,25 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.media" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/media/artikel"
-                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                        <NuxtLink to="/backoffice/media-publikasi/artikel"
+                            :class="[
+                                'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                                route.path.includes('/artikel') ? 'bg-red-700 font-semibold' : ''
+                            ]">
                             Artikel
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/media/pengumuman"
-                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                        <NuxtLink to="/backoffice/media-publikasi/pengumuman"
+                            :class="[
+                                'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                                route.path.includes('/pengumuman') ? 'bg-red-700 font-semibold' : ''
+                            ]">
                             Pengumuman
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/media/galeri"
-                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                        <NuxtLink to="/backoffice/media-publikasi/galeri-kegiatan"
+                            :class="[
+                                'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                                route.path.includes('/galeri-kegiatan') ? 'bg-red-700 font-semibold' : ''
+                            ]">
                             Galeri Kegiatan
                         </NuxtLink>
                     </div>
