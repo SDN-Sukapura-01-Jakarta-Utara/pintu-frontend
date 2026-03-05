@@ -1,10 +1,10 @@
 <template>
     <div v-if="files.length > 0" class="space-y-3">
+
         <!-- Header with label and delete all button -->
         <div class="flex items-center justify-between">
             <p class="text-xs font-semibold text-gray-600">File yang Tersimpan:</p>
-            <button v-if="files.length > 0" type="button" @click="handleDeleteAllFiles()"
-                :disabled="isLoading"
+            <button v-if="files.length > 0" type="button" @click="openDeleteAllConfirm()" :disabled="isLoading"
                 class="text-xs px-2 py-1 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium cursor-pointer">
                 <i class="fa-solid fa-trash mr-1"></i>Hapus Semua
             </button>
@@ -24,13 +24,11 @@
                 <div class="flex items-center gap-1 flex-shrink-0">
                     <!-- Preview Button -->
                     <a v-if="getFileUrl(file)" :href="getFileUrl(file)" target="_blank"
-                        class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                        title="Lihat file">
+                        class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Lihat file">
                         <i class="fa-solid fa-eye w-4 h-4"></i>
                     </a>
                     <!-- Delete Button -->
-                    <button type="button" @click="handleDeleteFile(index)"
-                        :disabled="isLoading"
+                    <button type="button" @click="openDeleteConfirm(index)" :disabled="isLoading"
                         class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         title="Hapus file">
                         <i class="fa-solid fa-trash w-4 h-4"></i>
@@ -42,6 +40,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 interface Props {
     files: any[]
     isLoading?: boolean
@@ -54,7 +54,11 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
     delete: [index: number]
     deleteAll: []
+    'request-delete': [index: number, fileName: string]
+    'request-delete-all': []
 }>()
+
+
 
 const getFileName = (file: any): string => {
     // If file is an object with name property
@@ -80,16 +84,12 @@ const getFileUrl = (file: any): string => {
     return ''
 }
 
-const handleDeleteFile = (index: number) => {
+const openDeleteConfirm = (index: number) => {
     const fileName = getFileName(props.files[index])
-    if (confirm(`Apakah Anda yakin ingin menghapus file ${fileName}?`)) {
-        emit('delete', index)
-    }
+    emit('request-delete', index, fileName)
 }
 
-const handleDeleteAllFiles = () => {
-    if (confirm(`Apakah Anda yakin ingin menghapus SEMUA ${props.files.length} file?`)) {
-        emit('deleteAll')
-    }
+const openDeleteAllConfirm = () => {
+    emit('request-delete-all')
 }
 </script>

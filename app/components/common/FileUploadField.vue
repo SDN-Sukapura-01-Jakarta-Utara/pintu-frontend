@@ -1,5 +1,6 @@
 <template>
     <div class="space-y-2">
+
         <!-- Label -->
         <label class="text-xs sm:text-sm font-semibold text-gray-900">{{ field.label }}</label>
 
@@ -16,13 +17,11 @@
                 <div class="flex items-center gap-1 flex-shrink-0">
                     <!-- Preview Button -->
                     <a v-if="uploadedFile.url" :href="uploadedFile.url" target="_blank"
-                        class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                        title="Lihat file">
+                        class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors" title="Lihat file">
                         <i class="fa-solid fa-eye w-4 h-4"></i>
                     </a>
                     <!-- Delete File Button -->
-                    <button type="button" @click="handleDeleteFile()"
-                        :disabled="isSubmitting || isUploading"
+                    <button type="button" @click="openDeleteConfirm()" :disabled="isSubmitting || isUploading"
                         class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         title="Hapus file">
                         <i class="fa-solid fa-trash w-4 h-4"></i>
@@ -31,25 +30,21 @@
             </div>
 
             <!-- Re-upload Area -->
-            <div @click="$refs.fileInput?.click()"
-                @dragover.prevent="isDragging = true"
-                @dragleave="isDragging = false"
-                @drop.prevent="handleDrop"
-                :class="[
+            <div @click="$refs.fileInput?.click()" @dragover.prevent="isDragging = true" @dragleave="isDragging = false"
+                @drop.prevent="handleDrop" :class="[
                     'relative border-2 border-dashed rounded-lg p-2 sm:p-3 text-center cursor-pointer transition-all duration-300',
                     isDragging
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50',
                     isSubmitting && 'opacity-50 cursor-not-allowed'
                 ]">
-                <input ref="fileInput" type="file" accept=".pdf" class="hidden"
-                    @change="handleFileSelect" :disabled="isSubmitting || isUploading" />
+                <input ref="fileInput" type="file" accept=".pdf" class="hidden" @change="handleFileSelect"
+                    :disabled="isSubmitting || isUploading" />
 
                 <div v-if="!isUploading" class="flex items-center gap-2">
                     <svg class="w-4 h-4 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4v16m8-8H4"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                     <div class="text-left">
                         <p class="text-xs font-semibold text-gray-900">Upload file baru</p>
@@ -57,33 +52,31 @@
                 </div>
 
                 <div v-else class="flex items-center gap-2">
-                    <div class="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
+                    <div
+                        class="h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin flex-shrink-0">
+                    </div>
                     <p class="text-xs text-gray-600">Mengupload...</p>
                 </div>
             </div>
         </div>
 
         <!-- Upload Area (belum ada file) -->
-        <div v-else @click="$refs.fileInput?.click()"
-            @dragover.prevent="isDragging = true"
-            @dragleave="isDragging = false"
-            @drop.prevent="handleDrop"
-            :class="[
+        <div v-else @click="$refs.fileInput?.click()" @dragover.prevent="isDragging = true"
+            @dragleave="isDragging = false" @drop.prevent="handleDrop" :class="[
                 'relative border-2 border-dashed rounded-lg p-3 sm:p-4 text-center cursor-pointer transition-all duration-300',
                 isDragging
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50',
                 isSubmitting && 'opacity-50 cursor-not-allowed'
             ]">
-            <input ref="fileInput" type="file" accept=".pdf" class="hidden"
-                @change="handleFileSelect" :disabled="isSubmitting || isUploading" />
+            <input ref="fileInput" type="file" accept=".pdf" class="hidden" @change="handleFileSelect"
+                :disabled="isSubmitting || isUploading" />
 
             <div v-if="!isUploading" class="flex flex-col items-center gap-1 sm:gap-2">
                 <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-100 flex items-center justify-center">
                     <svg class="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4v16m8-8H4"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                 </div>
                 <div>
@@ -116,6 +109,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
     upload: [file: File]
     remove: [fieldKey: string]
+    'request-delete': [fieldKey: string, fileName: string]
 }>()
 
 const isDragging = ref(false)
@@ -136,10 +130,8 @@ const handleDrop = (e: DragEvent) => {
     }
 }
 
-const handleDeleteFile = () => {
-    // Show confirmation dialog
-    if (confirm(`Apakah Anda yakin ingin menghapus file ${props.uploadedFile?.name}?`)) {
-        emit('remove', props.field.key)
-    }
+const openDeleteConfirm = () => {
+    // Emit request-delete instead of showing modal
+    emit('request-delete', props.field.key, props.uploadedFile?.name || 'File')
 }
 </script>

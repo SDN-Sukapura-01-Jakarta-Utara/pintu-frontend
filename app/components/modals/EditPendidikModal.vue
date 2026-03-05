@@ -3,7 +3,8 @@
     <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0"
         enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100"
         leave-to-class="opacity-0">
-        <div v-if="modelValue" @click="closeModal" class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"></div>
+        <div v-if="modelValue" @click.self="closeModal"
+            class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"></div>
     </Transition>
 
     <!-- Modal -->
@@ -361,7 +362,8 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FileUploadField v-for="field in singleFileFields" :key="field.key" :field="field"
                                     :form-value="form[field.key]" :uploaded-file="uploadedFiles[field.key]"
-                                    @upload="(file) => handleFileUpload(field.key, file)" @remove="handleFileRemove"
+                                    @upload="(file) => handleFileUpload(field.key, file)"
+                                    @request-delete="(fieldKey, fileName) => handleRequestDeleteFile(fieldKey, fileName)"
                                     :is-submitting="isSubmitting" :is-uploading="uploadingField === field.key" />
                             </div>
 
@@ -369,9 +371,9 @@
                             <div class="space-y-4">
                                 <MultiFileUploadField v-for="field in multipleFileFields" :key="field.key"
                                     :field="field" :uploaded-files="uploadedFiles[field.key] || []"
-                                    @upload="(file) => handleFileUpload(field.key, file)" 
-                                    @remove="(fieldKey, index) => handleFileRemoveMulti(fieldKey, index)"
-                                    @removeAll="(fieldKey) => handleFileRemoveAllMulti(fieldKey)"
+                                    @upload="(file) => handleFileUpload(field.key, file)"
+                                    @request-delete="(index, fileName) => handleRequestDeleteFileMulti(field.key, index, fileName)"
+                                    @request-delete-all="() => handleRequestDeleteAllMultiFiles(field.key)"
                                     :is-submitting="isSubmitting" :is-uploading="uploadingField === field.key" />
                             </div>
                         </div>
@@ -421,6 +423,51 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+    </Transition>
+
+    <!-- Delete File Confirmation Dialog (inside form modal) -->
+    <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0"
+        enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100"
+        leave-to-class="opacity-0">
+        <div v-if="showDeleteFileConfirm" @click="handleDeleteFileCancel"
+            class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"></div>
+    </Transition>
+
+    <Transition enter-active-class="transition duration-300 ease-out"
+        enter-from-class="opacity-0 scale-95 translate-y-4" enter-to-class="opacity-100 scale-100 translate-y-0"
+        leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100 scale-100 translate-y-0"
+        leave-to-class="opacity-0 scale-95 translate-y-4">
+        <div v-if="showDeleteFileConfirm"
+            class="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 pointer-events-none">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-xs sm:max-w-sm w-full p-6 sm:p-8 animate-slide-up pointer-events-auto">
+                <!-- Icon -->
+                <div
+                    class="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4 sm:mb-6">
+                    <i class="fa-solid fa-trash text-red-600 text-lg sm:text-xl"></i>
+                </div>
+
+                <!-- Title -->
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900 text-center mb-2 sm:mb-3">Hapus File</h3>
+
+                <!-- Message -->
+                <p class="text-sm sm:text-base text-gray-600 text-center mb-6 sm:mb-8">
+                    Apakah Anda yakin ingin menghapus file <span class="font-semibold">{{ deleteFileFileName }}</span>?
+                </p>
+
+                <!-- Buttons -->
+                <div class="flex gap-2 sm:gap-3">
+                    <button @click="handleDeleteFileCancel" :disabled="isSubmitting"
+                        class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border-2 border-gray-200 text-gray-700 font-semibold text-sm sm:text-base hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                        Batal
+                    </button>
+                    <button @click="handleDeleteFileConfirm" :disabled="isSubmitting"
+                        class="flex-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg bg-red-600 text-white font-semibold text-sm sm:text-base hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer">
+                        <i v-if="isSubmitting" class="fa-solid fa-spinner text-xs sm:text-sm animate-spin"></i>
+                        <span>{{ isSubmitting ? 'Menghapus...' : 'Hapus' }}</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -518,6 +565,12 @@ const form = ref({
 })
 
 const uploadedFiles = ref<Record<string, any>>({})
+
+// Delete file confirmation state
+const showDeleteFileConfirm = ref(false)
+const deleteFileFieldKey = ref<string>('')
+const deleteFileFileName = ref<string>('')
+const deleteFileIndex = ref<number>(-1)
 
 // Computed
 const activeRombels = computed(() => rombels.value.filter(r => r.status === 'active'))
@@ -642,7 +695,7 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
         // Check if response successful
         // Backend return full kepegawaian object in response.data
         const isSuccess = response?.data && (response.data?.id || response.data?.nama)
-        
+
         if (isSuccess && response?.data) {
             // Fetch ulang data kepegawaian untuk get file URL yang ter-update
             // Ini lebih reliable daripada expect backend return file URL langsung
@@ -650,18 +703,18 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
                 console.log(`[UPLOAD] File upload success, fetching latest data...`)
                 const { getKepegawaianById } = await import('~/services/kepegawaian')
                 const latestData = await getKepegawaianById(props.pendidik.id)
-                
+
                 console.log(`[UPLOAD] Full response dari getKepegawaianById:`, {
                     hasData: !!latestData.data,
                     dataId: latestData.data?.id,
                     allFields: latestData.data ? Object.keys(latestData.data) : []
                 })
-                
+
                 const fileData = latestData.data?.[fieldKey]
-                
+
                 // Check if this is a multi-file field
                 const isMultiFileField = multipleFileFields.some(f => f.key === fieldKey)
-                
+
                 console.log(`[UPLOAD] Latest data for '${fieldKey}':`, {
                     fileData,
                     isMultiFileField,
@@ -675,7 +728,7 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
                             uploadedFiles.value[fieldKey] = []
                         }
                         uploadedFiles.value[fieldKey] = fileData
-                        
+
                         toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
                         console.log(`✓ File ${fieldKey} uploaded and saved successfully (${fileData.length} file(s))`)
                     } else if (!isMultiFileField) {
@@ -704,8 +757,8 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
             // Error response dari backend
             const errorMsg = response?.message || response?.error?.message || response?.error || 'Gagal upload file'
             toastStore.showToast('error', 'Gagal upload', errorMsg)
-            console.error('Upload failed:', { 
-                response, 
+            console.error('Upload failed:', {
+                response,
                 errorMsg,
                 hasData: !!response?.data,
                 hasSuccess: response?.success,
@@ -740,13 +793,13 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
 const handleFileRemove = (fieldKey: string) => {
     // Delete single file from backend
     isSubmitting.value = true
-    
+
     try {
         const payload: Record<string, any> = {
             id: props.pendidik.id,
             files_to_delete: [fieldKey]
         }
-        
+
         // Call API delete
         kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
             if (result.success) {
@@ -774,22 +827,22 @@ const handleFileRemoveMulti = (fieldKey: string, index: number) => {
     // Delete single file dari multi-file array
     const file = uploadedFiles.value[fieldKey]?.[index]
     let fileName = ''
-    
+
     if (typeof file === 'object' && file?.name) {
         fileName = file.name
     } else if (typeof file === 'string') {
         fileName = file.split('/').pop() || file
     }
-    
+
     isSubmitting.value = true
-    
+
     try {
         const toDeleteKey = `${fieldKey}_to_delete`
         const payload: Record<string, any> = {
             id: props.pendidik.id,
             [toDeleteKey]: [fileName]
         }
-        
+
         kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
             if (result.success) {
                 // Remove dari array
@@ -816,14 +869,14 @@ const handleFileRemoveMulti = (fieldKey: string, index: number) => {
 const handleFileRemoveAllMulti = (fieldKey: string) => {
     // Delete semua files dari multi-file array
     const totalFiles = uploadedFiles.value[fieldKey]?.length || 0
-    
+
     if (totalFiles === 0) {
         toastStore.showToast('warning', 'Perhatian', 'Tidak ada file untuk dihapus')
         return
     }
-    
+
     isSubmitting.value = true
-    
+
     try {
         const fileNames = uploadedFiles.value[fieldKey].map((f: any) => {
             if (typeof f === 'object' && f.name) {
@@ -833,13 +886,13 @@ const handleFileRemoveAllMulti = (fieldKey: string) => {
             }
             return ''
         }).filter((name: string) => name)
-        
+
         const toDeleteKey = `${fieldKey}_to_delete`
         const payload: Record<string, any> = {
             id: props.pendidik.id,
             [toDeleteKey]: fileNames
         }
-        
+
         kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
             if (result.success) {
                 // Clear array
@@ -1039,7 +1092,7 @@ const initializeForm = async () => {
         }
 
         uploadedFiles.value = {}
-        
+
         // Initialize single file fields
         singleFileFields.forEach(field => {
             if (props.pendidik[field.key]) {
@@ -1050,7 +1103,7 @@ const initializeForm = async () => {
                 }
             }
         })
-        
+
         // Initialize multiple file fields
         multipleFileFields.forEach(field => {
             if (props.pendidik[field.key] && Array.isArray(props.pendidik[field.key])) {
@@ -1059,6 +1112,116 @@ const initializeForm = async () => {
                 uploadedFiles.value[field.key] = []
             }
         })
+    }
+}
+
+// Delete file confirmation handlers
+const handleDeleteFileCancel = () => {
+    showDeleteFileConfirm.value = false
+}
+
+const handleDeleteFileConfirm = async () => {
+    if (!deleteFileFieldKey.value) return
+
+    isSubmitting.value = true
+
+    try {
+        const fileNames = [deleteFileFileName.value]
+        const toDeleteKey = `${deleteFileFieldKey.value}_to_delete`
+        const payload: Record<string, any> = {
+            id: props.pendidik.id,
+            [toDeleteKey]: fileNames
+        }
+
+        kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
+            if (result.success) {
+                // Remove dari array if multi-file, atau set null if single-file
+                if (deleteFileIndex.value >= 0) {
+                    // Multi-file delete
+                    if (uploadedFiles.value[deleteFileFieldKey.value]) {
+                        uploadedFiles.value[deleteFileFieldKey.value].splice(deleteFileIndex.value, 1)
+                    }
+                } else {
+                    // Single-file delete
+                    uploadedFiles.value[deleteFileFieldKey.value] = null
+                    form.value[deleteFileFieldKey.value as keyof typeof form.value] = null
+                }
+
+                toastStore.showToast('success', 'Berhasil', `${deleteFileFileName.value} berhasil dihapus`)
+                showDeleteFileConfirm.value = false
+                console.log(`File ${deleteFileFileName.value} deleted successfully`)
+            } else {
+                toastStore.showToast('error', 'Gagal', `Gagal menghapus file ${deleteFileFileName.value}`)
+            }
+        }).catch((err) => {
+            console.error('Error deleting file:', err)
+            toastStore.showToast('error', 'Gagal', 'Gagal menghapus file')
+        }).finally(() => {
+            isSubmitting.value = false
+        })
+    } catch (err) {
+        console.error('Error in handleDeleteFileConfirm:', err)
+        isSubmitting.value = false
+    }
+}
+
+// Request delete handlers from child components
+const handleRequestDeleteFile = (fieldKey: string, fileName: string) => {
+    deleteFileFieldKey.value = fieldKey
+    deleteFileFileName.value = fileName
+    deleteFileIndex.value = -1  // Single file
+    showDeleteFileConfirm.value = true
+}
+
+const handleRequestDeleteFileMulti = (fieldKey: string, index: number, fileName: string) => {
+    deleteFileFieldKey.value = fieldKey
+    deleteFileFileName.value = fileName
+    deleteFileIndex.value = index
+    showDeleteFileConfirm.value = true
+}
+
+const handleRequestDeleteAllMultiFiles = (fieldKey: string) => {
+    const count = uploadedFiles.value[fieldKey]?.length || 0
+    if (count === 0) {
+        toastStore.showToast('warning', 'Perhatian', 'Tidak ada file untuk dihapus')
+        return
+    }
+
+    isSubmitting.value = true
+
+    try {
+        const fileNames = uploadedFiles.value[fieldKey].map((f: any) => {
+            if (typeof f === 'object' && f.name) {
+                return f.name
+            } else if (typeof f === 'string') {
+                return f.split('/').pop() || f
+            }
+            return ''
+        }).filter((name: string) => name)
+
+        const toDeleteKey = `${fieldKey}_to_delete`
+        const payload: Record<string, any> = {
+            id: props.pendidik.id,
+            [toDeleteKey]: fileNames
+        }
+
+        kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
+            if (result.success) {
+                uploadedFiles.value[fieldKey] = []
+                toastStore.showToast('success', 'Berhasil', `Semua ${count} file berhasil dihapus`)
+                console.log(`All files in ${fieldKey} deleted successfully`)
+            } else {
+                toastStore.showToast('error', 'Gagal', `Gagal menghapus file di ${fieldKey}`)
+            }
+        }).catch((err) => {
+            console.error('Error deleting all files:', err)
+            toastStore.showToast('error', 'Gagal', 'Gagal menghapus file')
+        }).finally(() => {
+            isSubmitting.value = false
+        })
+    } catch (err) {
+        console.error('Error in handleRequestDeleteAllMultiFiles:', err)
+        isSubmitting.value = false
     }
 }
 
