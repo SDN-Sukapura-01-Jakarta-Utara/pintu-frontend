@@ -631,7 +631,7 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
 
         // Create FormData dengan key field yang sesuai backend (kk, ktp, ijazah_sd, dll)
         const formData = new FormData()
-        formData.append(fieldKey, file)  // Key: fieldKey (e.g., 'kk', 'ijazah_sd')
+        formData.append(fieldKey, file)  // Key: fieldKey (e.g., 'kk', 'ijazah_sd', 'sertifikat_lainnya')
 
         console.log(`Starting upload for ${fieldKey}, pendidik id: ${props.pendidik.id}`)
 
@@ -657,50 +657,43 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
                     allFields: latestData.data ? Object.keys(latestData.data) : []
                 })
                 
-                const fileUrl = latestData.data?.[fieldKey]
+                const fileData = latestData.data?.[fieldKey]
+                
+                // Check if this is a multi-file field
+                const isMultiFileField = multipleFileFields.some(f => f.key === fieldKey)
                 
                 console.log(`[UPLOAD] Latest data for '${fieldKey}':`, {
-                    fileUrl,
-                    fieldValue: fileUrl,
-                    fieldType: typeof fileUrl,
-                    responseData: {
-                        kk: latestData.data?.kk,
-                        akta_lahir: latestData.data?.akta_lahir,
-                        ktp: latestData.data?.ktp,
-                        ijazah_s1: latestData.data?.ijazah_s1
-                    }
+                    fileData,
+                    isMultiFileField,
+                    fieldType: typeof fileData,
                 })
 
-                if (fileUrl) {
-                    // Update uploadedFiles dengan data yang berhasil
-                    uploadedFiles.value[fieldKey] = {
-                        url: fileUrl,
-                        name: file.name,
-                        saved: true
-                    }
-
-                    // Update form value dengan URL
-                    form.value[fieldKey as keyof typeof form.value] = fileUrl
-
-                    toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
-                    console.log(`✓ File ${fieldKey} uploaded and saved successfully with URL: ${fileUrl}`)
-                } else {
-                    console.warn(`File URL untuk '${fieldKey}' masih null setelah fetch`)
-                    console.warn(`Debug info:`, {
-                        fieldKey,
-                        uploadedFieldValue: latestData.data?.[fieldKey],
-                        allFileFields: {
-                            kk: latestData.data?.kk,
-                            akta_lahir: latestData.data?.akta_lahir,
-                            ktp: latestData.data?.ktp,
-                            ijazah_sd: latestData.data?.ijazah_sd,
-                            ijazah_s1: latestData.data?.ijazah_s1,
-                            ijazah_s2: latestData.data?.ijazah_s2,
-                            ijazah_s3: latestData.data?.ijazah_s3,
-                            sertifikat_pendidik: latestData.data?.sertifikat_pendidik,
-                            sk: latestData.data?.sk,
+                if (fileData) {
+                    if (isMultiFileField && Array.isArray(fileData)) {
+                        // For multiple file fields, append the new file to existing array
+                        if (!Array.isArray(uploadedFiles.value[fieldKey])) {
+                            uploadedFiles.value[fieldKey] = []
                         }
-                    })
+                        uploadedFiles.value[fieldKey] = fileData
+                        
+                        toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
+                        console.log(`✓ File ${fieldKey} uploaded and saved successfully (${fileData.length} file(s))`)
+                    } else if (!isMultiFileField) {
+                        // For single file fields
+                        uploadedFiles.value[fieldKey] = {
+                            url: fileData,
+                            name: file.name,
+                            saved: true
+                        }
+
+                        // Update form value dengan URL
+                        form.value[fieldKey as keyof typeof form.value] = fileData
+
+                        toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
+                        console.log(`✓ File ${fieldKey} uploaded and saved successfully with URL: ${fileData}`)
+                    }
+                } else {
+                    console.warn(`File data untuk '${fieldKey}' masih null setelah fetch`)
                     toastStore.showToast('error', 'Gagal Tersimpan', `File ${fieldKey} gagal disimpan di server. Silakan coba lagi atau hubungi admin.`)
                 }
             } catch (fetchErr) {
@@ -779,7 +772,14 @@ const handleFileRemove = (fieldKey: string) => {
 
 const handleFileRemoveMulti = (fieldKey: string, index: number) => {
     // Delete single file dari multi-file array
-    const fileName = uploadedFiles.value[fieldKey]?.[index]?.name || ''
+    const file = uploadedFiles.value[fieldKey]?.[index]
+    let fileName = ''
+    
+    if (typeof file === 'object' && file?.name) {
+        fileName = file.name
+    } else if (typeof file === 'string') {
+        fileName = file.split('/').pop() || file
+    }
     
     isSubmitting.value = true
     
@@ -825,7 +825,15 @@ const handleFileRemoveAllMulti = (fieldKey: string) => {
     isSubmitting.value = true
     
     try {
-        const fileNames = uploadedFiles.value[fieldKey].map((f: any) => f.name)
+        const fileNames = uploadedFiles.value[fieldKey].map((f: any) => {
+            if (typeof f === 'object' && f.name) {
+                return f.name
+            } else if (typeof f === 'string') {
+                return f.split('/').pop() || f
+            }
+            return ''
+        }).filter((name: string) => name)
+        
         const toDeleteKey = `${fieldKey}_to_delete`
         const payload: Record<string, any> = {
             id: props.pendidik.id,
@@ -1031,6 +1039,8 @@ const initializeForm = async () => {
         }
 
         uploadedFiles.value = {}
+        
+        // Initialize single file fields
         singleFileFields.forEach(field => {
             if (props.pendidik[field.key]) {
                 uploadedFiles.value[field.key] = {
@@ -1038,6 +1048,15 @@ const initializeForm = async () => {
                     name: `${field.label}.pdf`,
                     saved: true
                 }
+            }
+        })
+        
+        // Initialize multiple file fields
+        multipleFileFields.forEach(field => {
+            if (props.pendidik[field.key] && Array.isArray(props.pendidik[field.key])) {
+                uploadedFiles.value[field.key] = props.pendidik[field.key]
+            } else {
+                uploadedFiles.value[field.key] = []
             }
         })
     }
