@@ -111,14 +111,16 @@
                                 <option value="">Pilih Jabatan</option>
                                 <option value="Guru Kelas">Guru Kelas</option>
                                 <option value="Guru Bidang Studi">Guru Bidang Studi</option>
-                                <option value="Guru Kelas dan Guru Bidang Studi">Guru Kelas dan Guru Bidang Studi</option>
+                                <option value="Guru Kelas dan Guru Bidang Studi">Guru Kelas dan Guru Bidang Studi
+                                </option>
                             </select>
                         </div>
 
                         <!-- Conditional Fields Based on Jabatan -->
 
                         <!-- Guru Kelas: Rombel Wali Kelas -->
-                        <div v-if="form.jabatan === 'Guru Kelas' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
+                        <div
+                            v-if="form.jabatan === 'Guru Kelas' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
                             <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Rombel yang Diampu sebagai Wali Kelas
                                 <span class="text-red-600 ml-1">*</span>
@@ -133,7 +135,8 @@
                         </div>
 
                         <!-- Guru Bidang Studi: Bidang Studi -->
-                        <div v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
+                        <div
+                            v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
                             <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Bidang Studi
                                 <span class="text-red-600 ml-1">*</span>
@@ -149,7 +152,8 @@
                         </div>
 
                         <!-- Guru Bidang Studi: Rombel yang Diampu -->
-                        <div v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
+                        <div
+                            v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
                             <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Rombel yang Diampu sebagai Guru Bidang Studi
                                 <span class="text-red-600 ml-1">*</span>
@@ -158,8 +162,7 @@
                                 <label v-for="rombel in activeRombels" :key="rombel.id"
                                     class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                                     <input type="checkbox" :value="rombel.id" v-model.number="form.rombelBidangStudi"
-                                        :disabled="isSubmitting"
-                                        class="w-4 h-4 text-red-600 rounded cursor-pointer" />
+                                        :disabled="isSubmitting" class="w-4 h-4 text-red-600 rounded cursor-pointer" />
                                     <span class="text-xs sm:text-sm font-medium text-gray-900">{{ rombel.name }}</span>
                                 </label>
                             </div>
@@ -177,16 +180,18 @@
                                 </div>
                                 <span class="text-xs sm:text-sm">Memuat role...</span>
                             </div>
-                            <div v-else-if="Object.keys(rolesBySystem).length === 0" class="text-xs sm:text-sm text-gray-600">
+                            <div v-else-if="Object.keys(rolesBySystem).length === 0"
+                                class="text-xs sm:text-sm text-gray-600">
                                 Belum ada role yang tersedia
                             </div>
                             <div v-else class="space-y-4">
-                                <div v-for="(system, systemName) in rolesBySystem" :key="systemName"
+                                <div v-for="(system, systemId) in rolesBySystem" :key="systemId"
                                     class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
                                     <!-- System Header with Reset Button -->
                                     <div class="flex items-center justify-between mb-3">
-                                        <h4 class="text-xs sm:text-sm font-semibold text-gray-900">{{ systemName }}</h4>
-                                        <button type="button" @click="form.roleIds[systemName] = null"
+                                        <h4 class="text-xs sm:text-sm font-semibold text-gray-900">{{
+                                            getSystemNameById(Number(systemId)) }}</h4>
+                                        <button type="button" @click="resetRoleGroup(Number(systemId))"
                                             :disabled="isSubmitting"
                                             class="px-2 py-1 text-xs font-medium bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                             Reset
@@ -195,14 +200,23 @@
 
                                     <!-- Roles Radio Group -->
                                     <div class="space-y-2">
-                                        <label v-for="role in system" :key="role.id"
-                                            class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white transition-colors">
-                                            <input type="radio" :value="role.id" :name="`role-${systemName}`"
-                                                v-model.number="form.roleIds[systemName]"
-                                                :disabled="isSubmitting"
+                                        <label v-for="role in system" :key="role.id" :class="[
+                                            'flex items-center gap-3 cursor-pointer px-3 py-2 rounded-lg transition-colors duration-200',
+                                            role.status === 'inactive' ? 'bg-gray-100 opacity-75' : 'hover:bg-gray-100'
+                                        ]">
+                                            <input type="radio" :value="role.id" :name="`role-system-${systemId}`"
+                                                v-model.number="form.roleIds[Number(systemId)]"
+                                                :disabled="isSubmitting || role.status === 'inactive'"
                                                 class="w-4 h-4 rounded-full border-2 border-gray-300 text-red-600 focus:ring-2 focus:ring-red-500 transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" />
                                             <div class="flex-1">
-                                                <span class="text-xs sm:text-sm font-medium text-gray-700 block">{{ role.name }}</span>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-xs sm:text-sm font-medium text-gray-700 block">{{
+                                                        role.name }}</span>
+                                                    <span v-if="role.status === 'inactive'"
+                                                        class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-red-100 text-red-800">
+                                                        Nonaktif
+                                                    </span>
+                                                </div>
                                                 <span class="text-xs text-gray-500">{{ role.description }}</span>
                                             </div>
                                         </label>
@@ -224,8 +238,7 @@
                                     <label class="flex items-center gap-2 cursor-pointer"
                                         :class="form.passwordType === 'auto' ? 'text-red-600 font-semibold' : 'text-gray-900'">
                                         <input type="radio" v-model="form.passwordType" value="auto"
-                                            :disabled="isSubmitting"
-                                            class="w-4 h-4 text-red-600 cursor-pointer" />
+                                            :disabled="isSubmitting" class="w-4 h-4 text-red-600 cursor-pointer" />
                                         <span class="text-xs sm:text-sm font-medium">Generate Otomatis</span>
                                     </label>
 
@@ -233,8 +246,7 @@
                                     <label class="flex items-center gap-2 cursor-pointer"
                                         :class="form.passwordType === 'manual' ? 'text-red-600 font-semibold' : 'text-gray-900'">
                                         <input type="radio" v-model="form.passwordType" value="manual"
-                                            :disabled="isSubmitting"
-                                            class="w-4 h-4 text-red-600 cursor-pointer" />
+                                            :disabled="isSubmitting" class="w-4 h-4 text-red-600 cursor-pointer" />
                                         <span class="text-xs sm:text-sm font-medium">Manual Setting</span>
                                     </label>
 
@@ -264,7 +276,8 @@
                                 <div v-if="form.passwordType === 'manual'" class="space-y-4">
                                     <!-- Password Input -->
                                     <div>
-                                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                        <label
+                                            class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                                             Password Baru
                                             <span class="text-red-600 ml-1">*</span>
                                         </label>
@@ -282,8 +295,9 @@
                                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                                     <circle cx="12" cy="12" r="3"></circle>
                                                 </svg>
-                                                <svg v-else class="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <svg v-else class="h-4 w-4 sm:h-5 sm:w-5"
+                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
                                                     <path
                                                         d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
                                                     </path>
@@ -291,19 +305,22 @@
                                                 </svg>
                                             </button>
                                         </div>
-                                        <p v-if="form.newPassword && form.newPassword.length < 6" class="mt-1 text-xs text-red-600 font-medium">
+                                        <p v-if="form.newPassword && form.newPassword.length < 6"
+                                            class="mt-1 text-xs text-red-600 font-medium">
                                             Minimal 6 karakter
                                         </p>
                                     </div>
 
                                     <!-- Confirm Password Input -->
                                     <div>
-                                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                        <label
+                                            class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                                             Konfirmasi Password
                                             <span class="text-red-600 ml-1">*</span>
                                         </label>
                                         <div class="relative flex items-center">
-                                            <input v-model="form.passwordConfirm" :type="showPasswordConfirm ? 'text' : 'password'"
+                                            <input v-model="form.passwordConfirm"
+                                                :type="showPasswordConfirm ? 'text' : 'password'"
                                                 placeholder="Ulangi password" :disabled="isSubmitting"
                                                 class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 pr-10 sm:pr-12 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
                                             <button type="button" @click="showPasswordConfirm = !showPasswordConfirm"
@@ -316,8 +333,9 @@
                                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                                     <circle cx="12" cy="12" r="3"></circle>
                                                 </svg>
-                                                <svg v-else class="h-4 w-4 sm:h-5 sm:w-5" xmlns="http://www.w3.org/2000/svg"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <svg v-else class="h-4 w-4 sm:h-5 sm:w-5"
+                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                    stroke="currentColor" stroke-width="2">
                                                     <path
                                                         d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
                                                     </path>
@@ -343,16 +361,18 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <FileUploadField v-for="field in singleFileFields" :key="field.key" :field="field"
                                     :form-value="form[field.key]" :uploaded-file="uploadedFiles[field.key]"
-                                    @upload="handleFileUpload" @remove="handleFileRemove" :is-submitting="isSubmitting"
-                                    :is-uploading="uploadingField === field.key" />
+                                    @upload="(file) => handleFileUpload(field.key, file)" @remove="handleFileRemove"
+                                    :is-submitting="isSubmitting" :is-uploading="uploadingField === field.key" />
                             </div>
 
                             <!-- Multiple File Upload Fields -->
                             <div class="space-y-4">
                                 <MultiFileUploadField v-for="field in multipleFileFields" :key="field.key"
                                     :field="field" :uploaded-files="uploadedFiles[field.key] || []"
-                                    @upload="handleFileUpload" @remove="handleFileRemove" :is-submitting="isSubmitting"
-                                    :is-uploading="uploadingField === field.key" />
+                                    @upload="(file) => handleFileUpload(field.key, file)" 
+                                    @remove="(fieldKey, index) => handleFileRemoveMulti(fieldKey, index)"
+                                    @removeAll="(fieldKey) => handleFileRemoveAllMulti(fieldKey)"
+                                    :is-submitting="isSubmitting" :is-uploading="uploadingField === field.key" />
                             </div>
                         </div>
 
@@ -360,11 +380,13 @@
                         <div class="pt-3 sm:pt-4 border-t border-gray-200">
                             <div class="flex items-center justify-between">
                                 <label class="text-xs sm:text-sm font-semibold text-gray-900">Status</label>
-                                <button type="button" @click="form.status = form.status === 'active' ? 'inactive' : 'active'" :disabled="isSubmitting" :class="[
-                                    'relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300',
-                                    form.status === 'active' ? 'bg-green-600' : 'bg-gray-300',
-                                    isSubmitting && 'opacity-50 cursor-not-allowed'
-                                ]">
+                                <button type="button"
+                                    @click="form.status = form.status === 'active' ? 'inactive' : 'active'"
+                                    :disabled="isSubmitting" :class="[
+                                        'relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300',
+                                        form.status === 'active' ? 'bg-green-600' : 'bg-gray-300',
+                                        isSubmitting && 'opacity-50 cursor-not-allowed'
+                                    ]">
                                     <span :class="[
                                         'inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 shadow-md',
                                         form.status === 'active' ? 'translate-x-7' : 'translate-x-1'
@@ -392,7 +414,8 @@
                             </button>
                             <button type="submit" :disabled="isSubmitting"
                                 class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 sm:py-3 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
-                                <span v-if="isSubmitting" class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                                <span v-if="isSubmitting"
+                                    class="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                                 <i v-else class="fa-solid fa-floppy-disk w-4 h-4"></i>
                                 {{ isSubmitting ? 'Menyimpan...' : 'Simpan Perubahan' }}
                             </button>
@@ -474,7 +497,7 @@ const form = ref({
     rombelGuruKelasId: null as number | null,
     rombelBidangStudi: [] as number[],
     bidangStudiId: null as number | null,
-    roleIds: {} as Record<string, number | null>,
+    roleIds: {} as Record<number, number | null>,
     passwordType: '' as 'auto' | 'manual' | '',
     newPassword: '',
     passwordConfirm: '',
@@ -508,16 +531,16 @@ const autoGeneratedPassword = computed(() => {
 })
 
 const rolesBySystem = computed(() => {
-    const grouped: Record<string, any[]> = {}
+    const grouped: Record<number, any[]> = {}
     roles.value.forEach(role => {
-        const systemName = role.system?.nama || 'Umum'
+        const systemId = role.system_id
         // Show role if: 1. Role is active, OR 2. Role is inactive BUT currently selected
         const isCurrentlySelected = selectedRoleIds.value.has(role.id)
         if (role.status === 'active' || isCurrentlySelected) {
-            if (!grouped[systemName]) {
-                grouped[systemName] = []
+            if (!grouped[systemId]) {
+                grouped[systemId] = []
             }
-            grouped[systemName].push(role)
+            grouped[systemId].push(role)
         }
     })
     return grouped
@@ -534,6 +557,18 @@ const resetPasswordType = () => {
     form.value.passwordConfirm = ''
     showPassword.value = false
     showPasswordConfirm.value = false
+}
+
+const getSystemNameById = (systemId: number): string => {
+    const roleWithSystem = roles.value.find(r => r.system_id === systemId)
+    if (roleWithSystem && roleWithSystem.system) {
+        return roleWithSystem.system.nama
+    }
+    return `System ${systemId}`
+}
+
+const resetRoleGroup = (systemId: number) => {
+    form.value.roleIds[systemId] = null
 }
 
 const handleJabatanChange = () => {
@@ -580,41 +615,114 @@ const loadRoles = async () => {
 
 const handleFileUpload = async (fieldKey: string, file: File) => {
     try {
-        uploadingField.value = fieldKey
-
+        // Validation
         if (file.type !== 'application/pdf') {
             toastStore.showToast('error', 'Gagal upload', 'Format file harus PDF')
-            uploadingField.value = null
             return
         }
 
         if (file.size > 1024 * 1024) {
             toastStore.showToast('error', 'Gagal upload', 'Ukuran file maksimal 1MB')
-            uploadingField.value = null
             return
         }
 
+        // Set uploading state
+        uploadingField.value = fieldKey
+
+        // Create FormData dengan key field yang sesuai backend (kk, ktp, ijazah_sd, dll)
         const formData = new FormData()
-        formData.append('file', file)
-        formData.append('field_name', fieldKey)
+        formData.append(fieldKey, file)  // Key: fieldKey (e.g., 'kk', 'ijazah_sd')
 
+        console.log(`Starting upload for ${fieldKey}, pendidik id: ${props.pendidik.id}`)
+
+        // Call API untuk upload file langsung
         const response = await updateKepegawaianFile(props.pendidik.id, formData)
+        console.log(`Upload response:`, response)
 
-        if (response && response.success) {
-            uploadedFiles.value[fieldKey] = {
-                url: response.data?.file_url || response.data?.url,
-                name: file.name,
-                saved: true
+        // Check if response successful
+        // Backend return full kepegawaian object in response.data
+        const isSuccess = response?.data && (response.data?.id || response.data?.nama)
+        
+        if (isSuccess && response?.data) {
+            // Fetch ulang data kepegawaian untuk get file URL yang ter-update
+            // Ini lebih reliable daripada expect backend return file URL langsung
+            try {
+                console.log(`[UPLOAD] File upload success, fetching latest data...`)
+                const { getKepegawaianById } = await import('~/services/kepegawaian')
+                const latestData = await getKepegawaianById(props.pendidik.id)
+                
+                console.log(`[UPLOAD] Full response dari getKepegawaianById:`, {
+                    hasData: !!latestData.data,
+                    dataId: latestData.data?.id,
+                    allFields: latestData.data ? Object.keys(latestData.data) : []
+                })
+                
+                const fileUrl = latestData.data?.[fieldKey]
+                
+                console.log(`[UPLOAD] Latest data for '${fieldKey}':`, {
+                    fileUrl,
+                    fieldValue: fileUrl,
+                    fieldType: typeof fileUrl,
+                    responseData: {
+                        kk: latestData.data?.kk,
+                        akta_lahir: latestData.data?.akta_lahir,
+                        ktp: latestData.data?.ktp,
+                        ijazah_s1: latestData.data?.ijazah_s1
+                    }
+                })
+
+                if (fileUrl) {
+                    // Update uploadedFiles dengan data yang berhasil
+                    uploadedFiles.value[fieldKey] = {
+                        url: fileUrl,
+                        name: file.name,
+                        saved: true
+                    }
+
+                    // Update form value dengan URL
+                    form.value[fieldKey as keyof typeof form.value] = fileUrl
+
+                    toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
+                    console.log(`✓ File ${fieldKey} uploaded and saved successfully with URL: ${fileUrl}`)
+                } else {
+                    console.warn(`File URL untuk '${fieldKey}' masih null setelah fetch`)
+                    console.warn(`Debug info:`, {
+                        fieldKey,
+                        uploadedFieldValue: latestData.data?.[fieldKey],
+                        allFileFields: {
+                            kk: latestData.data?.kk,
+                            akta_lahir: latestData.data?.akta_lahir,
+                            ktp: latestData.data?.ktp,
+                            ijazah_sd: latestData.data?.ijazah_sd,
+                            ijazah_s1: latestData.data?.ijazah_s1,
+                            ijazah_s2: latestData.data?.ijazah_s2,
+                            ijazah_s3: latestData.data?.ijazah_s3,
+                            sertifikat_pendidik: latestData.data?.sertifikat_pendidik,
+                            sk: latestData.data?.sk,
+                        }
+                    })
+                    toastStore.showToast('error', 'Gagal Tersimpan', `File ${fieldKey} gagal disimpan di server. Silakan coba lagi atau hubungi admin.`)
+                }
+            } catch (fetchErr) {
+                console.error('Error fetching latest kepegawaian data:', fetchErr)
+                toastStore.showToast('error', 'Gagal', 'Tidak bisa verify file upload')
             }
-            toastStore.showToast('success', 'Berhasil', 'File berhasil diupload')
         } else {
-            const errorMsg = response?.data?.message || response?.message || 'Gagal upload file'
+            // Error response dari backend
+            const errorMsg = response?.message || response?.error?.message || response?.error || 'Gagal upload file'
             toastStore.showToast('error', 'Gagal upload', errorMsg)
+            console.error('Upload failed:', { 
+                response, 
+                errorMsg,
+                hasData: !!response?.data,
+                hasSuccess: response?.success,
+                hasError: response?.error
+            })
         }
     } catch (err: any) {
         console.error('File upload error:', err)
         let message = 'Gagal upload file'
-        
+
         if (err.data?.message) {
             message = err.data.message
         } else if (err.data?.errors) {
@@ -626,15 +734,123 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
         } else if (err.message) {
             message = err.message
         }
-        
+
         toastStore.showToast('error', 'Gagal upload', message)
+        console.error('Upload error details:', { message, error: err })
     } finally {
+        // Clear uploading state
         uploadingField.value = null
+        console.log(`Upload process complete for ${fieldKey}`)
     }
 }
 
 const handleFileRemove = (fieldKey: string) => {
-    uploadedFiles.value[fieldKey] = null
+    // Delete single file from backend
+    isSubmitting.value = true
+    
+    try {
+        const payload: Record<string, any> = {
+            id: props.pendidik.id,
+            files_to_delete: [fieldKey]
+        }
+        
+        // Call API delete
+        kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
+            if (result.success) {
+                // Clear from UI
+                uploadedFiles.value[fieldKey] = null
+                form.value[fieldKey as keyof typeof form.value] = null
+                toastStore.showToast('success', 'Berhasil', `File ${fieldKey} berhasil dihapus`)
+                console.log(`File ${fieldKey} deleted successfully`)
+            } else {
+                toastStore.showToast('error', 'Gagal', `Gagal menghapus file ${fieldKey}`)
+            }
+        }).catch((err) => {
+            console.error('Error deleting file:', err)
+            toastStore.showToast('error', 'Gagal', 'Gagal menghapus file')
+        }).finally(() => {
+            isSubmitting.value = false
+        })
+    } catch (err) {
+        console.error('Error in handleFileRemove:', err)
+        isSubmitting.value = false
+    }
+}
+
+const handleFileRemoveMulti = (fieldKey: string, index: number) => {
+    // Delete single file dari multi-file array
+    const fileName = uploadedFiles.value[fieldKey]?.[index]?.name || ''
+    
+    isSubmitting.value = true
+    
+    try {
+        const toDeleteKey = `${fieldKey}_to_delete`
+        const payload: Record<string, any> = {
+            id: props.pendidik.id,
+            [toDeleteKey]: [fileName]
+        }
+        
+        kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
+            if (result.success) {
+                // Remove dari array
+                if (uploadedFiles.value[fieldKey]) {
+                    uploadedFiles.value[fieldKey].splice(index, 1)
+                }
+                toastStore.showToast('success', 'Berhasil', `File ${fileName} berhasil dihapus`)
+                console.log(`File ${fileName} deleted successfully`)
+            } else {
+                toastStore.showToast('error', 'Gagal', `Gagal menghapus file ${fileName}`)
+            }
+        }).catch((err) => {
+            console.error('Error deleting file:', err)
+            toastStore.showToast('error', 'Gagal', 'Gagal menghapus file')
+        }).finally(() => {
+            isSubmitting.value = false
+        })
+    } catch (err) {
+        console.error('Error in handleFileRemoveMulti:', err)
+        isSubmitting.value = false
+    }
+}
+
+const handleFileRemoveAllMulti = (fieldKey: string) => {
+    // Delete semua files dari multi-file array
+    const totalFiles = uploadedFiles.value[fieldKey]?.length || 0
+    
+    if (totalFiles === 0) {
+        toastStore.showToast('warning', 'Perhatian', 'Tidak ada file untuk dihapus')
+        return
+    }
+    
+    isSubmitting.value = true
+    
+    try {
+        const fileNames = uploadedFiles.value[fieldKey].map((f: any) => f.name)
+        const toDeleteKey = `${fieldKey}_to_delete`
+        const payload: Record<string, any> = {
+            id: props.pendidik.id,
+            [toDeleteKey]: fileNames
+        }
+        
+        kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
+            if (result.success) {
+                // Clear array
+                uploadedFiles.value[fieldKey] = []
+                toastStore.showToast('success', 'Berhasil', `Semua ${totalFiles} file berhasil dihapus`)
+                console.log(`All files in ${fieldKey} deleted successfully`)
+            } else {
+                toastStore.showToast('error', 'Gagal', `Gagal menghapus file di ${fieldKey}`)
+            }
+        }).catch((err) => {
+            console.error('Error deleting all files:', err)
+            toastStore.showToast('error', 'Gagal', 'Gagal menghapus file')
+        }).finally(() => {
+            isSubmitting.value = false
+        })
+    } catch (err) {
+        console.error('Error in handleFileRemoveAllMulti:', err)
+        isSubmitting.value = false
+    }
 }
 
 const handleSubmit = async () => {
@@ -768,16 +984,19 @@ const initializeForm = async () => {
     if (props.pendidik) {
         // Track selected role IDs and build roleIds map by system
         selectedRoleIds.value = new Set()
-        const roleIdsBySystem: Record<string, number | null> = {}
-        
+        const roleIdsBySystem: Record<number, number | null> = {}
+
         if (props.pendidik.roles && Array.isArray(props.pendidik.roles)) {
             props.pendidik.roles.forEach((role: any) => {
                 selectedRoleIds.value.add(role.id)
-                const systemName = role.system?.nama || 'Umum'
-                roleIdsBySystem[systemName] = role.id
+                const systemId = role.system_id
+                // For each system, take the first role (or last if there are multiple)
+                if (roleIdsBySystem[systemId] === undefined) {
+                    roleIdsBySystem[systemId] = role.id
+                }
             })
         }
-        
+
         // Wait for next tick to ensure roles are rendered
         await nextTick()
 
@@ -830,16 +1049,24 @@ onMounted(() => {
     loadRoles()
 })
 
-watch(() => props.modelValue, async (newVal) => {
-    if (newVal) {
-        // Load all data first before initializing form
-        await Promise.all([
-            loadRombels(),
-            loadBidangStudis(),
-            loadRoles()
-        ])
-        // Then initialize form with loaded data
-        initializeForm()
-    }
-})
+watch(
+    () => [props.pendidik?.id, props.modelValue],
+    async ([pendidikId, isOpen]) => {
+        if (pendidikId && isOpen) {
+            // Load all data first before initializing form
+            await Promise.all([
+                loadRombels(),
+                loadBidangStudis(),
+                loadRoles()
+            ])
+            // Then initialize form with loaded data
+            await initializeForm()
+            await nextTick()
+        } else if (!isOpen) {
+            // Reset when modal closes
+            selectedRoleIds.value = new Set()
+        }
+    },
+    { immediate: false }
+)
 </script>

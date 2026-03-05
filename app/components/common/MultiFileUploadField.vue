@@ -4,22 +4,42 @@
         <label class="text-xs sm:text-sm font-semibold text-gray-900">{{ field.label }}</label>
 
         <!-- Uploaded Files Display -->
-        <div v-if="uploadedFiles.length > 0" class="mb-3 space-y-2">
-            <p class="text-xs font-semibold text-gray-600">File yang Tersimpan:</p>
-            <div v-for="(file, index) in uploadedFiles" :key="index"
-                class="flex items-center justify-between gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <div class="flex items-center gap-2 flex-1 min-w-0">
-                    <i class="fa-solid fa-check-circle text-green-600"></i>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-xs sm:text-sm font-medium text-green-900">Tersimpan</p>
-                        <p class="text-xs text-gray-600 truncate">{{ file.name }}</p>
+        <div v-if="uploadedFiles.length > 0" class="mb-4 space-y-3">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-semibold text-gray-600">File yang Tersimpan:</p>
+                <!-- Delete All Button -->
+                <button type="button" @click="handleDeleteAllFiles()"
+                    :disabled="isSubmitting || isUploading || uploadedFiles.length === 0"
+                    class="text-xs px-2 py-1 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium">
+                    <i class="fa-solid fa-trash mr-1"></i>Hapus Semua
+                </button>
+            </div>
+            <div class="space-y-2">
+                <div v-for="(file, index) in uploadedFiles" :key="index"
+                    class="flex items-center justify-between gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center gap-2 flex-1 min-w-0">
+                        <i class="fa-solid fa-check-circle text-green-600"></i>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs sm:text-sm font-medium text-green-900">Tersimpan</p>
+                            <p class="text-xs text-gray-600 truncate">{{ file.name }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <!-- Preview Button -->
+                        <a v-if="file.url" :href="file.url" target="_blank"
+                            class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                            title="Lihat file">
+                            <i class="fa-solid fa-eye w-4 h-4"></i>
+                        </a>
+                        <!-- Delete File Button -->
+                        <button type="button" @click="handleDeleteFile(index)"
+                            :disabled="isSubmitting || isUploading"
+                            class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Hapus file">
+                            <i class="fa-solid fa-trash w-4 h-4"></i>
+                        </button>
                     </div>
                 </div>
-                <a v-if="file.url" :href="file.url" target="_blank"
-                    class="flex-shrink-0 p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
-                    title="Lihat file">
-                    <i class="fa-solid fa-eye w-4 h-4"></i>
-                </a>
             </div>
         </div>
 
@@ -75,6 +95,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
     upload: [file: File]
     remove: [fieldKey: string, index: number]
+    removeAll: [fieldKey: string]
 }>()
 
 const isDragging = ref(false)
@@ -96,6 +117,20 @@ const handleDrop = (e: DragEvent) => {
         for (let i = 0; i < files.length; i++) {
             emit('upload', files[i])
         }
+    }
+}
+
+const handleDeleteFile = (index: number) => {
+    const fileName = props.uploadedFiles[index]?.name
+    if (confirm(`Apakah Anda yakin ingin menghapus file ${fileName}?`)) {
+        emit('remove', props.field.key, index)
+    }
+}
+
+const handleDeleteAllFiles = () => {
+    if (confirm(`Apakah Anda yakin ingin menghapus SEMUA file ${props.uploadedFiles.length} di ${props.field.label}?`)) {
+        // Emit remove untuk semua files dengan special marker
+        emit('removeAll', props.field.key)
     }
 }
 </script>

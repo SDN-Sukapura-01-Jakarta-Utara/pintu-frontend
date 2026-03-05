@@ -56,6 +56,35 @@ export async function getKepegawaianList(page: number = 1, limit: number = 10, s
 }
 
 /**
+ * Get kepegawaian by ID
+ * @param id - Kepegawaian ID
+ * @returns Kepegawaian detail data with roles
+ */
+export async function getKepegawaianById(id: number) {
+    const config = useRuntimeConfig()
+    const token = localStorage.getItem('auth_token')
+
+    try {
+        const response = await $fetch(
+            `${config.public.apiBase}/api/v1/kepegawaian/get-kepegawaian-by-id`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: { id },
+            }
+        )
+
+        return response
+    } catch (error: any) {
+        handleApiError(error)
+        throw error
+    }
+}
+
+/**
  * Create kepegawaian
  * @param kepegawaianData - Kepegawaian data to create
  * @returns Created kepegawaian data
@@ -95,15 +124,41 @@ export async function updateKepegawaian(id: number, kepegawaianData: any) {
     const token = localStorage.getItem('auth_token')
 
     try {
+        // Convert to FormData untuk match backend expectation
+        const formData = new FormData()
+        formData.append('id', id.toString())
+        
+        // Debug: log semua fields
+        console.log('[UPDATE] Kepegawaian data to send:', kepegawaianData)
+        
+        // Append all kepegawaian data
+        Object.keys(kepegawaianData).forEach(key => {
+            const value = kepegawaianData[key]
+            if (value === null || value === undefined) {
+                return // Skip null/undefined
+            }
+            if (Array.isArray(value)) {
+                // For arrays, append dengan index: rombel_bidang_studi[0], rombel_bidang_studi[1], dll
+                value.forEach((item, index) => {
+                    formData.append(`${key}[${index}]`, item.toString())
+                })
+            } else {
+                formData.append(key, value.toString())
+            }
+        })
+        
+        // Debug: log FormData keys
+        console.log('[UPDATE] FormData keys:', Array.from(formData.keys()))
+        
         const response = await $fetch(
-            `${config.public.apiBase}/api/v1/kepegawaian/update-kepegawaian/${id}`,
+            `${config.public.apiBase}/api/v1/kepegawaian/update-kepegawaian`,
             {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
+                    // Jangan set Content-Type, let browser handle FormData
                 },
-                body: kepegawaianData,
+                body: formData,
             }
         )
 
@@ -125,8 +180,15 @@ export async function updateKepegawaianFile(id: number, formData: FormData) {
     const token = localStorage.getItem('auth_token')
 
     try {
+        // FormData sudah berisi: file, field_name
+        // Append ID ke FormData
+        formData.append('id', id.toString())
+        
+        const endpoint = `${config.public.apiBase}/api/v1/kepegawaian/update-kepegawaian`
+        console.log(`[UPLOAD] POST to ${endpoint} with FormData keys:`, Array.from(formData.keys()))
+        
         const response = await $fetch(
-            `${config.public.apiBase}/api/v1/kepegawaian/update-kepegawaian/${id}`,
+            endpoint,
             {
                 method: 'POST',
                 headers: {
@@ -136,8 +198,24 @@ export async function updateKepegawaianFile(id: number, formData: FormData) {
             }
         )
 
+        console.log(`[UPLOAD] ✓ Response received:`, {
+            success: response?.success,
+            message: response?.message,
+            hasData: !!response?.data,
+            dataKeys: response?.data ? Object.keys(response.data) : [],
+            fullResponse: JSON.stringify(response, null, 2)
+        })
         return response
     } catch (error: any) {
+        const status = error?.status || error?.statusCode || 'unknown'
+        console.error(`[UPLOAD] ✗ Error (status: ${status}):`, {
+            message: error?.message,
+            data: error?.data,
+            statusCode: error?.statusCode,
+            status: error?.status,
+            fullError: error
+        })
+        
         handleApiError(error)
         throw error
     }

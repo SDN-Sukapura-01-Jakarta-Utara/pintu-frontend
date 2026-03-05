@@ -215,6 +215,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useKepegawaianStore } from '~/stores/KepegawaianStore'
 import { getRoleList } from '~/services/user'
+import { getKepegawaianById } from '~/services/kepegawaian'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreatePendidikModal from '~/components/modals/CreatePendidikModal.vue'
 import EditPendidikModal from '~/components/modals/EditPendidikModal.vue'
@@ -342,9 +343,18 @@ const openDetailPendidik = (item: any) => {
     console.log('View detail:', item)
 }
 
-const openEditPendidik = (item: any) => {
-    selectedPendidik.value = item
-    showEditPendidikModal.value = true
+const openEditPendidik = async (item: any) => {
+    try {
+        // Fetch full pendidik data including roles
+        const response = await getKepegawaianById(item.id)
+        selectedPendidik.value = response.data
+        showEditPendidikModal.value = true
+    } catch (err: any) {
+        console.error('Error loading pendidik detail:', err)
+        // Fallback to item if API call fails
+        selectedPendidik.value = item
+        showEditPendidikModal.value = true
+    }
 }
 
 const openDeletePendidik = (item: any) => {
