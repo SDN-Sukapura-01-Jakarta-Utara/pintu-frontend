@@ -6,31 +6,26 @@
         <!-- Uploaded Files Display (saved files) -->
         <SavedMultiFileDisplay v-if="uploadedFiles.length > 0" :files="uploadedFiles"
             :is-loading="isSubmitting || isUploading"
-            @delete="handleDeleteFile"
-            @deleteAll="handleDeleteAllFiles"
-            class="mb-4" />
+            @request-delete="(index, fileName) => emit('request-delete', index, fileName)"
+            @request-delete-all="() => emit('request-delete-all')" class="mb-4" />
 
         <!-- Upload Area -->
-        <div @click="$refs.fileInput?.click()"
-            @dragover.prevent="isDragging = true"
-            @dragleave="isDragging = false"
-            @drop.prevent="handleDrop"
-            :class="[
+        <div @click="$refs.fileInput?.click()" @dragover.prevent="isDragging = true" @dragleave="isDragging = false"
+            @drop.prevent="handleDrop" :class="[
                 'relative border-2 border-dashed rounded-lg p-3 sm:p-4 text-center cursor-pointer transition-all duration-300',
                 isDragging
                     ? 'border-blue-500 bg-blue-50'
                     : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50',
                 isSubmitting && 'opacity-50 cursor-not-allowed'
             ]">
-            <input ref="fileInput" type="file" accept=".pdf" multiple class="hidden"
-                @change="handleFileSelect" :disabled="isSubmitting || isUploading" />
+            <input ref="fileInput" type="file" accept=".pdf" multiple class="hidden" @change="handleFileSelect"
+                :disabled="isSubmitting || isUploading" />
 
             <div v-if="!isUploading" class="flex flex-col items-center gap-1 sm:gap-2">
                 <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-blue-100 flex items-center justify-center">
                     <svg class="w-4 sm:w-5 h-4 sm:h-5 text-blue-600" fill="none" stroke="currentColor"
                         viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 4v16m8-8H4"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                     </svg>
                 </div>
                 <div>
@@ -85,20 +80,6 @@ const handleDrop = (e: DragEvent) => {
         for (let i = 0; i < files.length; i++) {
             emit('upload', files[i])
         }
-    }
-}
-
-const handleDeleteFile = (index: number) => {
-    const fileName = props.uploadedFiles[index]?.name
-    if (confirm(`Apakah Anda yakin ingin menghapus file ${fileName}?`)) {
-        emit('remove', props.field.key, index)
-    }
-}
-
-const handleDeleteAllFiles = () => {
-    if (confirm(`Apakah Anda yakin ingin menghapus SEMUA file ${props.uploadedFiles.length} di ${props.field.label}?`)) {
-        // Emit remove untuk semua files dengan special marker
-        emit('removeAll', props.field.key)
     }
 }
 </script>

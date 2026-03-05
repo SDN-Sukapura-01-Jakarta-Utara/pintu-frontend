@@ -1126,30 +1126,57 @@ const handleDeleteFileConfirm = async () => {
     isSubmitting.value = true
 
     try {
-        const fileNames = [deleteFileFileName.value]
-        const toDeleteKey = `${deleteFileFieldKey.value}_to_delete`
+        const isMultiFileField = multipleFileFields.some(f => f.key === deleteFileFieldKey.value)
+        const isDeleteAll = deleteFileIndex.value === -2
         const payload: Record<string, any> = {
-            id: props.pendidik.id,
-            [toDeleteKey]: fileNames
+            id: props.pendidik.id
         }
+
+        if (isMultiFileField) {
+            const toDeleteKey = `${deleteFileFieldKey.value}_to_delete`
+            if (isDeleteAll) {
+                // Delete all files in this field: value = array of all filenames
+                const fileNames = uploadedFiles.value[deleteFileFieldKey.value].map((f: any) => {
+                    if (typeof f === 'object' && f.name) {
+                        return f.name
+                    } else if (typeof f === 'string') {
+                        return f.split('/').pop() || f
+                    }
+                    return ''
+                }).filter((name: string) => name)
+                payload[toDeleteKey] = fileNames
+            } else {
+                // Delete single file: value = [filename]
+                payload[toDeleteKey] = [deleteFileFileName.value]
+            }
+        } else {
+            // For single file fields: key = "files_to_delete", value = [fieldname]
+            payload['files_to_delete'] = [deleteFileFieldKey.value]
+        }
+
+        console.log('DELETE FILE PAYLOAD:', JSON.stringify(payload, null, 2))
 
         kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
             if (result.success) {
-                // Remove dari array if multi-file, atau set null if single-file
-                if (deleteFileIndex.value >= 0) {
-                    // Multi-file delete
+                if (isDeleteAll) {
+                    // Delete all: clear the array
+                    uploadedFiles.value[deleteFileFieldKey.value] = []
+                    toastStore.showToast('success', 'Berhasil', `${deleteFileFileName.value} berhasil dihapus`)
+                } else if (deleteFileIndex.value >= 0) {
+                    // Multi-file delete single file
                     if (uploadedFiles.value[deleteFileFieldKey.value]) {
                         uploadedFiles.value[deleteFileFieldKey.value].splice(deleteFileIndex.value, 1)
                     }
+                    toastStore.showToast('success', 'Berhasil', `${deleteFileFileName.value} berhasil dihapus`)
                 } else {
                     // Single-file delete
                     uploadedFiles.value[deleteFileFieldKey.value] = null
                     form.value[deleteFileFieldKey.value as keyof typeof form.value] = null
+                    toastStore.showToast('success', 'Berhasil', `${deleteFileFileName.value} berhasil dihapus`)
                 }
 
-                toastStore.showToast('success', 'Berhasil', `${deleteFileFileName.value} berhasil dihapus`)
                 showDeleteFileConfirm.value = false
-                console.log(`File ${deleteFileFileName.value} deleted successfully`)
+                console.log(`File delete successful`)
             } else {
                 toastStore.showToast('error', 'Gagal', `Gagal menghapus file ${deleteFileFileName.value}`)
             }
@@ -1187,42 +1214,11 @@ const handleRequestDeleteAllMultiFiles = (fieldKey: string) => {
         return
     }
 
-    isSubmitting.value = true
-
-    try {
-        const fileNames = uploadedFiles.value[fieldKey].map((f: any) => {
-            if (typeof f === 'object' && f.name) {
-                return f.name
-            } else if (typeof f === 'string') {
-                return f.split('/').pop() || f
-            }
-            return ''
-        }).filter((name: string) => name)
-
-        const toDeleteKey = `${fieldKey}_to_delete`
-        const payload: Record<string, any> = {
-            id: props.pendidik.id,
-            [toDeleteKey]: fileNames
-        }
-
-        kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
-            if (result.success) {
-                uploadedFiles.value[fieldKey] = []
-                toastStore.showToast('success', 'Berhasil', `Semua ${count} file berhasil dihapus`)
-                console.log(`All files in ${fieldKey} deleted successfully`)
-            } else {
-                toastStore.showToast('error', 'Gagal', `Gagal menghapus file di ${fieldKey}`)
-            }
-        }).catch((err) => {
-            console.error('Error deleting all files:', err)
-            toastStore.showToast('error', 'Gagal', 'Gagal menghapus file')
-        }).finally(() => {
-            isSubmitting.value = false
-        })
-    } catch (err) {
-        console.error('Error in handleRequestDeleteAllMultiFiles:', err)
-        isSubmitting.value = false
-    }
+    // Show confirmation modal for delete all
+    deleteFileFieldKey.value = fieldKey
+    deleteFileFileName.value = `semua ${count} file`
+    deleteFileIndex.value = -2  // Special marker for "delete all"
+    showDeleteFileConfirm.value = true
 }
 
 onMounted(() => {
