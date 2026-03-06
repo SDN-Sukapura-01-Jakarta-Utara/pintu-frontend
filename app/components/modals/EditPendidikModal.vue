@@ -363,10 +363,65 @@
                             </div>
                         </div>
 
+                        <!-- Photo Upload Section -->
+                         <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
+                             <div>
+                                 <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
+                                     Foto Pendidik (Opsional)
+                                 </label>
+
+                                 <!-- Photo Preview -->
+                                 <div v-if="photoPreview" class="mb-4 relative group w-fit">
+                                     <img :src="photoPreview" alt="Preview"
+                                         class="h-32 sm:h-40 aspect-[3/4] object-cover rounded-lg border-2 border-gray-200 shadow-md" />
+                                     <button type="button" @click="removePhoto" :disabled="isSubmitting"
+                                         class="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg opacity-100 hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer">
+                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                             <path fill-rule="evenodd"
+                                                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                 clip-rule="evenodd"></path>
+                                         </svg>
+                                     </button>
+                                 </div>
+
+                                 <!-- Upload Area -->
+                                 <div @click="$refs.photoInput.click()" @dragover.prevent="isDraggingPhoto = true"
+                                     @dragleave="isDraggingPhoto = false" @drop.prevent="handlePhotoDrop" :class="[
+                                         'relative border-2 border-dashed rounded-lg p-4 sm:p-6 text-center cursor-pointer transition-all duration-300',
+                                         isDraggingPhoto
+                                             ? 'border-blue-500 bg-blue-50 scale-105'
+                                             : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50'
+                                     ]">
+                                     <input ref="photoInput" type="file" accept="image/*" class="hidden"
+                                         @change="handlePhotoSelect" :disabled="isSubmitting" />
+
+                                     <div class="flex flex-col items-center gap-2 sm:gap-3">
+                                         <div
+                                             class="h-10 sm:h-12 w-10 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                             <svg class="w-5 sm:w-6 h-5 sm:w-6 text-blue-600" fill="none"
+                                                 stroke="currentColor" viewBox="0 0 24 24">
+                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                     d="M12 4v16m8-8H4"></path>
+                                             </svg>
+                                         </div>
+                                         <div>
+                                             <p class="text-xs sm:text-sm font-semibold text-gray-900">Klik atau drag foto di sini</p>
+                                             <p class="text-xs text-gray-600 mt-1">Format: JPG, PNG, WebP | Rasio: 3x4 | Maks. 1MB</p>
+                                         </div>
+                                     </div>
+
+                                     <!-- Error Message -->
+                                     <div v-if="photoError" class="mt-3 p-2.5 sm:p-3 bg-red-50 border border-red-200 rounded-lg">
+                                         <p class="text-xs sm:text-sm text-red-700 font-medium">{{ photoError }}</p>
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+
                         <!-- File Upload Section -->
-                        <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
-                            <h3 class="text-sm sm:text-base font-semibold text-gray-900">Upload Berkas (Opsional)</h3>
-                            <p class="text-xs text-gray-600">Format: PDF | Ukuran Maksimal: 1MB</p>
+                         <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
+                             <h3 class="text-sm sm:text-base font-semibold text-gray-900">Upload Berkas (Opsional)</h3>
+                             <p class="text-xs text-gray-600">Format: PDF | Ukuran Maksimal: 1MB</p>
 
                             <!-- File Upload Fields -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -525,6 +580,9 @@ const selectedRoleIds = ref<Set<number>>(new Set())
 const uploadingField = ref<string | null>(null)
 const showPassword = ref(false)
 const showPasswordConfirm = ref(false)
+const photoPreview = ref<string | null>(null)
+const photoError = ref<string | null>(null)
+const isDraggingPhoto = ref(false)
 
 const singleFileFields = [
     { key: 'kk', label: 'Kartu Keluarga' },
@@ -546,34 +604,35 @@ const multipleFileFields = [
 ]
 
 const form = ref({
-    nama: '',
-    nip: '',
-    nkki: '',
-    username: '',
-    kategori: 'Pendidik',
-    jabatan: '',
-    rombelGuruKelasId: null as number | null,
-    rombelBidangStudi: [] as number[],
-    bidangStudiId: null as number | null,
-    roleIds: {} as Record<number, number | null>,
-    passwordType: '' as 'auto' | 'manual' | '',
-    newPassword: '',
-    passwordConfirm: '',
-    status: 'active' as 'active' | 'inactive',
-    kk: null,
-    akta_lahir: null,
-    ktp: null,
-    ijazah_sd: null,
-    ijazah_smp: null,
-    ijazah_sma: null,
-    ijazah_s1: null,
-    ijazah_s2: null,
-    ijazah_s3: null,
-    sertifikat_pendidik: null,
-    sertifikat_lainnya: [] as any[],
-    sk: null,
-    dokumen_lainnya: [] as any[]
-})
+     nama: '',
+     nip: '',
+     nkki: '',
+     username: '',
+     kategori: 'Pendidik',
+     jabatan: '',
+     rombelGuruKelasId: null as number | null,
+     rombelBidangStudi: [] as number[],
+     bidangStudiId: null as number | null,
+     roleIds: {} as Record<number, number | null>,
+     passwordType: '' as 'auto' | 'manual' | '',
+     newPassword: '',
+     passwordConfirm: '',
+     status: 'active' as 'active' | 'inactive',
+     photo: null as File | null,
+     kk: null,
+     akta_lahir: null,
+     ktp: null,
+     ijazah_sd: null,
+     ijazah_smp: null,
+     ijazah_sma: null,
+     ijazah_s1: null,
+     ijazah_s2: null,
+     ijazah_s3: null,
+     sertifikat_pendidik: null,
+     sertifikat_lainnya: [] as any[],
+     sk: null,
+     dokumen_lainnya: [] as any[]
+ })
 
 const uploadedFiles = ref<Record<string, any>>({})
 
@@ -978,6 +1037,204 @@ const handleFileRemoveAllMulti = (fieldKey: string) => {
     }
 }
 
+const compressPhoto = async (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (event) => {
+            const img = new Image()
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                let { width, height } = img
+                
+                // Maintain 3:4 aspect ratio
+                // Resize to optimal size for 3x4 photos
+                const maxWidth = 600
+                if (width > maxWidth) {
+                    const ratio = maxWidth / width
+                    width = maxWidth
+                    height = height * ratio
+                }
+                
+                canvas.width = width
+                canvas.height = height
+                const ctx = canvas.getContext('2d')
+                if (ctx) {
+                    ctx.drawImage(img, 0, 0, width, height)
+                }
+                
+                // Compress to target size (100KB)
+                let quality = 0.8
+                let compressed = canvas.toDataURL('image/jpeg', quality)
+                
+                while (compressed.length > 100 * 1024 && quality > 0.1) {
+                    quality -= 0.05
+                    compressed = canvas.toDataURL('image/jpeg', quality)
+                }
+                
+                canvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            resolve(new File([blob], file.name, { type: 'image/jpeg' }))
+                        } else {
+                            resolve(file)
+                        }
+                    },
+                    'image/jpeg',
+                    quality
+                )
+            }
+            img.src = event.target?.result as string
+        }
+        reader.readAsDataURL(file)
+    })
+}
+
+const handlePhotoSelect = async (event: any) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    photoError.value = null
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        photoError.value = 'Format file harus gambar (JPG, PNG, WebP)'
+        return
+    }
+
+    // Validate file size (max 1MB)
+    if (file.size > 1024 * 1024) {
+        photoError.value = 'Ukuran file maksimal 1MB'
+        return
+    }
+
+    // Compress photo
+    const compressedFile = await compressPhoto(file)
+
+    // Create preview (wait for preview to be created)
+    await new Promise<void>((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+            photoPreview.value = e.target?.result as string
+            resolve()
+        }
+        reader.readAsDataURL(compressedFile)
+    })
+
+    // Upload photo setelah preview ready
+    await uploadPhoto(compressedFile)
+}
+
+const handlePhotoDrop = async (event: any) => {
+    isDraggingPhoto.value = false
+    const file = event.dataTransfer.files?.[0]
+    if (file) {
+        // Trigger the input change handler
+        const input = (this.$refs as any).photoInput
+        if (input) {
+            const dataTransfer = new DataTransfer()
+            dataTransfer.items.add(file)
+            input.files = dataTransfer.files
+            handlePhotoSelect({ target: { files: dataTransfer.files } })
+        }
+    }
+}
+
+const removePhoto = () => {
+    photoPreview.value = null
+    photoError.value = null
+    form.value.photo = null
+}
+
+const uploadPhoto = async (file: File) => {
+    try {
+        // Validation
+        if (!file) {
+            toastStore.showToast('error', 'Gagal upload', 'File foto tidak valid')
+            return
+        }
+
+        if (!file.type.startsWith('image/')) {
+            toastStore.showToast('error', 'Gagal upload', 'Format file harus gambar (JPG, PNG, WebP)')
+            return
+        }
+
+        if (file.size > 1024 * 1024) {
+            toastStore.showToast('error', 'Gagal upload', 'Ukuran file maksimal 1MB')
+            return
+        }
+
+        // Set uploading state
+        uploadingField.value = 'foto'
+
+        // Create FormData
+        const formData = new FormData()
+        formData.append('foto', file)
+        
+        // Debug: log formData entries
+        console.log('Uploading photo:', {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            formDataEntries: Array.from(formData.entries())
+        })
+
+        // Call API untuk upload file langsung
+        const { updateKepegawaianFile } = await import('~/services/kepegawaian')
+        const response = await updateKepegawaianFile(props.pendidik.id, formData)
+
+        // Check if response successful
+        const isSuccess = response?.data && (response.data?.id || response.data?.nama)
+
+        if (isSuccess && response?.data) {
+            // Fetch ulang data kepegawaian untuk get foto URL yang ter-update
+            try {
+                const { getKepegawaianById } = await import('~/services/kepegawaian')
+                const latestData = await getKepegawaianById(props.pendidik.id)
+
+                const fotoData = latestData.data?.foto
+
+                if (fotoData) {
+                    uploadedFiles.value['foto'] = {
+                        url: fotoData,
+                        name: file.name,
+                        saved: true
+                    }
+
+                    // Update form value dengan URL
+                    form.value.photo = null
+                    toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
+                } else {
+                    toastStore.showToast('error', 'Gagal Tersimpan', `Foto gagal disimpan di server. Silakan coba lagi atau hubungi admin.`)
+                }
+            } catch (fetchErr) {
+                toastStore.showToast('error', 'Gagal', 'Tidak bisa verify foto upload')
+            }
+        } else {
+            // Error response dari backend
+            const errorMsg = response?.message || response?.error?.message || response?.error || 'Gagal upload foto'
+            toastStore.showToast('error', 'Gagal upload', errorMsg)
+        }
+    } catch (err: any) {
+        let message = 'Gagal upload foto'
+
+        if (err.data?.message) {
+            message = err.data.message
+        } else if (err.data?.errors) {
+            const errors = err.data.errors
+            const errorMessages = Object.values(errors).filter(msg => msg).join(', ')
+            if (errorMessages) {
+                message = errorMessages
+            }
+        } else if (err.message) {
+            message = err.message
+        }
+
+        toastStore.showToast('error', 'Gagal upload', message)
+    } finally {
+        uploadingField.value = null
+    }
+}
+
 const generateUsernameFromNIPOrNKKI = () => {
     const nip = form.value.nip.trim()
     const nkki = form.value.nkki.trim()
@@ -1148,36 +1405,47 @@ const initializeForm = async () => {
         await nextTick()
 
         form.value = {
-            nama: props.pendidik.nama || '',
-            nip: props.pendidik.nip || '',
-            nkki: props.pendidik.nkki || '',
-            username: props.pendidik.username || '',
-            kategori: props.pendidik.kategori || 'Pendidik',
-            jabatan: props.pendidik.jabatan || '',
-            rombelGuruKelasId: props.pendidik.rombel_guru_kelas_id || null,
-            rombelBidangStudi: props.pendidik.rombel_bidang_studi || [],
-            bidangStudiId: props.pendidik.bidang_studi_id || null,
-            roleIds: roleIdsBySystem,
-            passwordType: '',
-            newPassword: '',
-            passwordConfirm: '',
-            status: props.pendidik.status || 'active',
-            kk: props.pendidik.kk || null,
-            akta_lahir: props.pendidik.akta_lahir || null,
-            ktp: props.pendidik.ktp || null,
-            ijazah_sd: props.pendidik.ijazah_sd || null,
-            ijazah_smp: props.pendidik.ijazah_smp || null,
-            ijazah_sma: props.pendidik.ijazah_sma || null,
-            ijazah_s1: props.pendidik.ijazah_s1 || null,
-            ijazah_s2: props.pendidik.ijazah_s2 || null,
-            ijazah_s3: props.pendidik.ijazah_s3 || null,
-            sertifikat_pendidik: props.pendidik.sertifikat_pendidik || null,
-            sertifikat_lainnya: [],
-            sk: props.pendidik.sk || null,
-            dokumen_lainnya: []
-        }
+             nama: props.pendidik.nama || '',
+             nip: props.pendidik.nip || '',
+             nkki: props.pendidik.nkki || '',
+             username: props.pendidik.username || '',
+             kategori: props.pendidik.kategori || 'Pendidik',
+             jabatan: props.pendidik.jabatan || '',
+             rombelGuruKelasId: props.pendidik.rombel_guru_kelas_id || null,
+             rombelBidangStudi: props.pendidik.rombel_bidang_studi || [],
+             bidangStudiId: props.pendidik.bidang_studi_id || null,
+             roleIds: roleIdsBySystem,
+             passwordType: '',
+             newPassword: '',
+             passwordConfirm: '',
+             status: props.pendidik.status || 'active',
+             photo: null,
+             kk: props.pendidik.kk || null,
+             akta_lahir: props.pendidik.akta_lahir || null,
+             ktp: props.pendidik.ktp || null,
+             ijazah_sd: props.pendidik.ijazah_sd || null,
+             ijazah_smp: props.pendidik.ijazah_smp || null,
+             ijazah_sma: props.pendidik.ijazah_sma || null,
+             ijazah_s1: props.pendidik.ijazah_s1 || null,
+             ijazah_s2: props.pendidik.ijazah_s2 || null,
+             ijazah_s3: props.pendidik.ijazah_s3 || null,
+             sertifikat_pendidik: props.pendidik.sertifikat_pendidik || null,
+             sertifikat_lainnya: [],
+             sk: props.pendidik.sk || null,
+             dokumen_lainnya: []
+         }
 
         uploadedFiles.value = {}
+
+        // Initialize photo preview jika ada
+        if (props.pendidik.foto) {
+            photoPreview.value = props.pendidik.foto
+            uploadedFiles.value['foto'] = {
+                url: props.pendidik.foto,
+                name: 'Foto Pendidik',
+                saved: true
+            }
+        }
 
         // Initialize single file fields
         singleFileFields.forEach(field => {
