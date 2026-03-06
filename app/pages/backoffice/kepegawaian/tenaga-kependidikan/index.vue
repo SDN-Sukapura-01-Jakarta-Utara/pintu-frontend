@@ -1,34 +1,34 @@
 <template>
     <DashboardLayout>
-        <!-- Create Pendidik Modal -->
-        <CreatePendidikModal v-model="showCreatePendidikModal" @success="handleCreatePendidikSuccess"
-            @error="handleCreatePendidikError" />
+        <!-- Create Tenaga Kependidikan Modal -->
+        <CreateTenagaKependidikanModal v-model="showCreateModal" @success="handleCreateSuccess"
+            @error="handleCreateError" />
 
-        <!-- View Pendidik Modal -->
-        <ViewPendidikModal v-model="showViewPendidikModal" :pendidik-id="selectedPendidikId" />
+        <!-- View Tenaga Kependidikan Modal -->
+        <ViewTenagaKependidikanModal v-model="showViewModal" :tenaga-kependidikan-id="selectedId" />
 
-        <!-- Edit Pendidik Modal -->
-        <EditPendidikModal v-model="showEditPendidikModal" :pendidik="selectedPendidik" @success="handleEditPendidikSuccess"
-            @error="handleEditPendidikError" />
+        <!-- Edit Tenaga Kependidikan Modal -->
+        <EditTenagaKependidikanModal v-model="showEditModal" :tenaga-kependidikan="selectedItem"
+            @success="handleEditSuccess" @error="handleEditError" />
 
         <!-- Delete Confirmation Modal -->
-        <ConfirmationDeleteModal v-model="showDeleteConfirm" title="Hapus Pendidik"
-            :message="`Apakah Anda yakin ingin menghapus pendidik '${selectedPendidik?.nama}'? Tindakan ini tidak dapat dibatalkan.`"
-            :is-loading="isDeletingPendidik" @confirm="handleDeleteConfirm" />
+        <ConfirmationDeleteModal v-model="showDeleteConfirm" title="Hapus Tenaga Kependidikan"
+            :message="`Apakah Anda yakin ingin menghapus tenaga kependidikan '${selectedItem?.nama}'? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeleting" @confirm="handleDeleteConfirm" />
 
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
                 <div>
                     <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        Data Pendidik
+                        Data Tenaga Kependidikan
                     </h1>
                     <p class="text-[13px] sm:text-sm md:text-[15px] text-gray-600 mt-1 sm:mt-2">
-                        Kelola data pendidik SDN Sukapura 01
+                        Kelola data tenaga kependidikan SDN Sukapura 01
                     </p>
                 </div>
-                <AddButton label="Tambah Pendidik" iconClass="fa-solid fa-plus"
-                    @click="openCreatePendidikModal" />
+                <AddButton label="Tambah Tenaga Kependidikan" iconClass="fa-solid fa-plus"
+                    @click="openCreateModal" />
             </div>
         </div>
 
@@ -36,7 +36,7 @@
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
             <!-- Filter Section -->
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Pendidik</h3>
+                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Tenaga Kependidikan</h3>
 
                 <!-- Filter Form -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -84,9 +84,9 @@
                         <select v-model="filters.jabatan"
                             class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
                             <option value="">Semua Jabatan</option>
-                            <option value="Guru Kelas">Guru Kelas</option>
-                            <option value="Guru Bidang Studi">Guru Bidang Studi</option>
-                            <option value="Guru Kelas dan Guru Bidang Studi">Guru Kelas dan Bidang Studi</option>
+                            <option value="Tenaga Administrasi">Tenaga Administrasi</option>
+                            <option value="Tenaga Kebersihan">Tenaga Kebersihan</option>
+                            <option value="Tenaga Keamanan">Tenaga Keamanan</option>
                         </select>
                     </div>
 
@@ -126,7 +126,7 @@
                     <div
                         class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
                     </div>
-                    <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data pendidik...</p>
+                    <p class="text-sm sm:text-base text-gray-600 font-medium">Memuat data tenaga kependidikan...</p>
                 </div>
             </div>
 
@@ -144,7 +144,7 @@
                     <div class="flex-1">
                         <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
                         <p class="mt-1 text-sm sm:text-base text-red-800">{{ kepegawaianStore.error }}</p>
-                        <button @click="fetchPendidikData"
+                        <button @click="fetchData"
                             class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
                             <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
                             Coba Lagi
@@ -184,15 +184,15 @@
                                 <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                     <!-- View Button -->
                                     <ViewButton title="Lihat Detail" label="Lihat"
-                                        @click="openDetailPendidik(item)" />
+                                        @click="openDetailModal(item)" />
 
                                     <!-- Edit Button -->
                                     <EditButton title="Edit" label="Edit"
-                                        @click="openEditPendidik(item)" />
+                                        @click="openEditModal(item)" />
 
                                     <!-- Delete Button -->
                                     <DeleteButton title="Hapus" label="Hapus"
-                                        @click="openDeletePendidik(item)" />
+                                        @click="openDeleteModal(item)" />
                                 </div>
                             </template>
                         </Table>
@@ -208,10 +208,10 @@
                             ]"></i>
                         </div>
                         <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-1">
-                            {{ hasActiveFilters ? 'Data tidak ditemukan' : 'Belum ada pendidik' }}
+                            {{ hasActiveFilters ? 'Data tidak ditemukan' : 'Belum ada tenaga kependidikan' }}
                         </h3>
                         <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
-                            {{ hasActiveFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan pendidik baru' }}</p>
+                            {{ hasActiveFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan tenaga kependidikan baru' }}</p>
                     </div>
                 </div>
             </template>
@@ -226,9 +226,9 @@ import { useToastStore } from '~/stores/ToastStore'
 import { getRoleList } from '~/services/user'
 import { getKepegawaianById } from '~/services/kepegawaian'
 import DashboardLayout from '~/components/DashboardLayout.vue'
-import CreatePendidikModal from '~/components/modals/CreatePendidikModal.vue'
-import ViewPendidikModal from '~/components/modals/ViewPendidikModal.vue'
-import EditPendidikModal from '~/components/modals/EditPendidikModal.vue'
+import CreateTenagaKependidikanModal from '~/components/modals/CreateTenagaKependidikanModal.vue'
+import ViewTenagaKependidikanModal from '~/components/modals/ViewTenagaKependidikanModal.vue'
+import EditTenagaKependidikanModal from '~/components/modals/EditTenagaKependidikanModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import AddButton from '~/components/common/AddButton.vue'
 import Table from '~/components/Table.vue'
@@ -239,13 +239,13 @@ import DeleteButton from '~/components/common/DeleteButton.vue'
 const kepegawaianStore = useKepegawaianStore()
 const toastStore = useToastStore()
 
-const showCreatePendidikModal = ref(false)
-const showViewPendidikModal = ref(false)
-const showEditPendidikModal = ref(false)
+const showCreateModal = ref(false)
+const showViewModal = ref(false)
+const showEditModal = ref(false)
 const showDeleteConfirm = ref(false)
-const selectedPendidik = ref<any>(null)
-const selectedPendidikId = ref(0)
-const isDeletingPendidik = ref(false)
+const selectedItem = ref<any>(null)
+const selectedId = ref(0)
+const isDeleting = ref(false)
 
 const roles = ref<any[]>([])
 
@@ -262,7 +262,7 @@ const filters = ref({
     jabatan: '',
     role_id: 0,
     status: 'active',
-    kategori: 'Pendidik'
+    kategori: 'Tenaga Kependidikan'
 })
 
 const tableColumns = [
@@ -285,7 +285,7 @@ const hasActiveFilters = computed(() => {
 })
 
 // Methods
-const fetchPendidikData = async () => {
+const fetchData = async () => {
     const search = {
         nama: filters.value.nama,
         username: filters.value.username,
@@ -294,7 +294,7 @@ const fetchPendidikData = async () => {
         jabatan: filters.value.jabatan,
         role_id: filters.value.role_id || undefined,
         status: filters.value.status,
-        kategori: 'Pendidik'
+        kategori: 'Tenaga Kependidikan'
     }
 
     await kepegawaianStore.fetchKepegawaian(
@@ -306,7 +306,7 @@ const fetchPendidikData = async () => {
 
 const applyFilter = async () => {
     pagination.value.page = 1
-    await fetchPendidikData()
+    await fetchData()
 }
 
 const clearFilter = async () => {
@@ -318,74 +318,74 @@ const clearFilter = async () => {
         jabatan: '',
         role_id: 0,
         status: 'active',
-        kategori: 'Pendidik'
+        kategori: 'Tenaga Kependidikan'
     }
     pagination.value.page = 1
-    await fetchPendidikData()
+    await fetchData()
 }
 
 const onPageChange = (page: number) => {
     pagination.value.page = page
-    fetchPendidikData()
+    fetchData()
 }
 
 const onLimitChange = (limit: number) => {
     pagination.value.limit = limit
     pagination.value.page = 1
-    fetchPendidikData()
+    fetchData()
 }
 
-const openCreatePendidikModal = () => {
-    showCreatePendidikModal.value = true
+const openCreateModal = () => {
+    showCreateModal.value = true
 }
 
-const handleCreatePendidikSuccess = () => {
+const handleCreateSuccess = () => {
     pagination.value.page = 1
-    fetchPendidikData()
+    fetchData()
 }
 
-const handleCreatePendidikError = () => {
+const handleCreateError = () => {
     // Error already shown via toast
 }
 
-const handleEditPendidikSuccess = () => {
+const handleEditSuccess = () => {
     pagination.value.page = 1
-    fetchPendidikData()
+    fetchData()
 }
 
-const handleEditPendidikError = () => {
+const handleEditError = () => {
     // Error already shown via toast
 }
 
-const openDetailPendidik = (item: any) => {
-    selectedPendidikId.value = item.id
-    showViewPendidikModal.value = true
+const openDetailModal = (item: any) => {
+    selectedId.value = item.id
+    showViewModal.value = true
 }
 
-const openEditPendidik = async (item: any) => {
+const openEditModal = async (item: any) => {
     try {
-        // Fetch full pendidik data including roles
+        // Fetch full tenaga kependidikan data including roles
         const response = await getKepegawaianById(item.id)
-        selectedPendidik.value = response.data
-        showEditPendidikModal.value = true
+        selectedItem.value = response.data
+        showEditModal.value = true
     } catch (err: any) {
-        console.error('Error loading pendidik detail:', err)
+        console.error('Error loading tenaga kependidikan detail:', err)
         // Fallback to item if API call fails
-        selectedPendidik.value = item
-        showEditPendidikModal.value = true
+        selectedItem.value = item
+        showEditModal.value = true
     }
 }
 
-const openDeletePendidik = (item: any) => {
-    selectedPendidik.value = item
+const openDeleteModal = (item: any) => {
+    selectedItem.value = item
     showDeleteConfirm.value = true
 }
 
 const handleDeleteConfirm = async () => {
-    if (!selectedPendidik.value) return
+    if (!selectedItem.value) return
 
-    isDeletingPendidik.value = true
-    const result = await kepegawaianStore.removeKepegawaian(selectedPendidik.value.id)
+    isDeleting.value = true
+    const result = await kepegawaianStore.removeKepegawaian(selectedItem.value.id)
 
     if (result.success) {
         toastStore.success('Sukses', result.message)
@@ -394,7 +394,7 @@ const handleDeleteConfirm = async () => {
         toastStore.error('Gagal', result.message)
     }
 
-    isDeletingPendidik.value = false
+    isDeleting.value = false
 }
 
 const loadRoles = async () => {
@@ -408,7 +408,7 @@ const loadRoles = async () => {
 
 // Load initial data
 onMounted(() => {
-    fetchPendidikData()
+    fetchData()
     loadRoles()
 })
 </script>

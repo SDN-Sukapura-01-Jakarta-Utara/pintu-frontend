@@ -173,13 +173,13 @@
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
                         <NuxtLink to="/backoffice/kepegawaian/pendidik" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
-                            route.path.includes('pendidik') ? 'bg-red-700 font-semibold' : ''
+                            route.path.startsWith('/backoffice/kepegawaian/pendidik') && !route.path.includes('tenaga-kependidikan') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Pendidik
                         </NuxtLink>
                         <NuxtLink to="/backoffice/kepegawaian/tenaga-kependidikan" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
-                            route.path.includes('tenaga-kependidikan') ? 'bg-red-700 font-semibold' : ''
+                            route.path.startsWith('/backoffice/kepegawaian/tenaga-kependidikan') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Tenaga Kependidikan
                         </NuxtLink>
