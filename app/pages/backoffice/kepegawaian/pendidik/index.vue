@@ -4,6 +4,9 @@
         <CreatePendidikModal v-model="showCreatePendidikModal" @success="handleCreatePendidikSuccess"
             @error="handleCreatePendidikError" />
 
+        <!-- View Pendidik Modal -->
+        <ViewPendidikModal v-model="showViewPendidikModal" :pendidik-id="selectedPendidikId" />
+
         <!-- Edit Pendidik Modal -->
         <EditPendidikModal v-model="showEditPendidikModal" :pendidik="selectedPendidik" @success="handleEditPendidikSuccess"
             @error="handleEditPendidikError" />
@@ -218,6 +221,7 @@ import { getRoleList } from '~/services/user'
 import { getKepegawaianById } from '~/services/kepegawaian'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreatePendidikModal from '~/components/modals/CreatePendidikModal.vue'
+import ViewPendidikModal from '~/components/modals/ViewPendidikModal.vue'
 import EditPendidikModal from '~/components/modals/EditPendidikModal.vue'
 import AddButton from '~/components/common/AddButton.vue'
 import Table from '~/components/Table.vue'
@@ -228,8 +232,10 @@ import DeleteButton from '~/components/common/DeleteButton.vue'
 const kepegawaianStore = useKepegawaianStore()
 
 const showCreatePendidikModal = ref(false)
+const showViewPendidikModal = ref(false)
 const showEditPendidikModal = ref(false)
 const selectedPendidik = ref<any>(null)
+const selectedPendidikId = ref(0)
 
 const roles = ref<any[]>([])
 
@@ -339,8 +345,8 @@ const handleEditPendidikError = () => {
 }
 
 const openDetailPendidik = (item: any) => {
-    // TODO: Implement detail modal
-    console.log('View detail:', item)
+    selectedPendidikId.value = item.id
+    showViewPendidikModal.value = true
 }
 
 const openEditPendidik = async (item: any) => {
