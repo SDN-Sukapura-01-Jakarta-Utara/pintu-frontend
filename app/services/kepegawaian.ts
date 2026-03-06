@@ -135,16 +135,8 @@ export async function updateKepegawaian(id: number, kepegawaianData: any) {
                 return // Skip null/undefined
             }
             if (Array.isArray(value)) {
-                // For delete file arrays (files_to_delete, sertifikat_lainnya_to_delete, etc.),
-                // append as JSON string to preserve array format
-                if (key.endsWith('_to_delete')) {
-                    formData.append(key, JSON.stringify(value))
-                } else {
-                    // For other arrays (like rombel_bidang_studi), append dengan index
-                    value.forEach((item, index) => {
-                        formData.append(`${key}[${index}]`, item.toString())
-                    })
-                }
+                // Append all arrays as JSON string to preserve array format
+                formData.append(key, JSON.stringify(value))
             } else {
                 formData.append(key, value.toString())
             }

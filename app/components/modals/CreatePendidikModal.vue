@@ -45,7 +45,7 @@
                     <form @submit.prevent="handleSubmit" class="space-y-4 sm:space-y-6">
                         <!-- Nama Input -->
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Nama
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -58,7 +58,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <!-- NIP Input -->
                             <div>
-                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                     NIP
                                     <span class="text-red-600 ml-1">*</span>
                                 </label>
@@ -70,7 +70,7 @@
 
                             <!-- NKKI Input -->
                             <div>
-                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                     NKKI
                                     <span class="text-red-600 ml-1">*</span>
                                 </label>
@@ -83,7 +83,7 @@
 
                         <!-- Username Input -->
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Username
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -139,7 +139,7 @@
                             <div v-if="form.passwordType === 'manual'" class="space-y-4">
                                 <!-- Password Input -->
                                 <div>
-                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                    <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                         Password
                                         <span class="text-red-600 ml-1">*</span>
                                     </label>
@@ -173,7 +173,7 @@
 
                                 <!-- Confirm Password Input -->
                                 <div>
-                                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                    <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                         Konfirmasi Password
                                         <span class="text-red-600 ml-1">*</span>
                                     </label>
@@ -210,7 +210,7 @@
 
                         <!-- Kategori Input (disabled, pre-filled) -->
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Kategori
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -220,7 +220,7 @@
 
                         <!-- Jabatan Dropdown -->
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Jabatan
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -238,7 +238,7 @@
 
                         <!-- Guru Kelas: Rombel Wali Kelas -->
                         <div v-if="form.jabatan === 'Guru Kelas' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Rombel yang Diampu sebagai Wali Kelas
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -256,7 +256,7 @@
                             class="space-y-4 sm:space-y-6">
                             <!-- Bidang Studi Dropdown -->
                             <div>
-                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                     Bidang Studi
                                     <span class="text-red-600 ml-1">*</span>
                                 </label>
@@ -270,33 +270,33 @@
                             </div>
 
                             <!-- Rombel Bidang Studi Checkboxes -->
-                            <div>
-                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4">
-                                    Rombel yang Diampu sebagai Guru Bidang Studi
-                                    <span class="text-red-600 ml-1">*</span>
-                                </label>
-                                <div v-if="rombelLoading" class="text-xs text-gray-600">
-                                    Memuat rombel...
-                                </div>
-                                <div v-else class="space-y-2">
-                                    <label v-for="rombel in activeRombels" :key="rombel.id"
-                                        class="flex items-center gap-3 p-2 rounded cursor-pointer hover:bg-gray-100 transition-colors">
-                                        <input type="checkbox" :value="rombel.id"
-                                            v-model="form.rombelBidangStudi"
-                                            :disabled="isSubmitting"
-                                            class="w-4 h-4 text-red-600 rounded cursor-pointer" />
-                                        <span class="text-xs sm:text-sm text-gray-900">{{ rombel.name }}</span>
-                                    </label>
-                                </div>
-                            </div>
+                             <div>
+                                 <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4">
+                                     Rombel yang Diampu sebagai Guru Bidang Studi
+                                     <span class="text-red-600 ml-1">*</span>
+                                 </label>
+                                 <div v-if="rombelLoading" class="text-xs text-gray-600">
+                                     Memuat rombel...
+                                 </div>
+                                 <div v-else class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                                     <label v-for="rombel in activeRombels" :key="rombel.id"
+                                         class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                                         <input type="checkbox" :value="rombel.id"
+                                             v-model="form.rombelBidangStudi"
+                                             :disabled="isSubmitting"
+                                             class="w-4 h-4 text-red-600 rounded cursor-pointer" />
+                                         <span class="text-xs sm:text-sm text-gray-900">{{ rombel.name }}</span>
+                                     </label>
+                                 </div>
+                             </div>
                         </div>
 
                         <!-- Role Grouped by System -->
-                        <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4">
-                                Role
-                                <span class="text-red-600 ml-1">*</span>
-                            </label>
+                         <div>
+                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
+                                 Role
+                                 <span class="text-red-600 ml-1">*</span>
+                             </label>
                             <div v-if="roleLoading" class="flex items-center gap-2 text-gray-600">
                                 <div
                                     class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600">
@@ -338,9 +338,9 @@
                         </div>
 
                         <!-- Status Toggle -->
-                        <div class="pt-3 sm:pt-4 border-t border-gray-200">
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs sm:text-sm font-semibold text-gray-900">Status</label>
+                         <div class="pt-3 sm:pt-4 border-t border-gray-200">
+                             <div class="flex items-center justify-between">
+                                 <label class="text-[13px] sm:text-[15px] font-semibold text-gray-900">Status</label>
                                 <button type="button" @click="form.status = form.status === 'active' ? 'inactive' : 'active'" :disabled="isSubmitting" :class="[
                                     'relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300',
                                     form.status === 'active' ? 'bg-green-600' : 'bg-gray-300',

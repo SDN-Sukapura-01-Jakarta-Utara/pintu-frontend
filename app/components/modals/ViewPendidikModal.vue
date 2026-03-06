@@ -186,12 +186,7 @@
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                             <h3
                                 class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
-                                <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-purple-600 flex-shrink-0" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17.25c0 5.079 3.585 9.47 8.356 10.6m0-13c5.5 0 10 4.745 10 10.25 0 5.079-3.585 9.47-8.356 10.6m0 0A8.521 8.521 0 0121.912 23c2.211-1.555 3.821-4.14 3.821-7.07 0-5.079-3.585-9.47-8.356-10.6">
-                                    </path>
-                                </svg>
+                                <i class="fa-solid fa-book-open w-3.5 sm:w-4 h-3.5 sm:h-4 text-purple-600 flex-shrink-0"></i>
                                 <span>Bidang Studi</span>
                             </h3>
                         </div>
@@ -209,12 +204,7 @@
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                             <h3
                                 class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
-                                <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-indigo-600 flex-shrink-0" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17.25c0 5.079 3.585 9.47 8.356 10.6m0-13c5.5 0 10 4.745 10 10.25 0 5.079-3.585 9.47-8.356 10.6m0 0A8.521 8.521 0 0121.912 23c2.211-1.555 3.821-4.14 3.821-7.07 0-5.079-3.585-9.47-8.356-10.6">
-                                    </path>
-                                </svg>
+                                <i class="fa-solid fa-chalkboard-user w-3.5 sm:w-4 h-3.5 sm:h-4 text-indigo-600 flex-shrink-0"></i>
                                 <span>Rombel yang Diampu</span>
                             </h3>
                         </div>

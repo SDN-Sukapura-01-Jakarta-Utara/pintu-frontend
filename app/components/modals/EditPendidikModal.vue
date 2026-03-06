@@ -44,11 +44,11 @@
                     <!-- Form -->
                     <form @submit.prevent="handleSubmit" class="space-y-4 sm:space-y-6">
                         <!-- Nama Input -->
-                        <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
-                                Nama
-                                <span class="text-red-600 ml-1">*</span>
-                            </label>
+                         <div>
+                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                 Nama
+                                 <span class="text-red-600 ml-1">*</span>
+                             </label>
                             <input v-model="form.nama" type="text" placeholder="Nama lengkap pendidik" required
                                 :disabled="isSubmitting"
                                 class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
@@ -58,7 +58,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <!-- NIP Input -->
                             <div>
-                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                     NIP
                                     <span class="text-red-600 ml-1">*</span>
                                 </label>
@@ -69,7 +69,7 @@
 
                             <!-- NKKI Input -->
                             <div>
-                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                     NKKI
                                 </label>
                                 <input v-model="form.nkki" type="text" placeholder="Nomor KKI"
@@ -78,20 +78,27 @@
                             </div>
                         </div>
 
-                        <!-- Username Input -->
-                        <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
-                                Username
-                                <span class="text-red-600 ml-1">*</span>
-                            </label>
-                            <input v-model="form.username" type="text" placeholder="Username unik" required
-                                :disabled="isSubmitting"
-                                class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
-                        </div>
+                        <!-- Username Input with Generate Button -->
+                         <div>
+                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                 Username
+                                 <span class="text-red-600 ml-1">*</span>
+                             </label>
+                             <div class="flex gap-2">
+                                 <input v-model="form.username" type="text" placeholder="Username unik" required
+                                     :disabled="isSubmitting"
+                                     class="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
+                                 <button type="button" @click="generateUsernameFromNIPOrNKKI" :disabled="isSubmitting || (!form.nip.trim() && !form.nkki.trim())"
+                                     :title="(form.nip.trim() || form.nkki.trim()) ? 'Generate username dari NIP/NKKI' : 'Isi NIP atau NKKI terlebih dahulu'"
+                                     class="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 active:bg-red-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
+                                     <i class="fa-solid fa-wand-magic-sparkles w-4 h-4"></i>
+                                 </button>
+                             </div>
+                         </div>
 
                         <!-- Kategori Input (disabled, pre-filled) -->
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Kategori
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -101,7 +108,7 @@
 
                         <!-- Jabatan Dropdown -->
                         <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Jabatan
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -121,7 +128,7 @@
                         <!-- Guru Kelas: Rombel Wali Kelas -->
                         <div
                             v-if="form.jabatan === 'Guru Kelas' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Rombel yang Diampu sebagai Wali Kelas
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -137,7 +144,7 @@
                         <!-- Guru Bidang Studi: Bidang Studi -->
                         <div
                             v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Bidang Studi
                                 <span class="text-red-600 ml-1">*</span>
                             </label>
@@ -152,13 +159,13 @@
                         </div>
 
                         <!-- Guru Bidang Studi: Rombel yang Diampu -->
-                        <div
-                            v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
-                                Rombel yang Diampu sebagai Guru Bidang Studi
-                                <span class="text-red-600 ml-1">*</span>
-                            </label>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                         <div
+                             v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
+                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                 Rombel yang Diampu sebagai Guru Bidang Studi
+                                 <span class="text-red-600 ml-1">*</span>
+                             </label>
+                             <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
                                 <label v-for="rombel in activeRombels" :key="rombel.id"
                                     class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                                     <input type="checkbox" :value="rombel.id" v-model.number="form.rombelBidangStudi"
@@ -169,11 +176,11 @@
                         </div>
 
                         <!-- Role Selection -->
-                        <div>
-                            <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4">
-                                Role
-                                <span class="text-red-600 ml-1">*</span>
-                            </label>
+                         <div>
+                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
+                                 Role
+                                 <span class="text-red-600 ml-1">*</span>
+                             </label>
                             <div v-if="isLoadingRoles" class="flex items-center gap-2 text-gray-600">
                                 <div
                                     class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600">
@@ -226,13 +233,17 @@
                         </div>
 
                         <!-- Reset Password Section -->
-                        <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
-                            <div>
-                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-3 sm:mb-4">
-                                    Reset Password
-                                </label>
+                          <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
+                              <div>
+                                  <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
+                                      Reset Password
+                                  </label>
+                                  <p class="text-xs text-gray-600 mb-4 p-2.5 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                      <i class="fa-solid fa-circle-info text-blue-600 mr-2"></i>
+                                      Jangan ubah bagian ini jika tidak ingin mengubah password pendidik.
+                                  </p>
 
-                                <!-- Radio Options -->
+                                 <!-- Radio Options -->
                                 <div class="flex gap-3 sm:gap-4 mb-4">
                                     <!-- Generate Otomatis Option -->
                                     <label class="flex items-center gap-2 cursor-pointer"
@@ -277,7 +288,7 @@
                                     <!-- Password Input -->
                                     <div>
                                         <label
-                                            class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                            class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                             Password Baru
                                             <span class="text-red-600 ml-1">*</span>
                                         </label>
@@ -314,7 +325,7 @@
                                     <!-- Confirm Password Input -->
                                     <div>
                                         <label
-                                            class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
+                                            class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                             Konfirmasi Password
                                             <span class="text-red-600 ml-1">*</span>
                                         </label>
@@ -378,9 +389,9 @@
                         </div>
 
                         <!-- Status Toggle -->
-                        <div class="pt-3 sm:pt-4 border-t border-gray-200">
-                            <div class="flex items-center justify-between">
-                                <label class="text-xs sm:text-sm font-semibold text-gray-900">Status</label>
+                         <div class="pt-3 sm:pt-4 border-t border-gray-200">
+                             <div class="flex items-center justify-between">
+                                 <label class="text-[13px] sm:text-[15px] font-semibold text-gray-900">Status</label>
                                 <button type="button"
                                     @click="form.status = form.status === 'active' ? 'inactive' : 'active'"
                                     :disabled="isSubmitting" :class="[
@@ -965,6 +976,28 @@ const handleFileRemoveAllMulti = (fieldKey: string) => {
         console.error('Error in handleFileRemoveAllMulti:', err)
         isSubmitting.value = false
     }
+}
+
+const generateUsernameFromNIPOrNKKI = () => {
+    const nip = form.value.nip.trim()
+    const nkki = form.value.nkki.trim()
+
+    // Prioritas: NIP dulu, kalau kosong pakai NKKI
+    let generatedUsername = ''
+    let source = ''
+
+    if (nip) {
+        generatedUsername = nip
+        source = 'NIP'
+    } else if (nkki) {
+        generatedUsername = nkki
+        source = 'NKKI'
+    } else {
+        toastStore.showToast('error', 'Gagal generate', 'Isi NIP atau NKKI terlebih dahulu')
+        return
+    }
+
+    form.value.username = generatedUsername
 }
 
 const handleSubmit = async () => {
