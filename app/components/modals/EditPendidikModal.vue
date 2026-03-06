@@ -371,7 +371,7 @@
                             <div class="space-y-4">
                                 <MultiFileUploadField v-for="field in multipleFileFields" :key="field.key"
                                     :field="field" :uploaded-files="uploadedFiles[field.key] || []"
-                                    @upload="(file) => handleFileUpload(field.key, file)"
+                                    @upload="(files) => handleMultiFileUpload(field.key, files)"
                                     @request-delete="(index, fileName) => handleRequestDeleteFileMulti(field.key, index, fileName)"
                                     @request-delete-all="() => handleRequestDeleteAllMultiFiles(field.key)"
                                     :is-submitting="isSubmitting" :is-uploading="uploadingField === field.key" />
@@ -666,6 +666,77 @@ const loadRoles = async () => {
     }
 }
 
+const handleMultiFileUpload = async (fieldKey: string, files: File[]) => {
+    try {
+        // Validate all files
+        const validFiles: File[] = []
+        for (const file of files) {
+            if (file.type !== 'application/pdf') {
+                toastStore.showToast('error', 'Gagal upload', `${file.name} harus PDF`)
+                continue
+            }
+            if (file.size > 1024 * 1024) {
+                toastStore.showToast('error', 'Gagal upload', `${file.name} ukuran max 1MB`)
+                continue
+            }
+            validFiles.push(file)
+        }
+
+        if (validFiles.length === 0) {
+            return
+        }
+
+        // Set uploading state
+        uploadingField.value = fieldKey
+
+        // Create FormData with ALL valid files for batch upload
+        const formData = new FormData()
+        validFiles.forEach((file) => {
+            formData.append(fieldKey, file)  // Append multiple files with same key
+        })
+
+        // Call API untuk upload semua files sekaligus
+        const response = await updateKepegawaianFile(props.pendidik.id, formData)
+
+        // Check if response successful
+        const isSuccess = response?.data && (response.data?.id || response.data?.nama)
+
+        if (isSuccess && response?.data) {
+            // Fetch ulang data kepegawaian untuk get file URLs yang ter-update
+            try {
+                const { getKepegawaianById } = await import('~/services/kepegawaian')
+                const latestData = await getKepegawaianById(props.pendidik.id)
+
+                const fileData = latestData.data?.[fieldKey]
+
+                if (fileData && Array.isArray(fileData)) {
+                    // Update with all files from server (server merges with existing)
+                    uploadedFiles.value[fieldKey] = fileData
+
+                    toastStore.showToast('success', 'Tersimpan', `${validFiles.length} file berhasil diupload`)
+                } else {
+                    toastStore.showToast('error', 'Gagal Tersimpan', `File gagal disimpan di server. Silakan coba lagi.`)
+                }
+            } catch (fetchErr) {
+                toastStore.showToast('error', 'Gagal', 'Tidak bisa verify file upload')
+            }
+        } else {
+            const errorMsg = response?.message || response?.error?.message || 'Gagal upload file'
+            toastStore.showToast('error', 'Gagal upload', errorMsg)
+        }
+    } catch (err: any) {
+        let message = 'Gagal upload file'
+        if (err.data?.message) {
+            message = err.data.message
+        } else if (err.message) {
+            message = err.message
+        }
+        toastStore.showToast('error', 'Gagal upload', message)
+    } finally {
+        uploadingField.value = null
+    }
+}
+
 const handleFileUpload = async (fieldKey: string, file: File) => {
     try {
         // Validation
@@ -686,11 +757,8 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
         const formData = new FormData()
         formData.append(fieldKey, file)  // Key: fieldKey (e.g., 'kk', 'ijazah_sd', 'sertifikat_lainnya')
 
-        console.log(`Starting upload for ${fieldKey}, pendidik id: ${props.pendidik.id}`)
-
         // Call API untuk upload file langsung
         const response = await updateKepegawaianFile(props.pendidik.id, formData)
-        console.log(`Upload response:`, response)
 
         // Check if response successful
         // Backend return full kepegawaian object in response.data
@@ -698,28 +766,14 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
 
         if (isSuccess && response?.data) {
             // Fetch ulang data kepegawaian untuk get file URL yang ter-update
-            // Ini lebih reliable daripada expect backend return file URL langsung
             try {
-                console.log(`[UPLOAD] File upload success, fetching latest data...`)
                 const { getKepegawaianById } = await import('~/services/kepegawaian')
                 const latestData = await getKepegawaianById(props.pendidik.id)
-
-                console.log(`[UPLOAD] Full response dari getKepegawaianById:`, {
-                    hasData: !!latestData.data,
-                    dataId: latestData.data?.id,
-                    allFields: latestData.data ? Object.keys(latestData.data) : []
-                })
 
                 const fileData = latestData.data?.[fieldKey]
 
                 // Check if this is a multi-file field
                 const isMultiFileField = multipleFileFields.some(f => f.key === fieldKey)
-
-                console.log(`[UPLOAD] Latest data for '${fieldKey}':`, {
-                    fileData,
-                    isMultiFileField,
-                    fieldType: typeof fileData,
-                })
 
                 if (fileData) {
                     if (isMultiFileField && Array.isArray(fileData)) {
@@ -730,7 +784,6 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
                         uploadedFiles.value[fieldKey] = fileData
 
                         toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
-                        console.log(`✓ File ${fieldKey} uploaded and saved successfully (${fileData.length} file(s))`)
                     } else if (!isMultiFileField) {
                         // For single file fields
                         uploadedFiles.value[fieldKey] = {
@@ -743,30 +796,19 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
                         form.value[fieldKey as keyof typeof form.value] = fileData
 
                         toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
-                        console.log(`✓ File ${fieldKey} uploaded and saved successfully with URL: ${fileData}`)
                     }
                 } else {
-                    console.warn(`File data untuk '${fieldKey}' masih null setelah fetch`)
                     toastStore.showToast('error', 'Gagal Tersimpan', `File ${fieldKey} gagal disimpan di server. Silakan coba lagi atau hubungi admin.`)
                 }
             } catch (fetchErr) {
-                console.error('Error fetching latest kepegawaian data:', fetchErr)
                 toastStore.showToast('error', 'Gagal', 'Tidak bisa verify file upload')
             }
         } else {
             // Error response dari backend
             const errorMsg = response?.message || response?.error?.message || response?.error || 'Gagal upload file'
             toastStore.showToast('error', 'Gagal upload', errorMsg)
-            console.error('Upload failed:', {
-                response,
-                errorMsg,
-                hasData: !!response?.data,
-                hasSuccess: response?.success,
-                hasError: response?.error
-            })
         }
     } catch (err: any) {
-        console.error('File upload error:', err)
         let message = 'Gagal upload file'
 
         if (err.data?.message) {
@@ -782,11 +824,9 @@ const handleFileUpload = async (fieldKey: string, file: File) => {
         }
 
         toastStore.showToast('error', 'Gagal upload', message)
-        console.error('Upload error details:', { message, error: err })
     } finally {
         // Clear uploading state
         uploadingField.value = null
-        console.log(`Upload process complete for ${fieldKey}`)
     }
 }
 
@@ -1153,8 +1193,6 @@ const handleDeleteFileConfirm = async () => {
             // For single file fields: key = "files_to_delete", value = [fieldname]
             payload['files_to_delete'] = [deleteFileFieldKey.value]
         }
-
-        console.log('DELETE FILE PAYLOAD:', JSON.stringify(payload, null, 2))
 
         kepegawaianStore.updateKepegawaian(props.pendidik.id, payload).then((result) => {
             if (result.success) {

@@ -56,7 +56,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-    upload: [file: File]
+    upload: [files: File[]]
     remove: [fieldKey: string, index: number]
     removeAll: [fieldKey: string]
 }>()
@@ -66,20 +66,18 @@ const fileInput = ref<HTMLInputElement | null>(null)
 
 const handleFileSelect = (e: Event) => {
     const files = (e.target as HTMLInputElement).files
-    if (files) {
-        for (let i = 0; i < files.length; i++) {
-            emit('upload', files[i])
-        }
+    if (files && files.length > 0) {
+        const fileArray = Array.from(files)
+        emit('upload', fileArray)
     }
 }
 
 const handleDrop = (e: DragEvent) => {
     isDragging.value = false
     const files = e.dataTransfer?.files
-    if (files) {
-        for (let i = 0; i < files.length; i++) {
-            emit('upload', files[i])
-        }
+    if (files && files.length > 0) {
+        const fileArray = Array.from(files)
+        emit('upload', fileArray)
     }
 }
 </script>

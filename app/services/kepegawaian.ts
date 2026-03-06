@@ -128,9 +128,6 @@ export async function updateKepegawaian(id: number, kepegawaianData: any) {
         const formData = new FormData()
         formData.append('id', id.toString())
         
-        // Debug: log semua fields
-        console.log('[UPDATE] Kepegawaian data to send:', kepegawaianData)
-        
         // Append all kepegawaian data
         Object.keys(kepegawaianData).forEach(key => {
             const value = kepegawaianData[key]
@@ -152,9 +149,6 @@ export async function updateKepegawaian(id: number, kepegawaianData: any) {
                 formData.append(key, value.toString())
             }
         })
-        
-        // Debug: log FormData keys
-        console.log('[UPDATE] FormData keys:', Array.from(formData.keys()))
         
         const response = await $fetch(
             `${config.public.apiBase}/api/v1/kepegawaian/update-kepegawaian`,
@@ -191,7 +185,6 @@ export async function updateKepegawaianFile(id: number, formData: FormData) {
         formData.append('id', id.toString())
         
         const endpoint = `${config.public.apiBase}/api/v1/kepegawaian/update-kepegawaian`
-        console.log(`[UPLOAD] POST to ${endpoint} with FormData keys:`, Array.from(formData.keys()))
         
         const response = await $fetch(
             endpoint,
@@ -204,23 +197,8 @@ export async function updateKepegawaianFile(id: number, formData: FormData) {
             }
         )
 
-        console.log(`[UPLOAD] ✓ Response received:`, {
-            success: response?.success,
-            message: response?.message,
-            hasData: !!response?.data,
-            dataKeys: response?.data ? Object.keys(response.data) : [],
-            fullResponse: JSON.stringify(response, null, 2)
-        })
         return response
     } catch (error: any) {
-        const status = error?.status || error?.statusCode || 'unknown'
-        console.error(`[UPLOAD] ✗ Error (status: ${status}):`, {
-            message: error?.message,
-            data: error?.data,
-            statusCode: error?.statusCode,
-            status: error?.status,
-            fullError: error
-        })
         
         handleApiError(error)
         throw error
