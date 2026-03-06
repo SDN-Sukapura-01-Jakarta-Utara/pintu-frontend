@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { KepegawaianData } from '~/types/KepegawaianType'
-import { getKepegawaianList, createKepegawaian, updateKepegawaian } from '~/services/kepegawaian'
+import { getKepegawaianList, createKepegawaian, updateKepegawaian, deleteKepegawaian } from '~/services/kepegawaian'
 
 export const useKepegawaianStore = defineStore('kepegawaian', () => {
   // State
@@ -141,6 +141,42 @@ export const useKepegawaianStore = defineStore('kepegawaian', () => {
     }
   }
 
+  // Delete kepegawaian
+  const removeKepegawaian = async (id: number) => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      await deleteKepegawaian(id)
+      
+      // Refresh kepegawaian list
+      await fetchKepegawaian()
+      
+      return {
+        success: true,
+        message: 'Pendidik berhasil dihapus'
+      }
+    } catch (err: any) {
+      let apiError = 'Gagal menghapus pendidik'
+      
+      if (err.data?.message) {
+        apiError = err.data.message
+      } else if (err.message) {
+        apiError = err.message
+      }
+      
+      error.value = apiError
+      console.error('Error deleting kepegawaian:', err)
+      
+      return {
+        success: false,
+        message: apiError
+      }
+    } finally {
+      isLoading.value = false
+    }
+  }
+
   // Clear error
   const clearError = () => {
     error.value = null
@@ -158,6 +194,7 @@ export const useKepegawaianStore = defineStore('kepegawaian', () => {
     fetchKepegawaian,
     addKepegawaian,
     updateKepegawaian: updateKepegawaianData,
+    removeKepegawaian,
     clearError,
   }
 })

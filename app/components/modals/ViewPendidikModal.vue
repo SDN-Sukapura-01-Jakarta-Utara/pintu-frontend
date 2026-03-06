@@ -144,6 +144,108 @@
                         </div>
                     </div>
 
+                    <!-- Foto Section -->
+                    <div v-if="pendidik.foto" class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                        <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                            <h3
+                                class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i
+                                    class="fa-solid fa-image w-3.5 sm:w-4 h-3.5 sm:h-4 text-orange-600 flex-shrink-0"></i>
+                                <span>Foto Pendidik</span>
+                            </h3>
+                        </div>
+                        <div class="p-3 sm:p-4 md:p-6 flex justify-center">
+                            <img :src="pendidik.foto" :alt="pendidik.nama"
+                                class="h-40 sm:h-48 aspect-[3/4] object-cover rounded-lg border border-gray-200 shadow-md" />
+                        </div>
+                    </div>
+
+                    <!-- Dokumen Section -->
+                    <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                        <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                            <h3
+                                class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i
+                                    class="fa-solid fa-file-pdf w-3.5 sm:w-4 h-3.5 sm:h-4 text-red-600 flex-shrink-0"></i>
+                                <span>Dokumen & Berkas</span>
+                            </h3>
+                        </div>
+                        <div class="p-3 sm:p-4 md:p-6">
+                            <div class="space-y-2">
+                                <!-- Single File Fields -->
+                                <div v-for="field in singleFileFields" :key="field.key"
+                                    class="flex items-center justify-between p-2 sm:p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                                    <div class="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                                        <div v-if="pendidik[field.key]" class="flex-shrink-0">
+                                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div v-else class="flex-shrink-0">
+                                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-400" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-xs sm:text-sm font-medium text-gray-900">{{ field.label }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div v-if="pendidik[field.key]" class="flex-shrink-0 ml-2">
+                                        <a :href="pendidik[field.key]" target="_blank" rel="noopener noreferrer"
+                                            class="inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-[11px] sm:text-xs font-semibold cursor-pointer">
+                                            <i class="fa-solid fa-external-link w-3 h-3"></i>
+                                            <span>Lihat</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Multiple File Fields -->
+                                <div v-for="field in multipleFileFields" :key="field.key">
+                                    <div class="flex items-center gap-2 sm:gap-3 mb-2">
+                                        <div v-if="pendidik[field.key] && Array.isArray(pendidik[field.key]) && pendidik[field.key].length > 0"
+                                            class="flex-shrink-0">
+                                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-green-600" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div v-else class="flex-shrink-0">
+                                            <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-400" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd"
+                                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                    clip-rule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <p class="text-xs sm:text-sm font-medium text-gray-900">{{ field.label }}</p>
+                                    </div>
+                                    <div v-if="pendidik[field.key] && Array.isArray(pendidik[field.key]) && pendidik[field.key].length > 0"
+                                        class="space-y-1.5 ml-8 sm:ml-10">
+                                        <div v-for="(fileUrl, idx) in pendidik[field.key]" :key="idx"
+                                            class="flex items-center gap-2">
+                                            <span class="text-[10px] sm:text-xs text-gray-600">{{ `File ${idx + 1}`
+                                                }}</span>
+                                            <a :href="fileUrl" target="_blank" rel="noopener noreferrer"
+                                                class="inline-flex items-center gap-1 px-2 sm:px-3 py-1 rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-colors text-[10px] sm:text-xs font-semibold cursor-pointer">
+                                                <i class="fa-solid fa-external-link w-2.5 h-2.5"></i>
+                                                <span>Lihat</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Role Section -->
                     <div v-if="pendidik.roles && pendidik.roles.length > 0"
                         class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
@@ -186,7 +288,8 @@
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                             <h3
                                 class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
-                                <i class="fa-solid fa-book-open w-3.5 sm:w-4 h-3.5 sm:h-4 text-purple-600 flex-shrink-0"></i>
+                                <i
+                                    class="fa-solid fa-book-open w-3.5 sm:w-4 h-3.5 sm:h-4 text-purple-600 flex-shrink-0"></i>
                                 <span>Bidang Studi</span>
                             </h3>
                         </div>
@@ -204,7 +307,8 @@
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                             <h3
                                 class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
-                                <i class="fa-solid fa-chalkboard-user w-3.5 sm:w-4 h-3.5 sm:h-4 text-indigo-600 flex-shrink-0"></i>
+                                <i
+                                    class="fa-solid fa-chalkboard-user w-3.5 sm:w-4 h-3.5 sm:h-4 text-indigo-600 flex-shrink-0"></i>
                                 <span>Rombel yang Diampu</span>
                             </h3>
                         </div>
@@ -276,6 +380,25 @@ const pendidik = ref<any>(null)
 const rombels = ref<any[]>([])
 const bidangStudis = ref<any[]>([])
 
+const singleFileFields = [
+    { key: 'kk', label: 'Kartu Keluarga' },
+    { key: 'akta_lahir', label: 'Akta Lahir' },
+    { key: 'ktp', label: 'KTP' },
+    { key: 'ijazah_sd', label: 'Ijazah SD' },
+    { key: 'ijazah_smp', label: 'Ijazah SMP' },
+    { key: 'ijazah_sma', label: 'Ijazah SMA' },
+    { key: 'ijazah_s1', label: 'Ijazah S1' },
+    { key: 'ijazah_s2', label: 'Ijazah S2' },
+    { key: 'ijazah_s3', label: 'Ijazah S3' },
+    { key: 'sertifikat_pendidik', label: 'Sertifikat Pendidik' },
+    { key: 'sk', label: 'SK' }
+]
+
+const multipleFileFields = [
+    { key: 'sertifikat_lainnya', label: 'Sertifikat Lainnya' },
+    { key: 'dokumen_lainnya', label: 'Dokumen Lainnya' }
+]
+
 watch(
     () => props.modelValue,
     async (newVal) => {
@@ -288,11 +411,11 @@ watch(
 const fetchPendidikDetail = async () => {
     try {
         isLoading.value = true
-        
+
         // Fetch pendidik detail (sudah include nested objects: bidang_studi, rombel_guru_kelas)
         const pendidikResponse = await getKepegawaianById(props.pendidikId)
         pendidik.value = pendidikResponse.data
-        
+
         // Fetch rombel list untuk resolve rombel_bidang_studi IDs
         const rombelResponse = await getRombelList()
         rombels.value = rombelResponse.data || []
@@ -312,22 +435,26 @@ const bidangStudiName = computed(() => {
 const rombelInfo = computed(() => {
     if (!pendidik.value) return []
     const rombelsInfo = []
-    
+
     // Wali kelas - use nested object if available
     if (pendidik.value.rombel_guru_kelas) {
         rombelsInfo.push(`Wali Kelas: ${pendidik.value.rombel_guru_kelas.name}`)
     }
-    
-    // Guru bidang studi rombel - resolve IDs from rombel list
+
+    // Guru bidang studi rombel - resolve IDs from rombel list and group by bidang studi
     if (pendidik.value.rombel_bidang_studi && Array.isArray(pendidik.value.rombel_bidang_studi) && pendidik.value.rombel_bidang_studi.length > 0) {
+        const bidangStudiRombels: string[] = []
         pendidik.value.rombel_bidang_studi.forEach((rombelId: number) => {
             const rombelBidangStudi = rombels.value.find(r => r.id === rombelId)
             if (rombelBidangStudi) {
-                rombelsInfo.push(`${bidangStudiName.value}: ${rombelBidangStudi.name}`)
+                bidangStudiRombels.push(rombelBidangStudi.name)
             }
         })
+        if (bidangStudiRombels.length > 0) {
+            rombelsInfo.push(`${bidangStudiName.value}: ${bidangStudiRombels.join(', ')}`)
+        }
     }
-    
+
     return rombelsInfo
 })
 

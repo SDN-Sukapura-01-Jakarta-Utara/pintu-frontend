@@ -11,6 +11,11 @@
         <EditPendidikModal v-model="showEditPendidikModal" :pendidik="selectedPendidik" @success="handleEditPendidikSuccess"
             @error="handleEditPendidikError" />
 
+        <!-- Delete Confirmation Modal -->
+        <ConfirmationDeleteModal v-model="showDeleteConfirm" title="Hapus Pendidik"
+            :message="`Apakah Anda yakin ingin menghapus pendidik '${selectedPendidik?.nama}'? Tindakan ini tidak dapat dibatalkan.`"
+            :is-loading="isDeletingPendidik" @confirm="handleDeleteConfirm" />
+
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
@@ -217,12 +222,14 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useKepegawaianStore } from '~/stores/KepegawaianStore'
+import { useToastStore } from '~/stores/ToastStore'
 import { getRoleList } from '~/services/user'
 import { getKepegawaianById } from '~/services/kepegawaian'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreatePendidikModal from '~/components/modals/CreatePendidikModal.vue'
 import ViewPendidikModal from '~/components/modals/ViewPendidikModal.vue'
 import EditPendidikModal from '~/components/modals/EditPendidikModal.vue'
+import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import AddButton from '~/components/common/AddButton.vue'
 import Table from '~/components/Table.vue'
 import ViewButton from '~/components/common/ViewButton.vue'
@@ -230,12 +237,15 @@ import EditButton from '~/components/common/EditButton.vue'
 import DeleteButton from '~/components/common/DeleteButton.vue'
 
 const kepegawaianStore = useKepegawaianStore()
+const toastStore = useToastStore()
 
 const showCreatePendidikModal = ref(false)
 const showViewPendidikModal = ref(false)
 const showEditPendidikModal = ref(false)
+const showDeleteConfirm = ref(false)
 const selectedPendidik = ref<any>(null)
 const selectedPendidikId = ref(0)
+const isDeletingPendidik = ref(false)
 
 const roles = ref<any[]>([])
 
@@ -364,8 +374,24 @@ const openEditPendidik = async (item: any) => {
 }
 
 const openDeletePendidik = (item: any) => {
-    // TODO: Implement delete confirmation
-    console.log('Delete:', item)
+    selectedPendidik.value = item
+    showDeleteConfirm.value = true
+}
+
+const handleDeleteConfirm = async () => {
+    if (!selectedPendidik.value) return
+
+    isDeletingPendidik.value = true
+    const result = await kepegawaianStore.removeKepegawaian(selectedPendidik.value.id)
+
+    if (result.success) {
+        toastStore.success('Sukses', result.message)
+        showDeleteConfirm.value = false
+    } else {
+        toastStore.error('Gagal', result.message)
+    }
+
+    isDeletingPendidik.value = false
 }
 
 const loadRoles = async () => {

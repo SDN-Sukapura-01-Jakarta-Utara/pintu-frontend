@@ -196,3 +196,32 @@ export async function updateKepegawaianFile(id: number, formData: FormData) {
         throw error
     }
 }
+
+/**
+ * Delete kepegawaian
+ * @param id - Kepegawaian ID
+ * @returns Delete response
+ */
+export async function deleteKepegawaian(id: number): Promise<any> {
+    const config = useRuntimeConfig()
+    const token = localStorage.getItem('auth_token')
+
+    try {
+        const response = await $fetch(
+            `${config.public.apiBase}/api/v1/kepegawaian/delete-kepegawaian`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: { id },
+            }
+        )
+
+        return response
+    } catch (error: any) {
+        handleApiError(error)
+        throw error
+    }
+}
