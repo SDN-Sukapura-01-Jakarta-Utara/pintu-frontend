@@ -44,11 +44,11 @@
                     <!-- Form -->
                     <form @submit.prevent="handleSubmit" class="space-y-4 sm:space-y-6">
                         <!-- Nama Input -->
-                         <div>
-                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
-                                 Nama
-                                 <span class="text-red-600 ml-1">*</span>
-                             </label>
+                        <div>
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                Nama
+                                <span class="text-red-600 ml-1">*</span>
+                            </label>
                             <input v-model="form.nama" type="text" placeholder="Nama lengkap pendidik" required
                                 :disabled="isSubmitting"
                                 class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
@@ -58,7 +58,8 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                             <!-- NIP Input -->
                             <div>
-                                <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                <label
+                                    class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                     NIP
                                     <span class="text-red-600 ml-1">*</span>
                                 </label>
@@ -69,7 +70,8 @@
 
                             <!-- NKKI Input -->
                             <div>
-                                <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                <label
+                                    class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                     NKKI
                                 </label>
                                 <input v-model="form.nkki" type="text" placeholder="Nomor KKI"
@@ -79,22 +81,23 @@
                         </div>
 
                         <!-- Username Input with Generate Button -->
-                         <div>
-                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
-                                 Username
-                                 <span class="text-red-600 ml-1">*</span>
-                             </label>
-                             <div class="flex gap-2">
-                                 <input v-model="form.username" type="text" placeholder="Username unik" required
-                                     :disabled="isSubmitting"
-                                     class="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
-                                 <button type="button" @click="generateUsernameFromNIPOrNKKI" :disabled="isSubmitting || (!form.nip.trim() && !form.nkki.trim())"
-                                     :title="(form.nip.trim() || form.nkki.trim()) ? 'Generate username dari NIP/NKKI' : 'Isi NIP atau NKKI terlebih dahulu'"
-                                     class="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 active:bg-red-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
-                                     <i class="fa-solid fa-wand-magic-sparkles w-4 h-4"></i>
-                                 </button>
-                             </div>
-                         </div>
+                        <div>
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                Username
+                                <span class="text-red-600 ml-1">*</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <input v-model="form.username" type="text" placeholder="Username unik" required
+                                    :disabled="isSubmitting"
+                                    class="flex-1 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
+                                <button type="button" @click="generateUsernameFromNIPOrNKKI"
+                                    :disabled="isSubmitting || (!form.nip.trim() && !form.nkki.trim())"
+                                    :title="(form.nip.trim() || form.nkki.trim()) ? 'Generate username dari NIP/NKKI' : 'Isi NIP atau NKKI terlebih dahulu'"
+                                    class="flex-shrink-0 px-3 sm:px-4 py-2 sm:py-3 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 active:bg-red-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
+                                    <i class="fa-solid fa-wand-magic-sparkles w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
 
                         <!-- Kategori Input (disabled, pre-filled) -->
                         <div>
@@ -135,8 +138,9 @@
                             <select v-model.number="form.rombelGuruKelasId" :disabled="isSubmitting || rombelLoading"
                                 class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                 <option :value="null">Pilih Rombel</option>
-                                <option v-for="rombel in activeRombels" :key="rombel.id" :value="rombel.id">
-                                    {{ rombel.name }}
+                                <option v-for="rombel in activeRombels" :key="rombel.id" :value="rombel.id"
+                                    :disabled="rombel.status === 'inactive'">
+                                    {{ rombel.name }}{{ rombel.status === 'inactive' ? ' (Nonaktif)' : '' }}
                                 </option>
                             </select>
                         </div>
@@ -159,28 +163,38 @@
                         </div>
 
                         <!-- Guru Bidang Studi: Rombel yang Diampu -->
-                         <div
-                             v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
-                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
-                                 Rombel yang Diampu sebagai Guru Bidang Studi
-                                 <span class="text-red-600 ml-1">*</span>
-                             </label>
-                             <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-                                <label v-for="rombel in activeRombels" :key="rombel.id"
-                                    class="flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div
+                            v-if="form.jabatan === 'Guru Bidang Studi' || form.jabatan === 'Guru Kelas dan Guru Bidang Studi'">
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                Rombel yang Diampu sebagai Guru Bidang Studi
+                                <span class="text-red-600 ml-1">*</span>
+                            </label>
+                            <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+                                <label v-for="rombel in activeRombels" :key="rombel.id" :class="[
+                                    'flex items-center gap-3 p-3 border-2 border-gray-300 rounded-lg cursor-pointer transition-colors',
+                                    rombel.status === 'inactive'
+                                        ? 'bg-gray-100 opacity-50 border-gray-200 cursor-not-allowed'
+                                        : 'hover:bg-gray-50'
+                                ]">
                                     <input type="checkbox" :value="rombel.id" v-model.number="form.rombelBidangStudi"
-                                        :disabled="isSubmitting" class="w-4 h-4 text-red-600 rounded cursor-pointer" />
-                                    <span class="text-xs sm:text-sm font-medium text-gray-900">{{ rombel.name }}</span>
+                                        :disabled="isSubmitting || rombel.status === 'inactive'"
+                                        class="w-4 h-4 text-red-600 rounded cursor-pointer disabled:cursor-not-allowed" />
+                                    <div class="flex flex-col">
+                                        <span class="text-xs sm:text-sm font-medium text-gray-900">{{ rombel.name
+                                            }}</span>
+                                        <span v-if="rombel.status === 'inactive'"
+                                            class="text-xs text-gray-500">Nonaktif</span>
+                                    </div>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Role Selection -->
-                         <div>
-                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
-                                 Role
-                                 <span class="text-red-600 ml-1">*</span>
-                             </label>
+                        <div>
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
+                                Role
+                                <span class="text-red-600 ml-1">*</span>
+                            </label>
                             <div v-if="isLoadingRoles" class="flex items-center gap-2 text-gray-600">
                                 <div
                                     class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600">
@@ -233,17 +247,19 @@
                         </div>
 
                         <!-- Reset Password Section -->
-                          <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
-                              <div>
-                                  <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
-                                      Reset Password
-                                  </label>
-                                  <p class="text-xs text-gray-600 mb-4 p-2.5 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
-                                      <i class="fa-solid fa-circle-info text-blue-600 mr-2"></i>
-                                      Jangan ubah bagian ini jika tidak ingin mengubah password pendidik.
-                                  </p>
+                        <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
+                            <div>
+                                <label
+                                    class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
+                                    Reset Password
+                                </label>
+                                <p
+                                    class="text-xs text-gray-600 mb-4 p-2.5 sm:p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                    <i class="fa-solid fa-circle-info text-blue-600 mr-2"></i>
+                                    Jangan ubah bagian ini jika tidak ingin mengubah password pendidik.
+                                </p>
 
-                                 <!-- Radio Options -->
+                                <!-- Radio Options -->
                                 <div class="flex gap-3 sm:gap-4 mb-4">
                                     <!-- Generate Otomatis Option -->
                                     <label class="flex items-center gap-2 cursor-pointer"
@@ -364,64 +380,68 @@
                         </div>
 
                         <!-- Photo Upload Section -->
-                         <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
-                             <div>
-                                 <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
-                                     Foto Pendidik (Opsional)
-                                 </label>
+                        <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
+                            <div>
+                                <label
+                                    class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-3 sm:mb-4">
+                                    Foto Pendidik (Opsional)
+                                </label>
 
-                                 <!-- Photo Preview -->
-                                 <div v-if="photoPreview" class="mb-4 relative group w-fit">
-                                     <img :src="photoPreview" alt="Preview"
-                                         class="h-32 sm:h-40 aspect-[3/4] object-cover rounded-lg border-2 border-gray-200 shadow-md" />
-                                     <button type="button" @click="removePhoto" :disabled="isSubmitting"
-                                         class="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg opacity-100 hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer">
-                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                             <path fill-rule="evenodd"
-                                                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                 clip-rule="evenodd"></path>
-                                         </svg>
-                                     </button>
-                                 </div>
+                                <!-- Photo Preview -->
+                                <div v-if="photoPreview" class="mb-4 relative group w-fit">
+                                    <img :src="photoPreview" alt="Preview"
+                                        class="h-32 sm:h-40 aspect-[3/4] object-cover rounded-lg border-2 border-gray-200 shadow-md" />
+                                    <button type="button" @click="removePhoto" :disabled="isSubmitting"
+                                        class="absolute top-2 right-2 p-2 bg-red-600 text-white rounded-lg opacity-100 hover:bg-red-700 transition-colors duration-200 disabled:opacity-50 cursor-pointer">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                                clip-rule="evenodd"></path>
+                                        </svg>
+                                    </button>
+                                </div>
 
-                                 <!-- Upload Area -->
-                                 <div @click="$refs.photoInput.click()" @dragover.prevent="isDraggingPhoto = true"
-                                     @dragleave="isDraggingPhoto = false" @drop.prevent="handlePhotoDrop" :class="[
-                                         'relative border-2 border-dashed rounded-lg p-4 sm:p-6 text-center cursor-pointer transition-all duration-300',
-                                         isDraggingPhoto
-                                             ? 'border-blue-500 bg-blue-50 scale-105'
-                                             : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50'
-                                     ]">
-                                     <input ref="photoInput" type="file" accept="image/*" class="hidden"
-                                         @change="handlePhotoSelect" :disabled="isSubmitting" />
+                                <!-- Upload Area -->
+                                <div @click="$refs.photoInput.click()" @dragover.prevent="isDraggingPhoto = true"
+                                    @dragleave="isDraggingPhoto = false" @drop.prevent="handlePhotoDrop" :class="[
+                                        'relative border-2 border-dashed rounded-lg p-4 sm:p-6 text-center cursor-pointer transition-all duration-300',
+                                        isDraggingPhoto
+                                            ? 'border-blue-500 bg-blue-50 scale-105'
+                                            : 'border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50'
+                                    ]">
+                                    <input ref="photoInput" type="file" accept="image/*" class="hidden"
+                                        @change="handlePhotoSelect" :disabled="isSubmitting" />
 
-                                     <div class="flex flex-col items-center gap-2 sm:gap-3">
-                                         <div
-                                             class="h-10 sm:h-12 w-10 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                                             <svg class="w-5 sm:w-6 h-5 sm:w-6 text-blue-600" fill="none"
-                                                 stroke="currentColor" viewBox="0 0 24 24">
-                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                     d="M12 4v16m8-8H4"></path>
-                                             </svg>
-                                         </div>
-                                         <div>
-                                             <p class="text-xs sm:text-sm font-semibold text-gray-900">Klik atau drag foto di sini</p>
-                                             <p class="text-xs text-gray-600 mt-1">Format: JPG, PNG, WebP | Rasio: 3x4 | Maks. 1MB</p>
-                                         </div>
-                                     </div>
+                                    <div class="flex flex-col items-center gap-2 sm:gap-3">
+                                        <div
+                                            class="h-10 sm:h-12 w-10 sm:w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                            <svg class="w-5 sm:w-6 h-5 sm:w-6 text-blue-600" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 4v16m8-8H4"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs sm:text-sm font-semibold text-gray-900">Klik atau drag
+                                                foto di sini</p>
+                                            <p class="text-xs text-gray-600 mt-1">Format: JPG, PNG, WebP | Rasio: 3x4 |
+                                                Maks. 1MB</p>
+                                        </div>
+                                    </div>
 
-                                     <!-- Error Message -->
-                                     <div v-if="photoError" class="mt-3 p-2.5 sm:p-3 bg-red-50 border border-red-200 rounded-lg">
-                                         <p class="text-xs sm:text-sm text-red-700 font-medium">{{ photoError }}</p>
-                                     </div>
-                                 </div>
-                             </div>
-                         </div>
+                                    <!-- Error Message -->
+                                    <div v-if="photoError"
+                                        class="mt-3 p-2.5 sm:p-3 bg-red-50 border border-red-200 rounded-lg">
+                                        <p class="text-xs sm:text-sm text-red-700 font-medium">{{ photoError }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- File Upload Section -->
-                         <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
-                             <h3 class="text-sm sm:text-base font-semibold text-gray-900">Upload Berkas (Opsional)</h3>
-                             <p class="text-xs text-gray-600">Format: PDF | Ukuran Maksimal: 1MB</p>
+                        <div class="space-y-4 pt-4 sm:pt-6 border-t border-gray-200">
+                            <h3 class="text-sm sm:text-base font-semibold text-gray-900">Upload Berkas (Opsional)</h3>
+                            <p class="text-xs text-gray-600">Format: PDF | Ukuran Maksimal: 1MB</p>
 
                             <!-- File Upload Fields -->
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -444,9 +464,9 @@
                         </div>
 
                         <!-- Status Toggle -->
-                         <div class="pt-3 sm:pt-4 border-t border-gray-200">
-                             <div class="flex items-center justify-between">
-                                 <label class="text-[13px] sm:text-[15px] font-semibold text-gray-900">Status</label>
+                        <div class="pt-3 sm:pt-4 border-t border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <label class="text-[13px] sm:text-[15px] font-semibold text-gray-900">Status</label>
                                 <button type="button"
                                     @click="form.status = form.status === 'active' ? 'inactive' : 'active'"
                                     :disabled="isSubmitting" :class="[
@@ -604,35 +624,35 @@ const multipleFileFields = [
 ]
 
 const form = ref({
-     nama: '',
-     nip: '',
-     nkki: '',
-     username: '',
-     kategori: 'Pendidik',
-     jabatan: '',
-     rombelGuruKelasId: null as number | null,
-     rombelBidangStudi: [] as number[],
-     bidangStudiId: null as number | null,
-     roleIds: {} as Record<number, number | null>,
-     passwordType: '' as 'auto' | 'manual' | '',
-     newPassword: '',
-     passwordConfirm: '',
-     status: 'active' as 'active' | 'inactive',
-     photo: null as File | null,
-     kk: null,
-     akta_lahir: null,
-     ktp: null,
-     ijazah_sd: null,
-     ijazah_smp: null,
-     ijazah_sma: null,
-     ijazah_s1: null,
-     ijazah_s2: null,
-     ijazah_s3: null,
-     sertifikat_pendidik: null,
-     sertifikat_lainnya: [] as any[],
-     sk: null,
-     dokumen_lainnya: [] as any[]
- })
+    nama: '',
+    nip: '',
+    nkki: '',
+    username: '',
+    kategori: 'Pendidik',
+    jabatan: '',
+    rombelGuruKelasId: null as number | null,
+    rombelBidangStudi: [] as number[],
+    bidangStudiId: null as number | null,
+    roleIds: {} as Record<number, number | null>,
+    passwordType: '' as 'auto' | 'manual' | '',
+    newPassword: '',
+    passwordConfirm: '',
+    status: 'active' as 'active' | 'inactive',
+    photo: null as File | null,
+    kk: null,
+    akta_lahir: null,
+    ktp: null,
+    ijazah_sd: null,
+    ijazah_smp: null,
+    ijazah_sma: null,
+    ijazah_s1: null,
+    ijazah_s2: null,
+    ijazah_s3: null,
+    sertifikat_pendidik: null,
+    sertifikat_lainnya: [] as any[],
+    sk: null,
+    dokumen_lainnya: [] as any[]
+})
 
 const uploadedFiles = ref<Record<string, any>>({})
 
@@ -644,9 +664,9 @@ const deleteFileIndex = ref<number>(-1)
 
 // Computed
 const activeRombels = computed(() => {
-    // Filter by active status if available, otherwise return all
-    const hasStatus = rombels.value.some(r => r.status)
-    return hasStatus ? rombels.value.filter(r => r.status === 'active') : rombels.value
+    // Return all rombels (both active and inactive)
+    // Inactive ones will be disabled in the UI
+    return rombels.value
 })
 
 const activeBidangStudis = computed(() => {
@@ -1045,7 +1065,7 @@ const compressPhoto = async (file: File): Promise<File> => {
             img.onload = () => {
                 const canvas = document.createElement('canvas')
                 let { width, height } = img
-                
+
                 // Maintain 3:4 aspect ratio
                 // Resize to optimal size for 3x4 photos
                 const maxWidth = 600
@@ -1054,23 +1074,23 @@ const compressPhoto = async (file: File): Promise<File> => {
                     width = maxWidth
                     height = height * ratio
                 }
-                
+
                 canvas.width = width
                 canvas.height = height
                 const ctx = canvas.getContext('2d')
                 if (ctx) {
                     ctx.drawImage(img, 0, 0, width, height)
                 }
-                
+
                 // Compress to target size (100KB)
                 let quality = 0.8
                 let compressed = canvas.toDataURL('image/jpeg', quality)
-                
+
                 while (compressed.length > 100 * 1024 && quality > 0.1) {
                     quality -= 0.05
                     compressed = canvas.toDataURL('image/jpeg', quality)
                 }
-                
+
                 canvas.toBlob(
                     (blob) => {
                         if (blob) {
@@ -1169,7 +1189,7 @@ const uploadPhoto = async (file: File) => {
         // Create FormData
         const formData = new FormData()
         formData.append('foto', file)
-        
+
         // Debug: log formData entries
         console.log('Uploading photo:', {
             fileName: file.name,
@@ -1405,35 +1425,35 @@ const initializeForm = async () => {
         await nextTick()
 
         form.value = {
-             nama: props.pendidik.nama || '',
-             nip: props.pendidik.nip || '',
-             nkki: props.pendidik.nkki || '',
-             username: props.pendidik.username || '',
-             kategori: props.pendidik.kategori || 'Pendidik',
-             jabatan: props.pendidik.jabatan || '',
-             rombelGuruKelasId: props.pendidik.rombel_guru_kelas_id || null,
-             rombelBidangStudi: props.pendidik.rombel_bidang_studi || [],
-             bidangStudiId: props.pendidik.bidang_studi_id || null,
-             roleIds: roleIdsBySystem,
-             passwordType: '',
-             newPassword: '',
-             passwordConfirm: '',
-             status: props.pendidik.status || 'active',
-             photo: null,
-             kk: props.pendidik.kk || null,
-             akta_lahir: props.pendidik.akta_lahir || null,
-             ktp: props.pendidik.ktp || null,
-             ijazah_sd: props.pendidik.ijazah_sd || null,
-             ijazah_smp: props.pendidik.ijazah_smp || null,
-             ijazah_sma: props.pendidik.ijazah_sma || null,
-             ijazah_s1: props.pendidik.ijazah_s1 || null,
-             ijazah_s2: props.pendidik.ijazah_s2 || null,
-             ijazah_s3: props.pendidik.ijazah_s3 || null,
-             sertifikat_pendidik: props.pendidik.sertifikat_pendidik || null,
-             sertifikat_lainnya: [],
-             sk: props.pendidik.sk || null,
-             dokumen_lainnya: []
-         }
+            nama: props.pendidik.nama || '',
+            nip: props.pendidik.nip || '',
+            nkki: props.pendidik.nkki || '',
+            username: props.pendidik.username || '',
+            kategori: props.pendidik.kategori || 'Pendidik',
+            jabatan: props.pendidik.jabatan || '',
+            rombelGuruKelasId: props.pendidik.rombel_guru_kelas_id || null,
+            rombelBidangStudi: props.pendidik.rombel_bidang_studi || [],
+            bidangStudiId: props.pendidik.bidang_studi_id || null,
+            roleIds: roleIdsBySystem,
+            passwordType: '',
+            newPassword: '',
+            passwordConfirm: '',
+            status: props.pendidik.status || 'active',
+            photo: null,
+            kk: props.pendidik.kk || null,
+            akta_lahir: props.pendidik.akta_lahir || null,
+            ktp: props.pendidik.ktp || null,
+            ijazah_sd: props.pendidik.ijazah_sd || null,
+            ijazah_smp: props.pendidik.ijazah_smp || null,
+            ijazah_sma: props.pendidik.ijazah_sma || null,
+            ijazah_s1: props.pendidik.ijazah_s1 || null,
+            ijazah_s2: props.pendidik.ijazah_s2 || null,
+            ijazah_s3: props.pendidik.ijazah_s3 || null,
+            sertifikat_pendidik: props.pendidik.sertifikat_pendidik || null,
+            sertifikat_lainnya: [],
+            sk: props.pendidik.sk || null,
+            dokumen_lainnya: []
+        }
 
         uploadedFiles.value = {}
 
