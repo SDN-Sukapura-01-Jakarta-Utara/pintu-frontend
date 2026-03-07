@@ -156,8 +156,9 @@
                                 class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                 <option :value="null">Pilih Bidang Studi</option>
                                 <option v-for="bidangStudi in activeBidangStudis" :key="bidangStudi.id"
-                                    :value="bidangStudi.id">
-                                    {{ bidangStudi.nama || bidangStudi.name }}
+                                    :value="bidangStudi.id"
+                                    :disabled="bidangStudi.status === 'inactive'">
+                                    {{ bidangStudi.nama || bidangStudi.name }}{{ bidangStudi.status === 'inactive' ? ' (Nonaktif)' : '' }}
                                 </option>
                             </select>
                         </div>
@@ -181,7 +182,7 @@
                                         class="w-4 h-4 text-red-600 rounded cursor-pointer disabled:cursor-not-allowed" />
                                     <div class="flex flex-col">
                                         <span class="text-xs sm:text-sm font-medium text-gray-900">{{ rombel.name
-                                            }}</span>
+                                        }}</span>
                                         <span v-if="rombel.status === 'inactive'"
                                             class="text-xs text-gray-500">Nonaktif</span>
                                     </div>
@@ -670,8 +671,8 @@ const activeRombels = computed(() => {
 })
 
 const activeBidangStudis = computed(() => {
-    // Return all bidang studi 
-    // Handle both pagination response (array) and direct response
+    // Return all bidang studi (both active and inactive)
+    // Inactive ones will be disabled in the UI
     if (!bidangStudis.value) return []
     if (Array.isArray(bidangStudis.value)) {
         return bidangStudis.value
