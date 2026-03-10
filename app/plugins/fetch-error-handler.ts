@@ -1,10 +1,15 @@
 /**
  * Global Fetch Error Handler Plugin
- * Handle 401 Unauthorized errors and show session expired modal
+ * Handle API errors with security measures:
+ * - Session expiration (401)
+ * - Access denied (403)
+ * - Server errors (5xx)
+ * - Sanitize error messages to prevent XSS
  */
 
 import { useAuthStore } from '~/stores/AuthStore'
 import { useToastStore } from '~/stores/ToastStore'
+import { sanitizeText } from '~/utils/sanitizer'
 
 export default defineNuxtPlugin(() => {
   const router = useRouter()
@@ -14,6 +19,10 @@ export default defineNuxtPlugin(() => {
 
   return {
     provide: {
+      /**
+       * Handle fetch errors with proper security measures
+       * @param error - Error object from $fetch
+       */
       handleFetchError: async (error: any) => {
         const status = error?.status || error?.response?.status
 
@@ -50,19 +59,25 @@ export default defineNuxtPlugin(() => {
           }, 2000)
         }
 
-        // Handle other errors
+        // Handle 403 Forbidden - Access Denied
         if (status === 403) {
-          toastStore.error(
-            'Akses Ditolak',
-            'Anda tidak memiliki izin untuk mengakses resource ini'
-          )
+          const rawMessage = error?.data?.message || 'Anda tidak memiliki izin untuk mengakses resource ini'
+          const message = await sanitizeText(rawMessage)
+          toastStore.error('Akses Ditolak', message)
         }
 
+        // Handle 500 Internal Server Error
         if (status === 500) {
-          toastStore.error(
-            'Server Error',
-            'Terjadi kesalahan pada server. Silakan coba lagi nanti'
-          )
+          const rawMessage = error?.data?.message || 'Terjadi kesalahan pada server. Silakan coba lagi nanti'
+          const message = await sanitizeText(rawMessage)
+          toastStore.error('Server Error', message)
+        }
+
+        // Handle other 4xx errors (validation, not found, etc)
+        if (status && status >= 400 && status < 500 && status !== 401 && status !== 403) {
+          const rawError = error?.data?.message || error?.data?.error || `Error ${status}`
+          const errorMessage = await sanitizeText(rawError)
+          toastStore.error('Error', errorMessage)
         }
       },
     },

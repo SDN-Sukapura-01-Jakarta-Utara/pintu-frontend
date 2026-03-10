@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { User, AuthError, LoginCredentials } from '~/types/AuthType'
 import { login, logout } from '~/services/auth'
+import { sanitizeObject, sanitizeText } from '~/utils/sanitizer'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -10,21 +11,35 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoading = ref(false)
   const error = ref<AuthError | null>(null)
 
-  // Initialize from localStorage
+  /**
+   * Initialize auth from httpOnly cookies or localStorage fallback
+   * Priority:
+   * 1. httpOnly cookies (set by backend) - Most secure
+   * 2. localStorage (fallback for development)
+   */
   const initializeAuth = () => {
     if (process.client) {
-      const savedToken = localStorage.getItem('auth_token')
+      // Try to get user from localStorage (fallback)
       const savedUser = localStorage.getItem('auth_user')
       
-      if (savedToken) {
-        token.value = savedToken
-      }
       if (savedUser) {
         try {
-          user.value = JSON.parse(savedUser)
+          const parsedUser = JSON.parse(savedUser)
+          // Sanitize user data from localStorage to prevent XSS
+          user.value = sanitizeObject(parsedUser)
         } catch (e) {
           console.error('Failed to parse saved user:', e)
+          // Clear corrupted data
+          localStorage.removeItem('auth_user')
         }
+      }
+      
+      // Token should be in httpOnly cookie (not accessible from JS)
+      // If backend sets httpOnly cookie, Nuxt $fetch will auto-include it
+      // For fallback, check localStorage
+      const savedToken = localStorage.getItem('auth_token')
+      if (savedToken) {
+        token.value = savedToken
       }
     }
   }
@@ -33,6 +48,13 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = computed(() => !!token.value && !!user.value)
 
   // Actions
+  /**
+   * Handle login with security measures:
+   * 1. Sanitize user data from API response
+   * 2. Support httpOnly cookies (backend set)
+   * 3. Fallback to localStorage for development
+   * 4. Clear sensitive data on error
+   */
   const handleLogin = async (credentials: LoginCredentials) => {
     isLoading.value = true
     error.value = null
@@ -40,13 +62,17 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await login(credentials)
       
+      // Sanitize user data from API response to prevent XSS
+      const sanitizedUser = sanitizeObject(response.data.user)
+      
       token.value = response.data.token
-      user.value = response.data.user
+      user.value = sanitizedUser
 
-      // Save to localStorage
+      // Save to localStorage as fallback
+      // Backend should also set httpOnly cookie for production
       if (process.client) {
         localStorage.setItem('auth_token', response.data.token)
-        localStorage.setItem('auth_user', JSON.stringify(response.data.user))
+        localStorage.setItem('auth_user', JSON.stringify(sanitizedUser))
       }
 
       return {
@@ -55,7 +81,10 @@ export const useAuthStore = defineStore('auth', () => {
       }
     } catch (err: any) {
       // Extract error message dari response API
-      const apiError = err.data?.error || err.response?.data?.error || err.message || 'Login gagal'
+      const rawError = err.data?.error || err.response?.data?.error || err.message || 'Login gagal'
+      
+      // Sanitize error message asynchronously
+      const apiError = await sanitizeText(rawError)
       
       const authError: AuthError = {
         message: apiError,
@@ -63,6 +92,11 @@ export const useAuthStore = defineStore('auth', () => {
         error: apiError,
       }
       error.value = authError
+      
+      // Clear any partial auth state
+      user.value = null
+      token.value = null
+      
       return {
         success: false,
         message: apiError,

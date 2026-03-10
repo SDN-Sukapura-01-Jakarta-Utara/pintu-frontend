@@ -3,7 +3,8 @@
     <!-- Welcome Section -->
     <div class="mb-8">
       <h2 class="text-3xl font-bold text-gray-900">Selamat Datang 👋</h2>
-      <p class="text-gray-600 mt-2">{{ user?.nama }}, Anda login sebagai {{ user?.role_name }}</p>
+      <!-- Using sanitized computed properties for security -->
+      <p class="text-gray-600 mt-2">{{ getSafeUserName }}, Anda login sebagai {{ getSafeRoleName }}</p>
     </div>
 
     <!-- User Info Card -->
@@ -12,15 +13,18 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <p class="text-sm text-gray-600">Username</p>
-          <p class="text-lg font-medium text-gray-900">{{ user?.username }}</p>
+          <!-- Sanitized username to prevent XSS -->
+          <p class="text-lg font-medium text-gray-900">{{ getSafeUsername }}</p>
         </div>
         <div>
           <p class="text-sm text-gray-600">Nama</p>
-          <p class="text-lg font-medium text-gray-900">{{ user?.nama }}</p>
+          <!-- Sanitized name to prevent XSS -->
+          <p class="text-lg font-medium text-gray-900">{{ getSafeUserName }}</p>
         </div>
         <div>
           <p class="text-sm text-gray-600">Role</p>
-          <p class="text-lg font-medium text-gray-900">{{ user?.role_name }}</p>
+          <!-- Sanitized role to prevent XSS -->
+          <p class="text-lg font-medium text-gray-900">{{ getSafeRoleName }}</p>
         </div>
         <div>
           <p class="text-sm text-gray-600">Status</p>
@@ -84,6 +88,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useAuth } from '~/composables/useAuth'
+import { sanitizeText } from '~/utils/sanitizer'
 
 definePageMeta({
   layout: 'default',
@@ -94,12 +99,52 @@ const { getCurrentUser } = useAuth()
 
 const user = computed(() => getCurrentUser())
 
+/**
+ * Format date string to Indonesian locale
+ * Includes input validation and safe fallback
+ */
 const formatDate = (dateString?: string) => {
   if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
+  try {
+    return new Date(dateString).toLocaleDateString('id-ID', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  } catch {
+    return '-'
+  }
 }
+
+/**
+ * Get safe user name - Vue auto-escapes but we add extra layer
+ */
+const getSafeUserName = computed(() => {
+  // Vue automatically escapes {{ }} interpolations
+  // Additional escaping here is defense in depth
+  return user.value?.nama ? user.value.nama.replace(/[<>"']/g, (char) => {
+    const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+    return map[char]
+  }) : '-'
+})
+
+/**
+ * Get safe user role name
+ */
+const getSafeRoleName = computed(() => {
+  return user.value?.role_name ? user.value.role_name.replace(/[<>"']/g, (char) => {
+    const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+    return map[char]
+  }) : '-'
+})
+
+/**
+ * Get safe username
+ */
+const getSafeUsername = computed(() => {
+  return user.value?.username ? user.value.username.replace(/[<>"']/g, (char) => {
+    const map: Record<string, string> = { '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+    return map[char]
+  }) : '-'
+})
 </script>

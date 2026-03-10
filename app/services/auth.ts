@@ -1,43 +1,89 @@
 /**
  * Authentication Service
  * Handle API calls untuk authentication dengan backend Golang
+ * 
+ * Security Features:
+ * - Support httpOnly cookies (set by backend)
+ * - CSRF protection (backend implements)
+ * - Credentials included in requests
+ * - Input validation
  */
 
 import type { LoginCredentials, LoginResponse, LogoutResponse } from '~/types/AuthType'
+import { sanitizeInput } from '~/utils/sanitizer'
 
 /**
  * Login dengan username dan password
+ * 
+ * Supports two authentication methods:
+ * 1. httpOnly cookies (recommended for production)
+ * 2. JWT token in localStorage (fallback for development)
+ * 
  * @param credentials - Username dan password
  * @returns Login response dengan token dan user data
  */
 export async function login(credentials: LoginCredentials): Promise<LoginResponse> {
   const config = useRuntimeConfig()
-  const response = await $fetch<LoginResponse>(`${config.public.apiBase}/api/v1/auth/login`, {
-    method: 'POST',
-    body: credentials,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+  
+  // Basic input validation
+  if (!credentials.username || !credentials.password) {
+    throw new Error('Username dan password harus diisi')
+  }
+  
+  // Sanitize username input
+  const sanitizedUsername = sanitizeInput(credentials.username)
+  
+  const response = await $fetch<LoginResponse>(
+    `${config.public.apiBase}/api/v1/auth/login`,
+    {
+      method: 'POST',
+      body: {
+        username: sanitizedUsername,
+        password: credentials.password, // Password harus tetap original
+      },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      /**
+       * Include credentials in request
+       * Allows backend to set httpOnly cookies in response
+       * IMPORTANT: Backend must have proper CORS configuration
+       */
+      credentials: 'include',
+    }
+  )
 
   return response
 }
 
 /**
  * Logout user
- * @param token - JWT token
+ * 
+ * Handles both authentication methods:
+ * 1. httpOnly cookies (backend clears cookie)
+ * 2. Token-based (token sent in Authorization header)
+ * 
+ * @param token - JWT token (used for token-based auth fallback)
  * @returns Logout response
  */
 export async function logout(token: string): Promise<LogoutResponse> {
   const config = useRuntimeConfig()
   try {
-    const response = await $fetch<LogoutResponse>(`${config.public.apiBase}/api/v1/auth/logout`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    const response = await $fetch<LogoutResponse>(
+      `${config.public.apiBase}/api/v1/auth/logout`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        /**
+         * Include credentials to send httpOnly cookies
+         * Backend will clear the cookie in response
+         */
+        credentials: 'include',
+      }
+    )
     return response
   } catch (error: any) {
     // If token is invalid/expired (401), still consider logout as success
