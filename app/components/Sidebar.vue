@@ -101,9 +101,9 @@
                         ]">
                             Sarana & Prasarana
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/informasi-sekolah/struktur" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/struktur-organisasi" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
-                            route.path.includes('struktur') ? 'bg-red-700 font-semibold' : ''
+                            route.path.includes('struktur-organisasi') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Struktur Organisasi
                         </NuxtLink>
@@ -229,7 +229,6 @@
                         </div>
                     </button>
 
-                    <!-- Submenu -->
                     <div v-if="isOpen && openMenus.pertanyaan"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
                         <NuxtLink to="/backoffice/pertanyaan"

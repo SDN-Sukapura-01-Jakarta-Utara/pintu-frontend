@@ -28,6 +28,8 @@
 import { ref, computed } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 import { useRoute } from 'vue-router'
+import Sidebar from './Sidebar.vue'
+import Navbar from './Navbar.vue'
 
 const { getCurrentUser, performLogout, isLoading } = useAuth()
 const route = useRoute()
@@ -37,26 +39,30 @@ const user = computed(() => getCurrentUser())
 
 // Get page title from route path
 const pageTitle = computed(() => {
-    const path = route.path
+    try {
+        const path = route?.path || ''
 
-    if (path === '/backoffice') return 'Dashboard'
-    if (path.includes('jumbotron')) return 'Jumbotron'
-    if (path.includes('visi-misi')) return 'Visi Misi'
-    if (path.includes('kutipan')) return 'Kutipan Kepala Sekolah'
-    if (path.includes('sarana-prasarana')) return 'Sarana & Prasarana'
-    if (path.includes('struktur')) return 'Struktur Organisasi'
-    if (path.includes('artikel')) return 'Artikel'
-    if (path.includes('pengumuman')) return 'Pengumuman'
-    if (path.includes('galeri')) return 'Galeri Kegiatan'
-    if (path.includes('peserta-didik')) return 'Peserta Didik'
-    if (path.includes('tenaga-kependidikan')) return 'Tenaga Kependidikan'
-    if (path.includes('pendidik')) return 'Pendidik'
-    if (path.includes('mutasi-siswa')) return 'Mutasi Siswa'
-    if (path.includes('kritik-saran')) return 'Kritik & Saran'
-    if (path.includes('pertanyaan')) return 'Pertanyaan'
-    if (path.includes('pengaduan')) return 'Pengaduan'
+        if (path === '/backoffice') return 'Dashboard'
+        if (path.includes('jumbotron')) return 'Jumbotron'
+        if (path.includes('visi-misi')) return 'Visi Misi'
+        if (path.includes('kutipan')) return 'Kutipan Kepala Sekolah'
+        if (path.includes('sarana-prasarana')) return 'Sarana & Prasarana'
+        if (path.includes('struktur-organisasi')) return 'Struktur Organisasi'
+        if (path.includes('artikel')) return 'Artikel'
+        if (path.includes('pengumuman')) return 'Pengumuman'
+        if (path.includes('galeri')) return 'Galeri Kegiatan'
+        if (path.includes('tenaga-kependidikan')) return 'Tenaga Kependidikan'
+        if (path.includes('pendidik')) return 'Pendidik'
+        if (path.includes('peserta-didik')) return 'Peserta Didik'
+        if (path.includes('mutasi-siswa')) return 'Mutasi Siswa'
+        if (path.includes('kritik-saran')) return 'Kritik & Saran'
+        if (path.includes('pertanyaan')) return 'Pertanyaan'
+        if (path.includes('pengaduan')) return 'Pengaduan'
 
-    return 'Dashboard'
+        return 'Dashboard'
+    } catch (e) {
+        return 'Dashboard'
+    }
 })
 
 const handleLogout = async () => {
