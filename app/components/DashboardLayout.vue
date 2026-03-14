@@ -48,6 +48,7 @@ const pageTitle = computed(() => {
         if (path.includes('kutipan')) return 'Kutipan Kepala Sekolah'
         if (path.includes('sarana-prasarana')) return 'Sarana & Prasarana'
         if (path.includes('struktur-organisasi')) return 'Struktur Organisasi'
+        if (path.includes('kontak-sekolah')) return 'Kontak Sekolah'
         if (path.includes('artikel')) return 'Artikel'
         if (path.includes('pengumuman')) return 'Pengumuman'
         if (path.includes('galeri')) return 'Galeri Kegiatan'

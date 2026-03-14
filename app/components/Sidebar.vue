@@ -107,7 +107,13 @@
                         ]">
                             Struktur Organisasi
                         </NuxtLink>
-                    </div>
+                        <NuxtLink to="/backoffice/informasi-sekolah/kontak-sekolah" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('kontak-sekolah') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Kontak Sekolah
+                        </NuxtLink>
+                        </div>
                 </div>
 
                 <!-- Media dan Publikasi -->
