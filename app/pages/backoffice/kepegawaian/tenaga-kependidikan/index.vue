@@ -32,96 +32,96 @@
             </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-            <!-- Filter Section -->
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
-                <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Tenaga Kependidikan</h3>
+        <!-- Filter Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+            <h3 class="text-base sm:text-lg font-semibold text-gray-900 mb-4">Filter Data Tenaga Kependidikan</h3>
 
-                <!-- Filter Form -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Nama Filter -->
-                    <div>
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                            Nama
-                        </label>
-                        <input v-model="filters.nama" type="text" placeholder="Cari nama..."
-                            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
-                    </div>
-
-                    <!-- Username Filter -->
-                    <div>
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                            Username
-                        </label>
-                        <input v-model="filters.username" type="text" placeholder="Cari username..."
-                            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
-                    </div>
-
-                    <!-- NIP Filter -->
-                    <div>
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                            NIP
-                        </label>
-                        <input v-model="filters.nip" type="text" placeholder="Cari NIP..."
-                            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
-                    </div>
-
-                    <!-- NKKI Filter -->
-                    <div>
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                            NKKI
-                        </label>
-                        <input v-model="filters.nkki" type="text" placeholder="Cari NKKI..."
-                            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
-                    </div>
-
-                    <!-- Jabatan Filter -->
-                    <div>
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                            Jabatan
-                        </label>
-                        <select v-model="filters.jabatan"
-                            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
-                            <option value="">Semua Jabatan</option>
-                            <option value="Tenaga Administrasi">Tenaga Administrasi</option>
-                            <option value="Tenaga Kebersihan">Tenaga Kebersihan</option>
-                            <option value="Tenaga Keamanan">Tenaga Keamanan</option>
-                        </select>
-                    </div>
-
-                    <!-- Role Filter -->
-                    <div>
-                        <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                            Role
-                        </label>
-                        <select v-model.number="filters.role_id"
-                            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
-                            <option :value="0">Semua Role</option>
-                            <option v-for="role in roles" :key="role.id" :value="role.id">
-                                {{ role.name }}
-                            </option>
-                        </select>
-                    </div>
+            <!-- Filter Form -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                 <!-- Nama Filter -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                        Nama
+                    </label>
+                    <input v-model="filters.nama" type="text" placeholder="Cari nama..."
+                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
                 </div>
 
-                <!-- Filter Buttons -->
-                <div class="flex gap-3 mt-4">
-                    <button @click="applyFilter"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
-                        <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
-                        Cari
-                    </button>
-                    <button @click="clearFilter"
-                        class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
-                        <i class="fa-solid fa-rotate-left w-4 h-4"></i>
-                        Reset Filter
-                    </button>
+                <!-- Username Filter -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                        Username
+                    </label>
+                    <input v-model="filters.username" type="text" placeholder="Cari username..."
+                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                </div>
+
+                <!-- NIP Filter -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                        NIP
+                    </label>
+                    <input v-model="filters.nip" type="text" placeholder="Cari NIP..."
+                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                </div>
+
+                <!-- NKKI Filter -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                        NKKI
+                    </label>
+                    <input v-model="filters.nkki" type="text" placeholder="Cari NKKI..."
+                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                </div>
+
+                <!-- Jabatan Filter -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                        Jabatan
+                    </label>
+                    <select v-model="filters.jabatan"
+                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                        <option value="">Semua Jabatan</option>
+                        <option value="Tenaga Administrasi">Tenaga Administrasi</option>
+                        <option value="Tenaga Kebersihan">Tenaga Kebersihan</option>
+                        <option value="Tenaga Keamanan">Tenaga Keamanan</option>
+                    </select>
+                </div>
+
+                <!-- Role Filter -->
+                <div>
+                    <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                        Role
+                    </label>
+                    <select v-model.number="filters.role_id"
+                        class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer">
+                        <option :value="0">Semua Role</option>
+                        <option v-for="role in roles" :key="role.id" :value="role.id">
+                            {{ role.name }}
+                        </option>
+                    </select>
                 </div>
             </div>
 
+            <!-- Filter Buttons -->
+            <div class="flex gap-3 mt-4">
+                <button @click="applyFilter"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                    <i class="fa-solid fa-magnifying-glass w-4 h-4"></i>
+                    Cari
+                </button>
+                <button @click="clearFilter"
+                    class="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-900 font-semibold text-xs sm:text-sm hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+                    <i class="fa-solid fa-rotate-left w-4 h-4"></i>
+                    Reset Filter
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
             <!-- Loading State -->
-            <div v-if="kepegawaianStore.isLoading" class="flex items-center justify-center py-8 sm:py-12">
+            <div v-if="kepegawaianStore.isLoading" class="flex items-center justify-center py-12">
                 <div class="flex flex-col items-center gap-3 sm:gap-4">
                     <div
                         class="h-8 w-8 sm:h-12 sm:w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600">
@@ -132,7 +132,7 @@
 
             <!-- Error State -->
             <div v-else-if="kepegawaianStore.error && !hasActiveFilters"
-                class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6">
+                class="rounded-xl border-2 border-red-200 bg-red-50 p-4 sm:p-6 m-4 sm:m-6">
                 <div class="flex items-start gap-3 sm:gap-4">
                     <div class="flex-shrink-0">
                         <svg class="h-5 w-5 sm:h-6 sm:w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
@@ -153,9 +153,8 @@
                 </div>
             </div>
 
-            <!-- Table Section -->
-            <template v-else>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <!-- Data Table -->
+            <div v-else>
                     <!-- Data Table -->
                     <div v-if="kepegawaianStore.kepegawaians.length > 0">
                         <Table :items="kepegawaianStore.kepegawaians" :columns="tableColumns"
@@ -213,8 +212,7 @@
                         <p class="text-sm sm:text-base text-gray-600 text-center mb-4 sm:mb-6 max-w-sm">
                             {{ hasActiveFilters ? 'Data tidak ditemukan dalam pencarian' : 'Mulai dengan menambahkan tenaga kependidikan baru' }}</p>
                     </div>
-                </div>
-            </template>
+            </div>
         </div>
     </DashboardLayout>
 </template>

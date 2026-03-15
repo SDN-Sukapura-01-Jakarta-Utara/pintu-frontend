@@ -207,6 +207,18 @@ const onLimitChange = () => {
 }
 
 const getValue = (item: any, key: string) => {
+    // Handle nested object properties using dot notation (e.g., 'rombel.name')
+    if (key.includes('.')) {
+        const keys = key.split('.')
+        let value = item
+        for (const k of keys) {
+            value = value?.[k]
+            if (value === undefined || value === null) {
+                return '-'
+            }
+        }
+        return value
+    }
     return item[key] || '-'
 }
 
