@@ -124,6 +124,66 @@
             </div>
         </div>
     </Transition>
+
+    <!-- Import Error Popup -->
+    <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0"
+        enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100"
+        leave-to-class="opacity-0">
+        <div v-if="importErrors.length > 0" @click="importErrors = []" class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"></div>
+    </Transition>
+
+    <Transition enter-active-class="transition duration-300 ease-out"
+        enter-from-class="opacity-0 scale-95 translate-y-4" enter-to-class="opacity-100 scale-100 translate-y-0"
+        leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100 scale-100 translate-y-0"
+        leave-to-class="opacity-0 scale-95 translate-y-4">
+        <div v-if="importErrors.length > 0"
+            class="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-4 pointer-events-none">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md sm:max-w-lg pointer-events-auto relative overflow-hidden flex flex-col max-h-[80vh]">
+
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-red-600 via-red-500 to-pink-600 px-4 sm:px-6 py-3 sm:py-4 flex-shrink-0 flex items-center justify-between gap-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-red-400/20 rounded-full blur-3xl -z-0"></div>
+                    <div class="relative z-10 flex items-center gap-3">
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/20 flex items-center justify-center">
+                            <i class="fa-solid fa-circle-exclamation text-white text-sm sm:text-base"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-white">{{ importErrorTitle }}</h3>
+                            <p class="text-xs sm:text-sm text-red-100 mt-0.5">{{ importErrorSubtitle }}</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="importErrors = []"
+                        class="relative z-10 flex-shrink-0 inline-flex items-center justify-center p-2 rounded-lg bg-white/20 hover:bg-white/30 active:bg-white/40 transition-all duration-150 backdrop-blur-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            <path d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Error List -->
+                <div class="p-4 sm:p-6 overflow-y-auto flex-1">
+                    <div class="space-y-2">
+                        <div v-for="(err, idx) in importErrors" :key="idx"
+                            class="flex items-start gap-3 p-3 rounded-lg bg-red-50 border border-red-200">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-red-200 text-red-700 text-xs font-bold flex items-center justify-center mt-0.5">
+                                {{ err.row }}
+                            </span>
+                            <p class="text-xs sm:text-sm text-red-800">{{ err.message }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3 flex-shrink-0 flex justify-end">
+                    <button @click="importErrors = []"
+                        class="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors duration-200 cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Transition>
 </template>
 
 <script setup lang="ts">
@@ -147,6 +207,9 @@ const selectedFile = ref<File | null>(null)
 const isDragging = ref(false)
 const isImporting = ref(false)
 const isDownloading = ref(false)
+const importErrors = ref<{ row: number; message: string }[]>([])
+const importErrorTitle = ref('')
+const importErrorSubtitle = ref('')
 
 const triggerFileInput = () => {
     fileInput.value?.click()
@@ -260,9 +323,25 @@ const importData = async () => {
             throw new Error(errorData?.message || 'Gagal mengimpor data')
         }
 
-        toastStore.success('Sukses', 'Data peserta didik berhasil ditambahkan')
-        emit('success')
-        closeModal()
+        const result = await response.json()
+        const { success_count = 0, failed_count = 0, errors = [] } = result?.data || {}
+
+        if (failed_count > 0 && success_count === 0) {
+            importErrorTitle.value = 'Import Gagal'
+            importErrorSubtitle.value = `Semua data gagal diimpor (${failed_count} baris gagal)`
+            importErrors.value = errors
+        } else if (failed_count > 0 && success_count > 0) {
+            importErrorTitle.value = 'Sebagian Gagal'
+            importErrorSubtitle.value = `${success_count} berhasil, ${failed_count} gagal`
+            importErrors.value = errors
+            emit('success')
+        } else {
+            toastStore.success('Sukses', `${success_count} data peserta didik berhasil ditambahkan`)
+            emit('success')
+            isImporting.value = false
+            closeModal()
+            return
+        }
     } catch (err: any) {
         console.error('Error importing data:', err)
         toastStore.error('Gagal', err.message || 'Tidak dapat mengimpor data')
