@@ -202,13 +202,33 @@
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Peserta Didik</span>
                 </NuxtLink>
 
-                <!-- Mutasi Siswa -->
+                <!-- Mutasi Siswa Baru -->
                 <NuxtLink to="/backoffice/mutasi-siswa" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                 ]">
                     <i class="fa-solid fa-arrow-right-arrow-left w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Mutasi Siswa</span>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Mutasi Siswa Baru</span>
+                </NuxtLink>
+
+                <!-- Absensi Siswa -->
+                <NuxtLink to="/backoffice/kehadiran-siswa" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('kehadiran-siswa') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-clipboard-check w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Absensi Siswa</span>
+                </NuxtLink>
+
+                <!-- Monitoring PDBK -->
+                <NuxtLink to="/backoffice/monitoring-pdbk" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('monitoring-pdbk') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-chart-line w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring PDBK</span>
                 </NuxtLink>
 
                 <!-- Kritik dan Saran -->
