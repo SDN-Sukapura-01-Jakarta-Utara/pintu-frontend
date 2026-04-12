@@ -272,8 +272,9 @@
                                 <select v-model.number="form.tahun_pelajaran_id" required :disabled="isSubmitting"
                                     class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                     <option :value="0">Pilih Tahun Pelajaran</option>
-                                    <option v-for="tahun in activeTahunPelajaran" :key="tahun.id" :value="tahun.id">
-                                        {{ tahun.tahun_pelajaran }}
+                                    <option v-for="tahun in activeTahunPelajaran" :key="tahun.id" :value="tahun.id"
+                                        :disabled="tahun.status !== 'active'">
+                                        {{ tahun.tahun_pelajaran }}{{ tahun.status !== 'active' ? ' (Nonaktif)' : '' }}
                                     </option>
                                 </select>
                             </div>
@@ -452,9 +453,15 @@
                                     <div v-else class="space-y-4">
                                         <div v-for="(system, systemName) in rolesBySystem" :key="systemName"
                                             class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
-                                            <!-- System Header -->
-                                            <h4 class="text-xs sm:text-sm font-semibold text-gray-900 mb-3">{{ systemName }}
-                                            </h4>
+                                            <!-- System Header with Reset Button -->
+                                            <div class="flex items-center justify-between mb-3">
+                                                <h4 class="text-xs sm:text-sm font-semibold text-gray-900">{{ systemName }}</h4>
+                                                <button type="button" @click="resetRoleGroup(systemName)"
+                                                    :disabled="isSubmitting"
+                                                    class="px-2 py-1 text-xs font-medium bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                                    Reset
+                                                </button>
+                                            </div>
 
                                             <!-- Roles Radio Group -->
                                             <div class="space-y-2">
@@ -561,6 +568,10 @@ const activeRombels = ref<any[]>([])
 const activeTahunPelajaran = ref<any[]>([])
 const rolesBySystem = ref<Record<string, any[]>>({})
 
+const resetRoleGroup = (systemName: string) => {
+    form.value.roleIds[systemName] = null
+}
+
 const form = ref({
     nama: '',
     nis: '',
@@ -657,7 +668,18 @@ const loadTahunPelajaran = async () => {
     try {
         const result = await tahunPelajaranStore.fetchTahunPelajarans(1, 100)
         if (result.success) {
-            activeTahunPelajaran.value = tahunPelajaranStore.tahunPelajarans.filter((t: any) => t.status === 'active')
+            const activeList = tahunPelajaranStore.tahunPelajarans.filter((t: any) => t.status === 'active')
+
+            // Include current student's tahun pelajaran if it's inactive
+            const currentTahunId = pesertaDidik.value?.tahun_pelajaran_id
+            if (currentTahunId) {
+                const currentTahun = tahunPelajaranStore.tahunPelajarans.find((t: any) => t.id === currentTahunId)
+                if (currentTahun && currentTahun.status !== 'active' && !activeList.some((t: any) => t.id === currentTahunId)) {
+                    activeList.push(currentTahun)
+                }
+            }
+
+            activeTahunPelajaran.value = activeList
         }
     } catch (err) {
         console.error('Error loading tahun pelajaran:', err)

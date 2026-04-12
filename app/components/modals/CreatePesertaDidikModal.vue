@@ -460,9 +460,15 @@
                             <div v-else class="space-y-4">
                                 <div v-for="(system, systemName) in rolesBySystem" :key="systemName"
                                     class="border-2 border-gray-200 rounded-lg p-4 bg-gray-50">
-                                    <!-- System Header -->
-                                    <h4 class="text-xs sm:text-sm font-semibold text-gray-900 mb-3">{{ systemName }}
-                                    </h4>
+                                    <!-- System Header with Reset Button -->
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h4 class="text-xs sm:text-sm font-semibold text-gray-900">{{ systemName }}</h4>
+                                        <button type="button" @click="resetRoleGroup(systemName)"
+                                            :disabled="isSubmitting"
+                                            class="px-2 py-1 text-xs font-medium bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                            Reset
+                                        </button>
+                                    </div>
 
                                     <!-- Roles Radio Group -->
                                     <div class="space-y-2">
@@ -565,6 +571,10 @@ const roleLoading = ref(false)
 const activeRombels = ref<any[]>([])
 const activeTahunPelajaran = ref<any[]>([])
 const rolesBySystem = ref<Record<string, any[]>>({})
+
+const resetRoleGroup = (systemName: string) => {
+    form.value.roleIds[systemName] = null
+}
 
 const form = ref({
     nama: '',
