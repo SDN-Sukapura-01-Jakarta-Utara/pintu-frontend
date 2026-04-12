@@ -11,6 +11,9 @@
         <EditPesertaDidikModal v-model="showEditModal" :peserta-didik="selectedPesertaDidik"
             @success="handleEditSuccess" @error="handleEditError" />
 
+        <!-- Import Excel Modal -->
+        <ImportPesertaDidikModal v-model="showImportModal" @success="handleImportSuccess" />
+
         <!-- Delete Confirmation Modal -->
         <ConfirmationDeleteModal v-model="showDeleteConfirm" title="Hapus Peserta Didik"
             :message="`Apakah Anda yakin ingin menghapus peserta didik '${selectedPesertaDidik?.nama}'? Tindakan ini tidak dapat dibatalkan.`"
@@ -27,8 +30,16 @@
                         Kelola data peserta didik SDN Sukapura 01
                     </p>
                 </div>
-                <AddButton label="Tambah Peserta Didik" iconClass="fa-solid fa-plus"
-                    @click="openCreateModal" />
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button @click="showImportModal = true"
+                        class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg border-2 border-green-600 bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 hover:border-green-700 transition-colors duration-200 cursor-pointer">
+                        <i class="fa-solid fa-file-excel w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        <span class="hidden sm:inline">Import Data Peserta Didik</span>
+                        <span class="sm:hidden">Import</span>
+                    </button>
+                    <AddButton label="Tambah Peserta Didik" iconClass="fa-solid fa-plus"
+                        @click="openCreateModal" />
+                </div>
             </div>
         </div>
 
@@ -294,6 +305,7 @@ import CreatePesertaDidikModal from '~/components/modals/CreatePesertaDidikModal
 import ViewPesertaDidikModal from '~/components/modals/ViewPesertaDidikModal.vue'
 import EditPesertaDidikModal from '~/components/modals/EditPesertaDidikModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
+import ImportPesertaDidikModal from '~/components/modals/ImportPesertaDidikModal.vue'
 import AddButton from '~/components/common/AddButton.vue'
 import Table from '~/components/Table.vue'
 import ViewButton from '~/components/common/ViewButton.vue'
@@ -309,6 +321,7 @@ const showCreateModal = ref(false)
 const showViewModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteConfirm = ref(false)
+const showImportModal = ref(false)
 const selectedPesertaDidik = ref<any>(null)
 const selectedPesertaDidikId = ref(0)
 const isDeletingPesertaDidik = ref(false)
@@ -467,6 +480,11 @@ const handleCreateSuccess = () => {
 
 const handleCreateError = () => {
     // Error already shown via toast
+}
+
+const handleImportSuccess = () => {
+    pagination.value.page = 1
+    fetchPesertaDidikData()
 }
 
 const handleEditSuccess = () => {
