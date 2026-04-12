@@ -144,100 +144,135 @@
                     </div>
 
                     <!-- Informasi Pribadi -->
-                    <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200 p-3 sm:p-4 md:p-6">
-                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 sm:mb-4">Informasi Pribadi</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Jenis Kelamin</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{
-                                    pesertaDidik.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Tempat Lahir</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.tempat_lahir || '-' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Tanggal Lahir</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ formatDate(pesertaDidik.tanggal_lahir) }}</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Agama</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.agama || '-' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">NIK</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.nik || '-' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Username</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.username || '-' }}</p>
+                    <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                        <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                            <h3 class="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i class="fa-solid fa-user w-3.5 sm:w-4 h-3.5 sm:h-4 text-blue-600 flex-shrink-0"></i>
+                                <span>Informasi Pribadi</span>
+                            </h3>
+                        </div>
+                        <div class="p-3 sm:p-4 md:p-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Jenis Kelamin</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{
+                                        pesertaDidik.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Tempat Lahir</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.tempat_lahir || '-' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Tanggal Lahir</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ formatDate(pesertaDidik.tanggal_lahir) }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Agama</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.agama || '-' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">NIK</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.nik || '-' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Username</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.username || '-' }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Informasi Alamat -->
-                    <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200 p-3 sm:p-4 md:p-6">
-                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 sm:mb-4">Informasi Alamat</h4>
-                        <div class="grid grid-cols-1 gap-3 sm:gap-4">
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Alamat</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.alamat || '-' }}</p>
-                            </div>
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                        <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                            <h3 class="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i class="fa-solid fa-location-dot w-3.5 sm:w-4 h-3.5 sm:h-4 text-green-600 flex-shrink-0"></i>
+                                <span>Informasi Alamat</span>
+                            </h3>
+                        </div>
+                        <div class="p-3 sm:p-4 md:p-6">
+                            <div class="grid grid-cols-1 gap-3 sm:gap-4">
                                 <div>
-                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">RT</p>
-                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.rt || '-' }}</p>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Alamat</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.alamat || '-' }}</p>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                                    <div>
+                                        <p class="text-[11px] sm:text-xs text-gray-600 font-medium">RT</p>
+                                        <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.rt || '-' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] sm:text-xs text-gray-600 font-medium">RW</p>
+                                        <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.rw || '-' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Kelurahan</p>
+                                        <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.kelurahan || '-' }}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Kecamatan</p>
+                                        <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.kecamatan || '-' }}</p>
+                                    </div>
                                 </div>
                                 <div>
-                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">RW</p>
-                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.rw || '-' }}</p>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Kode Pos</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.kode_pos || '-' }}</p>
                                 </div>
-                                <div>
-                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Kelurahan</p>
-                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.kelurahan || '-' }}</p>
-                                </div>
-                                <div>
-                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Kecamatan</p>
-                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.kecamatan || '-' }}</p>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Kode Pos</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.kode_pos || '-' }}</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Informasi Orang Tua -->
-                    <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200 p-3 sm:p-4 md:p-6">
-                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 sm:mb-4">Informasi Orang Tua</h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Nama Ayah</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.nama_ayah || '-' }}</p>
-                            </div>
-                            <div>
-                                <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Nama Ibu</p>
-                                <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.nama_ibu || '-' }}</p>
+                    <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                        <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                            <h3 class="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i class="fa-solid fa-people-roof w-3.5 sm:w-4 h-3.5 sm:h-4 text-orange-600 flex-shrink-0"></i>
+                                <span>Informasi Orang Tua</span>
+                            </h3>
+                        </div>
+                        <div class="p-3 sm:p-4 md:p-6">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Nama Ayah</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.nama_ayah || '-' }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Nama Ibu</p>
+                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ pesertaDidik.nama_ibu || '-' }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Roles -->
-                    <div v-if="pesertaDidik.roles && pesertaDidik.roles.length > 0" class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200 p-3 sm:p-4 md:p-6">
-                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 sm:mb-4">Roles Pengguna</h4>
-                        <div class="space-y-2 sm:space-y-3">
+                    <div v-if="pesertaDidik.roles && pesertaDidik.roles.length > 0"
+                        class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                        <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                            <h3 class="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
+                                <svg class="w-3.5 sm:w-4 h-3.5 sm:h-4 text-indigo-600 flex-shrink-0" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Roles Pengguna</span>
+                            </h3>
+                        </div>
+                        <div class="divide-y divide-gray-200">
                             <div v-for="role in pesertaDidik.roles" :key="role.id"
-                                class="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg border border-gray-200">
-                                <div class="flex-shrink-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-indigo-100 flex items-center justify-center mt-0.5">
-                                    <svg class="w-3 h-3 sm:w-4 sm:h-4 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 3.062v6.018a1 1 0 01-.999 1H6.455a1 1 0 01-.999-1V6.517a3.066 3.066 0 012.811-3.062zm7.44 5.252a1 1 0 00-1.707-1.707L9 13.414l-2.475-2.465a1 1 0 00-1.414 1.414l3.182 3.182a1 1 0 001.414 0l5.948-5.948z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
+                                class="flex items-start justify-between gap-2 p-3 sm:p-4 md:p-6">
                                 <div class="min-w-0 flex-1">
-                                    <p class="text-xs sm:text-sm font-semibold text-gray-900">{{ role.name }}</p>
-                                    <p class="text-[11px] sm:text-xs text-gray-600">{{ role.system?.nama || 'System' }}</p>
+                                    <p class="text-xs sm:text-sm font-bold text-gray-900">{{ role.name }}</p>
+                                    <p class="text-[11px] sm:text-xs text-gray-600 mt-1">{{ role.system?.nama || 'System' }}</p>
+                                    <p v-if="role.description" class="text-[11px] sm:text-xs text-gray-600 mt-1">{{ role.description }}</p>
                                 </div>
+                                <span :class="[
+                                    'px-2 py-1 rounded-full text-[10px] sm:text-xs font-semibold whitespace-nowrap flex-shrink-0',
+                                    role.status === 'active'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-gray-100 text-gray-800'
+                                ]">
+                                    {{ role.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                </span>
                             </div>
                         </div>
                     </div>
