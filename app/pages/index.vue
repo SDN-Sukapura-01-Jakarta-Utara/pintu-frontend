@@ -67,40 +67,40 @@
       </div>
       <Transition name="mobile-menu">
         <div v-if="mobileMenuOpen" class="lg:hidden fixed inset-0 top-0 z-40 bg-gradient-to-b from-[#8B0000] to-[#DC143C] flex flex-col pt-20 px-6 overflow-y-auto">
-          <a @click="mobileMenuOpen = false" href="#" class="text-white text-lg font-medium py-3 border-b border-white/20 block">Beranda</a>
-          <a @click="mobileMenuOpen = false" href="#" class="text-white text-lg font-medium py-3 border-b border-white/20 block">Profil Sekolah</a>
+          <a @click="mobileMenuOpen = false" href="#" class="text-white text-sm font-medium py-2.5 border-b border-white/20 block">Beranda</a>
+          <a @click="mobileMenuOpen = false" href="#" class="text-white text-sm font-medium py-2.5 border-b border-white/20 block">Profil Sekolah</a>
           <div class="border-b border-white/20">
-            <button @click="mobileSubMenu = mobileSubMenu === 'kepegawaian' ? '' : 'kepegawaian'" class="text-white text-lg font-medium py-3 bg-transparent border-none cursor-pointer flex items-center justify-between w-full">
-              Kepegawaian <svg class="w-4 h-4 transition-transform duration-200" :class="mobileSubMenu === 'kepegawaian' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            <button @click="mobileSubMenu = mobileSubMenu === 'kepegawaian' ? '' : 'kepegawaian'" class="text-white text-sm font-medium py-2.5 bg-transparent border-none cursor-pointer flex items-center justify-between w-full">
+              Kepegawaian <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="mobileSubMenu === 'kepegawaian' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div v-show="mobileSubMenu === 'kepegawaian'" class="pl-4 pb-2">
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">Pendidik</a>
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">Tenaga Kependidikan</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Pendidik</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Tenaga Kependidikan</a>
             </div>
           </div>
           <div class="border-b border-white/20">
-            <button @click="mobileSubMenu = mobileSubMenu === 'media' ? '' : 'media'" class="text-white text-lg font-medium py-3 bg-transparent border-none cursor-pointer flex items-center justify-between w-full">
-              Media dan Publikasi <svg class="w-4 h-4 transition-transform duration-200" :class="mobileSubMenu === 'media' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            <button @click="mobileSubMenu = mobileSubMenu === 'media' ? '' : 'media'" class="text-white text-sm font-medium py-2.5 bg-transparent border-none cursor-pointer flex items-center justify-between w-full">
+              Media dan Publikasi <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="mobileSubMenu === 'media' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div v-show="mobileSubMenu === 'media'" class="pl-4 pb-2">
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">Artikel</a>
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">Pengumuman</a>
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">Galeri Kegiatan</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Artikel</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Pengumuman</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Galeri Kegiatan</a>
             </div>
           </div>
           <div class="border-b border-white/20">
-            <button @click="mobileSubMenu = mobileSubMenu === 'aplikasi' ? '' : 'aplikasi'" class="text-white text-lg font-medium py-3 bg-transparent border-none cursor-pointer flex items-center justify-between w-full">
-              Aplikasi Sekolah <svg class="w-4 h-4 transition-transform duration-200" :class="mobileSubMenu === 'aplikasi' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            <button @click="mobileSubMenu = mobileSubMenu === 'aplikasi' ? '' : 'aplikasi'" class="text-white text-sm font-medium py-2.5 bg-transparent border-none cursor-pointer flex items-center justify-between w-full">
+              Aplikasi Sekolah <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="mobileSubMenu === 'aplikasi' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </button>
             <div v-show="mobileSubMenu === 'aplikasi'" class="pl-4 pb-2">
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">PINTU</a>
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">SEPAKAT</a>
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">SIEKSA</a>
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">SIPERSA</a>
-              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-base py-2 block">MUTASI SISWA</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">PINTU</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">SEPAKAT</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">SIEKSA</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">SIPERSA</a>
+              <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">MUTASI SISWA</a>
             </div>
           </div>
-          <a @click="mobileMenuOpen = false" href="#" class="text-white text-lg font-medium py-3 border-b border-white/20 block">Pertanyaan dan Pengaduan</a>
+          <a @click="mobileMenuOpen = false" href="#" class="text-white text-sm font-medium py-2.5 border-b border-white/20 block">Pertanyaan dan Pengaduan</a>
         </div>
       </Transition>
     </nav>
@@ -141,11 +141,11 @@
             <p class="text-sm sm:text-base md:text-lg lg:text-xl text-white/85 leading-relaxed mb-6 sm:mb-8 animate-fadeInUp animation-delay-200 max-w-lg">
               Sambut masa depan gemilang dengan berakhlak, berilmu, berkarya dan berprestasi
             </p>
-            <div class="flex flex-wrap items-center gap-3 sm:gap-4 animate-fadeInUp animation-delay-300">
-              <a href="#" class="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-base text-gray-900 bounce-btn" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); box-shadow: 0 10px 30px rgba(255,215,0,0.4);">
+            <div class="flex flex-wrap items-center gap-2 sm:gap-4 animate-fadeInUp animation-delay-300">
+              <a href="#" class="inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-8 py-2 sm:py-4 rounded-full font-bold text-xs sm:text-base text-gray-900 bounce-btn" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); box-shadow: 0 10px 30px rgba(255,215,0,0.4);">
                 <i class="fas fa-arrow-right"></i> Pendaftaran Mutasi Siswa
               </a>
-              <button @click="scrollToAbout" class="inline-flex items-center gap-2 px-5 sm:px-6 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base text-white border-2 border-white/30 hover:bg-white/10 hover:border-white/50 transition-all duration-300 cursor-pointer bg-transparent">
+              <button @click="scrollToAbout" class="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-6 py-2 sm:py-4 rounded-full font-semibold text-xs sm:text-base text-white border-2 border-white/30 hover:bg-white/10 hover:border-white/50 transition-all duration-300 cursor-pointer bg-transparent">
                 <i class="fas fa-info-circle"></i> Tentang Kami
               </button>
             </div>
