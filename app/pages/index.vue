@@ -108,7 +108,13 @@
     <!-- ===== HERO / JUMBOTRON ===== -->
     <section class="relative h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[90vh] overflow-hidden">
       <!-- Slides -->
-      <TransitionGroup name="hero-slide">
+      <div v-if="publicHomeStore.isLoading" class="absolute inset-0 flex items-center justify-center bg-gray-900">
+        <div class="text-white text-center">
+          <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+          <p>Memuat...</p>
+        </div>
+      </div>
+      <TransitionGroup v-else name="hero-slide">
         <div v-for="(slide, i) in heroSlides" :key="i" v-show="currentSlide === i" class="absolute inset-0">
           <img :src="slide.image" :alt="slide.title" class="w-full h-full object-cover hero-zoom" />
         </div>
@@ -750,6 +756,9 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
+import { usePublicHomeStore } from '~/stores/PublicHomeStore'
+
+const publicHomeStore = usePublicHomeStore()
 
 const mobileMenuOpen = ref(false)
 const mobileSubMenu = ref('')
@@ -762,11 +771,23 @@ const currentPrestasi = ref(0)
 const galeriWrapper = ref(null)
 const galeriTrack = ref(null)
 
-const heroSlides = [
-  { image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80', title: 'Kegiatan Sekolah' },
-  { image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=1200&q=80', title: 'Prestasi Siswa' },
-  { image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&q=80', title: 'Pembelajaran' },
-]
+// Fetch jumbotron data dari API
+const heroSlides = computed(() => {
+  console.log('Store data:', publicHomeStore.jumbotronList)
+  console.log('Active jumbotron:', publicHomeStore.activeJumbotron)
+  
+  if (publicHomeStore.activeJumbotron.length > 0) {
+    return publicHomeStore.activeJumbotron.map((item, index) => ({
+      image: item.file,
+      title: `Slide ${index + 1}`
+    }))
+  }
+  
+  // Fallback jika data belum dimuat atau kosong
+  return [
+    { image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80', title: 'Kegiatan Sekolah' },
+  ]
+})
 
 const aboutFeatures = [
   { icon: 'fas fa-book-open', text: 'Kurikulum Merdeka', color: 'linear-gradient(135deg, #8B0000, #DC143C)' },
@@ -834,8 +855,8 @@ const kontakData = [
 
 let slideInterval = null
 
-function nextSlide() { currentSlide.value = (currentSlide.value + 1) % heroSlides.length }
-function prevSlide() { currentSlide.value = (currentSlide.value - 1 + heroSlides.length) % heroSlides.length }
+function nextSlide() { currentSlide.value = (currentSlide.value + 1) % heroSlides.value.length }
+function prevSlide() { currentSlide.value = (currentSlide.value - 1 + heroSlides.value.length) % heroSlides.value.length }
 function startSlideshow() { slideInterval = setInterval(nextSlide, 5000) }
 
 let prestasiInterval = null
@@ -940,8 +961,19 @@ function getJuaraTextClass(juara) {
   return 'text-blue-500'
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('scroll', onScroll)
+  
+  // Fetch jumbotron data dari API
+  try {
+    console.log('Fetching jumbotron data...')
+    const result = await publicHomeStore.fetchPublicJumbotron()
+    console.log('Fetch result:', result)
+    console.log('Store after fetch:', publicHomeStore.jumbotronList)
+  } catch (error) {
+    console.error('Failed to fetch jumbotron:', error)
+  }
+  
   startSlideshow()
   startPrestasiSlide()
   startGaleriScroll()
