@@ -306,47 +306,71 @@
           <p class="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base max-w-lg mx-auto">Kebanggaan dan pencapaian gemilang siswa-siswi SDN Sukapura 01</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 items-center">
-          <div v-for="(item, index) in prestasiData" :key="item.nama"
-            class="group rounded-2xl overflow-hidden bg-white shadow-lg transition-all duration-400 cursor-pointer relative hover:-translate-y-3 reveal border border-gray-100 hover:border-red-200"
-            :class="index === 1 ? 'md:scale-110 md:shadow-2xl md:z-10' : ''"
-            :style="{ transitionDelay: `${index * 150}ms` }"
-          >
-            <div class="absolute top-0 left-0 right-0 h-1 z-10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" style="background: linear-gradient(90deg, #8B0000, #DC143C, #FF6B6B);"></div>
-            <div class="relative overflow-hidden" :class="index === 1 ? 'h-56 sm:h-72 md:h-80' : 'h-48 sm:h-56 md:h-64'">
-              <img :src="item.foto" :alt="item.nama" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div class="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg" :class="getJuaraClass(item.juara)">
-                <i class="fas fa-trophy"></i> {{ item.juara }}
-              </div>
-            </div>
-            <div class="p-4 sm:p-6">
-              <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2 transition-colors group-hover:text-red-600">{{ item.nama }}</h3>
-              <div class="text-xs sm:text-sm font-semibold mb-1.5 sm:mb-2" :class="getJuaraTextClass(item.juara)"><i class="fas fa-medal"></i> {{ item.juara }}</div>
-              <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-2 mb-3">{{ item.namaPrestasi }}</p>
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-1.5 text-xs text-gray-400">
-                  <i class="far fa-calendar-alt text-red-400"></i>
-                  {{ item.tanggal }}
+        <!-- Carousel with 3 visible, center bigger -->
+        <div class="relative reveal">
+          <!-- Arrow left (desktop only) -->
+          <button @click="prevPrestasi" class="hidden md:flex absolute -left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full text-white border-none cursor-pointer items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+            <i class="fas fa-chevron-left text-sm"></i>
+          </button>
+
+          <!-- Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-center px-0 md:px-14">
+            <div v-for="(item, index) in visiblePrestasi" :key="currentPrestasi + '-' + index"
+              class="group rounded-2xl overflow-hidden bg-white shadow-lg transition-all duration-500 cursor-pointer relative border border-gray-100 hover:border-red-200 prestasi-slide-in"
+              :class="item.position === 'center' ? 'md:scale-110 md:shadow-2xl md:z-10' : 'hidden md:block md:opacity-80 md:hover:opacity-100'"
+            >
+              <div class="absolute top-0 left-0 right-0 h-1 z-10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" style="background: linear-gradient(90deg, #8B0000, #DC143C, #FF6B6B);"></div>
+              <div class="relative overflow-hidden" :class="item.position === 'center' ? 'h-52 sm:h-64 md:h-72' : 'h-44 sm:h-52 md:h-56'">
+                <img :src="item.foto" :alt="item.nama" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg" :class="getJuaraClass(item.juara)">
+                  <i class="fas fa-trophy"></i> {{ item.juara }}
                 </div>
-                <span class="text-xs font-semibold text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1">
-                  Selengkapnya <i class="fas fa-arrow-right text-[10px]"></i>
-                </span>
+              </div>
+              <div class="p-4 sm:p-5">
+                <h3 class="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-1.5 transition-colors group-hover:text-red-600">{{ item.nama }}</h3>
+                <div class="text-xs font-semibold mb-1 sm:mb-1.5" :class="getJuaraTextClass(item.juara)"><i class="fas fa-medal"></i> {{ item.juara }}</div>
+                <p class="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-2">{{ item.namaPrestasi }}</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5 text-xs text-gray-400">
+                    <i class="far fa-calendar-alt text-red-400"></i> {{ item.tanggal }}
+                  </div>
+                  <span class="text-xs font-semibold text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1">
+                    Selengkapnya <i class="fas fa-arrow-right text-[10px]"></i>
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+
+          <!-- Arrow right (desktop only) -->
+          <button @click="nextPrestasi" class="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full text-white border-none cursor-pointer items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+            <i class="fas fa-chevron-right text-sm"></i>
+          </button>
         </div>
 
-        <div class="flex justify-center items-center gap-3 sm:gap-4 mt-10 sm:mt-12 reveal">
-          <button class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            <i class="fas fa-chevron-left text-xs sm:text-sm"></i>
+        <!-- Dot indicators -->
+        <div class="flex justify-center gap-2 mt-6 sm:mt-8 reveal">
+          <button
+            v-for="(_, i) in prestasiData" :key="i"
+            @click="currentPrestasi = i"
+            class="h-2 rounded-full border-none cursor-pointer transition-all duration-300"
+            :class="currentPrestasi === i ? 'w-8 bg-red-600' : 'w-2 bg-gray-300 hover:bg-red-300'"
+          ></button>
+        </div>
+
+        <div class="flex justify-center items-center gap-3 mt-6 sm:mt-8 reveal">
+          <!-- Arrow left (mobile only) -->
+          <button @click="prevPrestasi" class="md:hidden w-10 h-10 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+            <i class="fas fa-chevron-left text-xs"></i>
           </button>
           <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
             Lihat Semua Prestasi
             <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
           </button>
-          <button class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            <i class="fas fa-chevron-right text-xs sm:text-sm"></i>
+          <!-- Arrow right (mobile only) -->
+          <button @click="nextPrestasi" class="md:hidden w-10 h-10 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+            <i class="fas fa-chevron-right text-xs"></i>
           </button>
         </div>
       </div>
@@ -508,24 +532,22 @@
           </h2>
           <p class="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base max-w-lg mx-auto">Dokumentasi kegiatan dan prestasi SDN Sukapura 01</p>
         </div>
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+      <!-- Marquee auto-scroll (full width) -->
+      <div ref="galeriWrapper" class="galeri-marquee-wrapper overflow-hidden reveal py-2" @mouseenter="pauseGaleri" @mouseleave="resumeGaleri">
+        <div ref="galeriTrack" class="galeri-marquee flex gap-5 sm:gap-6">
           <div
-            v-for="(galeri, index) in galeriData"
-            :key="galeri.kegiatan"
-            class="group relative rounded-2xl overflow-hidden h-60 sm:h-72 lg:h-80 cursor-pointer shadow-lg transition-all duration-400 hover:-translate-y-3 border-2 border-transparent hover:border-red-300 reveal"
-            :style="{ transitionDelay: `${index * 150}ms` }"
+            v-for="(galeri, index) in [...galeriData, ...galeriData]"
+            :key="index"
+            class="group relative rounded-2xl overflow-hidden h-60 sm:h-72 lg:h-80 cursor-pointer shadow-lg transition-all duration-400 hover:-translate-y-3 border-2 border-transparent hover:border-red-300 flex-shrink-0 w-72 sm:w-80 lg:w-96"
           >
             <img :src="galeri.gambar" :alt="galeri.kegiatan" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-            <!-- Always visible subtle gradient -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
-            <!-- Hover overlay -->
             <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-400" style="background: linear-gradient(to top, rgba(139,0,0,0.9) 0%, rgba(220,20,60,0.6) 40%, transparent 100%);"></div>
-            <!-- Always visible title -->
             <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
               <h3 class="text-white font-bold text-sm sm:text-base leading-snug drop-shadow-lg">{{ galeri.kegiatan }}</h3>
             </div>
-            <!-- Hover icon -->
             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-4 group-hover:translate-y-0">
               <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-lg border border-white/30">
                 <i class="fas fa-search-plus"></i>
@@ -533,13 +555,19 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="flex justify-center mt-10 sm:mt-12 reveal">
-          <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            Lihat Semua Galeri
-            <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
-          </button>
-        </div>
+      <div class="flex justify-center items-center gap-3 sm:gap-4 mt-10 sm:mt-12 reveal">
+        <button @click="scrollGaleri('left')" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+          <i class="fas fa-chevron-left text-xs sm:text-sm"></i>
+        </button>
+        <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+          Lihat Semua Galeri
+          <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
+        </button>
+        <button @click="scrollGaleri('right')" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+          <i class="fas fa-chevron-right text-xs sm:text-sm"></i>
+        </button>
       </div>
     </section>
 
@@ -721,7 +749,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, reactive } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 
 const mobileMenuOpen = ref(false)
 const mobileSubMenu = ref('')
@@ -730,6 +758,9 @@ const currentSlide = ref(0)
 const statsVisible = ref(false)
 const statsSection = ref(null)
 const animatedStats = reactive([0, 0, 0, 0, 0])
+const currentPrestasi = ref(0)
+const galeriWrapper = ref(null)
+const galeriTrack = ref(null)
 
 const heroSlides = [
   { image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=1200&q=80', title: 'Kegiatan Sekolah' },
@@ -756,7 +787,21 @@ const prestasiData = [
   { nama: 'Ahmad Fauzi', juara: 'Juara 2', namaPrestasi: 'Olimpiade Matematika Tingkat Kecamatan 2024', tanggal: '15 Oktober 2024', foto: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=80' },
   { nama: 'Siti Nurhaliza', juara: 'Juara 1', namaPrestasi: 'Lomba Cipta Puisi Tingkat Kota Jakarta Utara', tanggal: '3 November 2024', foto: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&q=80' },
   { nama: 'Reza Pratama', juara: 'Juara 3', namaPrestasi: 'Kejuaraan Atletik Pelajar Tingkat Provinsi DKI', tanggal: '20 September 2024', foto: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80' },
+  { nama: 'Ayu Lestari', juara: 'Juara 1', namaPrestasi: 'Lomba Menggambar Tingkat Kecamatan 2024', tanggal: '8 Agustus 2024', foto: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=400&q=80' },
+  { nama: 'Budi Santoso', juara: 'Juara 2', namaPrestasi: 'Lomba Pidato Bahasa Indonesia Tingkat Kota', tanggal: '25 Juli 2024', foto: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400&q=80' },
 ]
+
+const visiblePrestasi = computed(() => {
+  const total = prestasiData.length
+  const left = (currentPrestasi.value - 1 + total) % total
+  const center = currentPrestasi.value
+  const right = (currentPrestasi.value + 1) % total
+  return [
+    { ...prestasiData[left], position: 'side' },
+    { ...prestasiData[center], position: 'center' },
+    { ...prestasiData[right], position: 'side' },
+  ]
+})
 
 const artikelData = [
   { judul: 'Peringatan Hari Pahlawan: Upacara Bendera Khidmat di SDN Sukapura 01', kategori: 'Kegiatan', tanggal: '10 November 2024', gambar: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80', deskripsi: 'SDN Sukapura 01 menggelar upacara bendera untuk memperingati Hari Pahlawan dengan penuh khidmat dan semangat nasionalisme yang tinggi.' },
@@ -775,6 +820,9 @@ const galeriData = [
   { kegiatan: 'Peringatan Hari Kemerdekaan RI ke-79', gambar: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=600&q=80' },
   { kegiatan: 'Pameran Karya Seni Siswa 2024', gambar: 'https://images.unsplash.com/photo-1541178735493-479c1a27ed24?w=600&q=80' },
   { kegiatan: 'Pentas Seni dan Budaya Nusantara', gambar: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80' },
+  { kegiatan: 'Lomba Cerdas Cermat Antar Kelas', gambar: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80' },
+  { kegiatan: 'Kegiatan Pramuka dan Outbound', gambar: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=600&q=80' },
+  { kegiatan: 'Pelepasan Siswa Kelas 6 Tahun 2024', gambar: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600&q=80' },
 ]
 
 const kontakData = [
@@ -789,6 +837,60 @@ let slideInterval = null
 function nextSlide() { currentSlide.value = (currentSlide.value + 1) % heroSlides.length }
 function prevSlide() { currentSlide.value = (currentSlide.value - 1 + heroSlides.length) % heroSlides.length }
 function startSlideshow() { slideInterval = setInterval(nextSlide, 5000) }
+
+let prestasiInterval = null
+function nextPrestasi() { currentPrestasi.value = (currentPrestasi.value + 1) % prestasiData.length }
+function prevPrestasi() { currentPrestasi.value = (currentPrestasi.value - 1 + prestasiData.length) % prestasiData.length }
+function startPrestasiSlide() { prestasiInterval = setInterval(nextPrestasi, 4000) }
+
+/* ── GALERI SCROLL ── */
+let galeriAnim = null
+let galeriPos = 0
+let galeriPaused = false
+
+function startGaleriScroll() {
+  function step() {
+    if (!galeriPaused && galeriTrack.value) {
+      galeriPos += 0.5
+      const halfWidth = galeriTrack.value.scrollWidth / 2
+      if (galeriPos >= halfWidth) galeriPos = 0
+      galeriTrack.value.style.transform = `translateX(-${galeriPos}px)`
+    }
+    galeriAnim = requestAnimationFrame(step)
+  }
+  galeriAnim = requestAnimationFrame(step)
+}
+
+function pauseGaleri() { galeriPaused = true }
+function resumeGaleri() { galeriPaused = false }
+
+function scrollGaleri(dir) {
+  if (!galeriTrack.value) return
+  galeriPaused = true
+  const cardWidth = window.innerWidth >= 1024 ? 408 : window.innerWidth >= 640 ? 344 : 308
+  const halfWidth = galeriTrack.value.scrollWidth / 2
+  const target = dir === 'right' ? galeriPos + cardWidth : galeriPos - cardWidth
+
+  galeriTrack.value.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.8, 0.25, 1)'
+
+  if (target >= halfWidth) {
+    galeriPos = target - halfWidth
+    galeriTrack.value.style.transition = 'none'
+    galeriTrack.value.style.transform = `translateX(-${galeriPos}px)`
+  } else if (target < 0) {
+    galeriPos = halfWidth + target
+    galeriTrack.value.style.transition = 'none'
+    galeriTrack.value.style.transform = `translateX(-${galeriPos}px)`
+  } else {
+    galeriPos = target
+    galeriTrack.value.style.transform = `translateX(-${galeriPos}px)`
+  }
+
+  setTimeout(() => {
+    if (galeriTrack.value) galeriTrack.value.style.transition = 'none'
+    galeriPaused = false
+  }, 650)
+}
 
 function onScroll() { scrolled.value = window.scrollY > 80 }
 function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
@@ -841,6 +943,8 @@ function getJuaraTextClass(juara) {
 onMounted(() => {
   window.addEventListener('scroll', onScroll)
   startSlideshow()
+  startPrestasiSlide()
+  startGaleriScroll()
   setupStatsObserver()
   setTimeout(setupReveal, 100)
 })
@@ -848,6 +952,8 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   if (slideInterval) clearInterval(slideInterval)
+  if (prestasiInterval) clearInterval(prestasiInterval)
+  if (galeriAnim) cancelAnimationFrame(galeriAnim)
 })
 </script>
 
@@ -937,6 +1043,21 @@ onUnmounted(() => {
 /* ── HOVER SHADOWS ── */
 .hover\:shadow-red-glow:hover { box-shadow: 0 20px 60px rgba(139, 0, 0, 0.25); }
 .hover\:shadow-yellow-glow:hover { box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3); }
+
+/* ── PRESTASI CAROUSEL ── */
+@keyframes prestasiSlideIn {
+  from { opacity: 0; transform: scale(0.95) translateX(20px); }
+  to { opacity: 1; transform: scale(1) translateX(0); }
+}
+.prestasi-slide-in {
+  animation: prestasiSlideIn 0.5s ease-out;
+}
+
+/* ── GALERI MARQUEE ── */
+.galeri-marquee {
+  will-change: transform;
+  transition: none;
+}
 
 /* ── ARTIKEL ACCENT ── */
 .artikel-card:hover .artikel-accent { transform: scaleX(1) !important; }
