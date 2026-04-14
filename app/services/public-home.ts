@@ -3,7 +3,7 @@
  * Handle API calls untuk halaman beranda publik (tanpa auth)
  */
 
-import type { PublicJumbotronResponse, PublicTotalSiswaResponse } from '~/types/PublicHomeType'
+import type { PublicJumbotronResponse, PublicTotalSiswaResponse, PublicTotalPendidikResponse, PublicTotalTendikResponse } from '~/types/PublicHomeType'
 
 /**
  * Get public jumbotron data (no auth required)
@@ -56,6 +56,52 @@ export async function getPublicTotalSiswa(): Promise<PublicTotalSiswaResponse> {
     return response
   } catch (error: any) {
     console.error('Error fetching public total siswa:', error)
+    throw error
+  }
+}
+
+/**
+ * Get total pendidik data (no auth required)
+ * @returns Total pendidik data
+ */
+export async function getPublicTotalPendidik(): Promise<PublicTotalPendidikResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-total-pendidik`
+  
+  try {
+    const response = await $fetch<PublicTotalPendidikResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public total pendidik:', error)
+    throw error
+  }
+}
+
+/**
+ * Get total tendik data (no auth required)
+ * @returns Total tendik data
+ */
+export async function getPublicTotalTendik(): Promise<PublicTotalTendikResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-total-tendik`
+  
+  try {
+    const response = await $fetch<PublicTotalTendikResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public total tendik:', error)
     throw error
   }
 }

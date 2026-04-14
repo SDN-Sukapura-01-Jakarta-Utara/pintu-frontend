@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { PublicJumbotronData } from '~/types/PublicHomeType'
-import { getPublicJumbotron, getPublicTotalSiswa } from '~/services/public-home'
+import { getPublicJumbotron, getPublicTotalSiswa, getPublicTotalPendidik, getPublicTotalTendik } from '~/services/public-home'
 
 interface PublicHomeError {
   message: string
@@ -12,6 +12,8 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
   // State
   const jumbotronList = ref<PublicJumbotronData[]>([])
   const totalSiswa = ref<number>(0)
+  const totalPendidik = ref<number>(0)
+  const totalTendik = ref<number>(0)
   const isLoading = ref(false)
   const error = ref<PublicHomeError | null>(null)
 
@@ -78,6 +80,60 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
   }
 
   /**
+   * Fetch public total pendidik data
+   */
+  const fetchPublicTotalPendidik = async () => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await getPublicTotalPendidik()
+      totalPendidik.value = response.data.total_pendidik
+
+      return response
+    } catch (err: any) {
+      const apiError = err.data?.message || err.message || 'Gagal memuat data total pendidik'
+
+      error.value = {
+        message: apiError,
+        status: 'error',
+      }
+
+      console.error('Error fetching public total pendidik:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * Fetch public total tendik data
+   */
+  const fetchPublicTotalTendik = async () => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await getPublicTotalTendik()
+      totalTendik.value = response.data.total_tendik
+
+      return response
+    } catch (err: any) {
+      const apiError = err.data?.message || err.message || 'Gagal memuat data total tendik'
+
+      error.value = {
+        message: apiError,
+        status: 'error',
+      }
+
+      console.error('Error fetching public total tendik:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
    * Clear error
    */
   const clearError = () => {
@@ -90,6 +146,8 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
   const reset = () => {
     jumbotronList.value = []
     totalSiswa.value = 0
+    totalPendidik.value = 0
+    totalTendik.value = 0
     isLoading.value = false
     error.value = null
   }
@@ -98,6 +156,8 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
     // State
     jumbotronList,
     totalSiswa,
+    totalPendidik,
+    totalTendik,
     isLoading,
     error,
 
@@ -109,6 +169,8 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
     // Methods
     fetchPublicJumbotron,
     fetchPublicTotalSiswa,
+    fetchPublicTotalPendidik,
+    fetchPublicTotalTendik,
     clearError,
     reset,
   }

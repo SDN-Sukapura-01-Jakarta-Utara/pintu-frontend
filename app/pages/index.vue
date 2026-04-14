@@ -798,8 +798,8 @@ const aboutFeatures = [
 
 const statsData = computed(() => [
   { icon: 'fas fa-users', value: publicHomeStore.totalSiswa, label: 'Jumlah Siswa' },
-  { icon: 'fas fa-chalkboard-teacher', value: 18, label: 'Jumlah Pendidik' },
-  { icon: 'fas fa-user-tie', value: 5, label: 'Jumlah Tendik' },
+  { icon: 'fas fa-chalkboard-teacher', value: publicHomeStore.totalPendidik, label: 'Jumlah Pendidik' },
+  { icon: 'fas fa-user-tie', value: publicHomeStore.totalTendik, label: 'Jumlah Tendik' },
   { icon: 'fas fa-door-open', value: 12, label: 'Jumlah Rombel' },
   { icon: 'fas fa-trophy', value: 8, label: 'Jumlah Ekskul' },
 ])
@@ -988,6 +988,24 @@ onMounted(async () => {
     console.log('Total siswa:', publicHomeStore.totalSiswa)
   } catch (error) {
     console.error('Failed to fetch total siswa:', error)
+  }
+  
+  // Fetch total pendidik data dari API
+  try {
+    console.log('Fetching total pendidik data...')
+    await publicHomeStore.fetchPublicTotalPendidik()
+    console.log('Total pendidik:', publicHomeStore.totalPendidik)
+  } catch (error) {
+    console.error('Failed to fetch total pendidik:', error)
+  }
+  
+  // Fetch total tendik data dari API
+  try {
+    console.log('Fetching total tendik data...')
+    await publicHomeStore.fetchPublicTotalTendik()
+    console.log('Total tendik:', publicHomeStore.totalTendik)
+  } catch (error) {
+    console.error('Failed to fetch total tendik:', error)
   }
   
   startSlideshow()
