@@ -3,7 +3,7 @@
  * Handle API calls untuk halaman beranda publik (tanpa auth)
  */
 
-import type { PublicJumbotronResponse } from '~/types/PublicHomeType'
+import type { PublicJumbotronResponse, PublicTotalSiswaResponse } from '~/types/PublicHomeType'
 
 /**
  * Get public jumbotron data (no auth required)
@@ -11,7 +11,7 @@ import type { PublicJumbotronResponse } from '~/types/PublicHomeType'
  */
 export async function getPublicJumbotron(): Promise<PublicJumbotronResponse> {
   const config = useRuntimeConfig()
-  const url = `${config.public.apiBase}/api/v1/public/jumbotron`
+  const url = `${config.public.apiBase}/api/v1/public/get-jumbotron`
   
   console.log('Fetching from URL:', url)
   
@@ -33,6 +33,29 @@ export async function getPublicJumbotron(): Promise<PublicJumbotronResponse> {
       data: error?.data,
       message: error?.message
     })
+    throw error
+  }
+}
+
+/**
+ * Get total siswa data (no auth required)
+ * @returns Total siswa data
+ */
+export async function getPublicTotalSiswa(): Promise<PublicTotalSiswaResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-total-siswa`
+  
+  try {
+    const response = await $fetch<PublicTotalSiswaResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public total siswa:', error)
     throw error
   }
 }

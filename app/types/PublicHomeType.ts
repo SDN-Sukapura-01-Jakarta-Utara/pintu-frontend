@@ -10,3 +10,11 @@ export interface PublicJumbotronData {
 export interface PublicJumbotronResponse {
   data: PublicJumbotronData[]
 }
+
+export interface PublicTotalSiswaData {
+  total_siswa: number
+}
+
+export interface PublicTotalSiswaResponse {
+  data: PublicTotalSiswaData
+}

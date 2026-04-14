@@ -9,7 +9,7 @@
         <a href="#" class="flex items-center gap-2 sm:gap-3 text-white no-underline group">
           <div class="relative">
             <img
-              src="https://lh3.googleusercontent.com/d/1hPPyudMyUv3HrRhHImV7AqZSYkPi0PMI"
+              src="~/assets/images/logo-sekolah.jpg"
               alt="Logo SDN Sukapura 01"
               class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-cover border-2 border-white/30 group-hover:scale-110 transition-transform duration-300 relative z-10"
             />
@@ -199,7 +199,7 @@
           <!-- Image side -->
           <div class="relative reveal">
             <div class="relative rounded-3xl overflow-hidden shadow-2xl">
-              <img src="https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=700&q=80" alt="SDN Sukapura 01" class="w-full h-64 sm:h-80 lg:h-96 object-cover" />
+              <img src="~/assets/images/tentang-sekolah.png" alt="SDN Sukapura 01" class="w-full h-64 sm:h-80 lg:h-96 object-cover" />
               <div class="absolute inset-0 bg-gradient-to-t from-red-900/40 to-transparent"></div>
             </div>
             <!-- Floating badge -->
@@ -671,7 +671,7 @@
           <!-- Brand -->
           <div class="sm:col-span-2 lg:col-span-1">
             <div class="flex items-center gap-3 mb-4">
-              <img src="https://lh3.googleusercontent.com/d/1hPPyudMyUv3HrRhHImV7AqZSYkPi0PMI" alt="Logo" class="w-10 h-10 rounded-lg object-cover border border-white/20" />
+              <img src="~/assets/images/logo-sekolah.jpg" alt="Logo" class="w-10 h-10 rounded-lg object-cover border border-white/20" />
               <h3 class="text-lg font-bold text-white">SDN Sukapura 01</h3>
             </div>
             <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-4">
@@ -796,13 +796,13 @@ const aboutFeatures = [
   { icon: 'fas fa-heart', text: 'Pendidikan Karakter', color: 'linear-gradient(135deg, #4169E1, #6495ED)' },
 ]
 
-const statsData = [
-  { icon: 'fas fa-users', value: 412, label: 'Jumlah Siswa' },
+const statsData = computed(() => [
+  { icon: 'fas fa-users', value: publicHomeStore.totalSiswa, label: 'Jumlah Siswa' },
   { icon: 'fas fa-chalkboard-teacher', value: 18, label: 'Jumlah Pendidik' },
   { icon: 'fas fa-user-tie', value: 5, label: 'Jumlah Tendik' },
   { icon: 'fas fa-door-open', value: 12, label: 'Jumlah Rombel' },
   { icon: 'fas fa-trophy', value: 8, label: 'Jumlah Ekskul' },
-]
+])
 
 const prestasiData = [
   { nama: 'Ahmad Fauzi', juara: 'Juara 2', namaPrestasi: 'Olimpiade Matematika Tingkat Kecamatan 2024', tanggal: '15 Oktober 2024', foto: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=80' },
@@ -939,7 +939,14 @@ function setupReveal() {
 
 function setupStatsObserver() {
   const observer = new IntersectionObserver(
-    (entries) => { entries.forEach((entry) => { if (entry.isIntersecting && !statsVisible.value) { statsVisible.value = true; statsData.forEach((stat, i) => animateCounter(i, stat.value)) } }) },
+    (entries) => { 
+      entries.forEach((entry) => { 
+        if (entry.isIntersecting && !statsVisible.value) { 
+          statsVisible.value = true
+          statsData.value.forEach((stat, i) => animateCounter(i, stat.value))
+        } 
+      }) 
+    },
     { threshold: 0.3 }
   )
   if (statsSection.value) observer.observe(statsSection.value)
@@ -972,6 +979,15 @@ onMounted(async () => {
     console.log('Store after fetch:', publicHomeStore.jumbotronList)
   } catch (error) {
     console.error('Failed to fetch jumbotron:', error)
+  }
+  
+  // Fetch total siswa data dari API
+  try {
+    console.log('Fetching total siswa data...')
+    await publicHomeStore.fetchPublicTotalSiswa()
+    console.log('Total siswa:', publicHomeStore.totalSiswa)
+  } catch (error) {
+    console.error('Failed to fetch total siswa:', error)
   }
   
   startSlideshow()
