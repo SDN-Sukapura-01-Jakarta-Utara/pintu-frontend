@@ -34,3 +34,11 @@ export interface PublicTotalTendikData {
 export interface PublicTotalTendikResponse {
   data: PublicTotalTendikData
 }
+
+export interface PublicTotalRombelData {
+  total_rombel: number
+}
+
+export interface PublicTotalRombelResponse {
+  data: PublicTotalRombelData
+}

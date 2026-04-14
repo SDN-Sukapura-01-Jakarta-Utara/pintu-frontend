@@ -800,7 +800,7 @@ const statsData = computed(() => [
   { icon: 'fas fa-users', value: publicHomeStore.totalSiswa, label: 'Jumlah Siswa' },
   { icon: 'fas fa-chalkboard-teacher', value: publicHomeStore.totalPendidik, label: 'Jumlah Pendidik' },
   { icon: 'fas fa-user-tie', value: publicHomeStore.totalTendik, label: 'Jumlah Tendik' },
-  { icon: 'fas fa-door-open', value: 12, label: 'Jumlah Rombel' },
+  { icon: 'fas fa-door-open', value: publicHomeStore.totalRombel, label: 'Jumlah Rombel' },
   { icon: 'fas fa-trophy', value: 8, label: 'Jumlah Ekskul' },
 ])
 
@@ -1006,6 +1006,15 @@ onMounted(async () => {
     console.log('Total tendik:', publicHomeStore.totalTendik)
   } catch (error) {
     console.error('Failed to fetch total tendik:', error)
+  }
+  
+  // Fetch total rombel data dari API
+  try {
+    console.log('Fetching total rombel data...')
+    await publicHomeStore.fetchPublicTotalRombel()
+    console.log('Total rombel:', publicHomeStore.totalRombel)
+  } catch (error) {
+    console.error('Failed to fetch total rombel:', error)
   }
   
   startSlideshow()

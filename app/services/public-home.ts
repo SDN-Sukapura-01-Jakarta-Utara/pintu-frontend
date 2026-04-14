@@ -3,7 +3,7 @@
  * Handle API calls untuk halaman beranda publik (tanpa auth)
  */
 
-import type { PublicJumbotronResponse, PublicTotalSiswaResponse, PublicTotalPendidikResponse, PublicTotalTendikResponse } from '~/types/PublicHomeType'
+import type { PublicJumbotronResponse, PublicTotalSiswaResponse, PublicTotalPendidikResponse, PublicTotalTendikResponse, PublicTotalRombelResponse } from '~/types/PublicHomeType'
 
 /**
  * Get public jumbotron data (no auth required)
@@ -102,6 +102,29 @@ export async function getPublicTotalTendik(): Promise<PublicTotalTendikResponse>
     return response
   } catch (error: any) {
     console.error('Error fetching public total tendik:', error)
+    throw error
+  }
+}
+
+/**
+ * Get total rombel data (no auth required)
+ * @returns Total rombel data
+ */
+export async function getPublicTotalRombel(): Promise<PublicTotalRombelResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-total-rombel`
+  
+  try {
+    const response = await $fetch<PublicTotalRombelResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public total rombel:', error)
     throw error
   }
 }
