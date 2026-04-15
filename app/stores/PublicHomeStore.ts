@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { PublicJumbotronData } from '~/types/PublicHomeType'
-import { getPublicJumbotron, getPublicTotalSiswa, getPublicTotalPendidik, getPublicTotalTendik, getPublicTotalRombel } from '~/services/public-home'
+import { getPublicJumbotron, getPublicTotalSiswa, getPublicTotalPendidik, getPublicTotalTendik, getPublicTotalRombel, getPublicTotalEkskul } from '~/services/public-home'
 
 interface PublicHomeError {
   message: string
@@ -15,6 +15,7 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
   const totalPendidik = ref<number>(0)
   const totalTendik = ref<number>(0)
   const totalRombel = ref<number>(0)
+  const totalEkskul = ref<number>(0)
   const isLoading = ref(false)
   const error = ref<PublicHomeError | null>(null)
 
@@ -162,6 +163,33 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
   }
 
   /**
+   * Fetch public total ekstrakurikuler data
+   */
+  const fetchPublicTotalEkskul = async () => {
+    isLoading.value = true
+    error.value = null
+
+    try {
+      const response = await getPublicTotalEkskul()
+      totalEkskul.value = response.data.total_ekskul
+
+      return response
+    } catch (err: any) {
+      const apiError = err.data?.message || err.message || 'Gagal memuat data total ekstrakurikuler'
+
+      error.value = {
+        message: apiError,
+        status: 'error',
+      }
+
+      console.error('Error fetching public total ekskul:', err)
+      throw err
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
    * Clear error
    */
   const clearError = () => {
@@ -177,6 +205,7 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
     totalPendidik.value = 0
     totalTendik.value = 0
     totalRombel.value = 0
+    totalEkskul.value = 0
     isLoading.value = false
     error.value = null
   }
@@ -188,6 +217,7 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
     totalPendidik,
     totalTendik,
     totalRombel,
+    totalEkskul,
     isLoading,
     error,
 
@@ -202,6 +232,7 @@ export const usePublicHomeStore = defineStore('publicHome', () => {
     fetchPublicTotalPendidik,
     fetchPublicTotalTendik,
     fetchPublicTotalRombel,
+    fetchPublicTotalEkskul,
     clearError,
     reset,
   }

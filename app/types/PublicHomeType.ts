@@ -42,3 +42,11 @@ export interface PublicTotalRombelData {
 export interface PublicTotalRombelResponse {
   data: PublicTotalRombelData
 }
+
+export interface PublicTotalEkskulData {
+  total_ekskul: number
+}
+
+export interface PublicTotalEkskulResponse {
+  data: PublicTotalEkskulData
+}

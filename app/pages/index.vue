@@ -801,7 +801,7 @@ const statsData = computed(() => [
   { icon: 'fas fa-chalkboard-teacher', value: publicHomeStore.totalPendidik, label: 'Jumlah Pendidik' },
   { icon: 'fas fa-user-tie', value: publicHomeStore.totalTendik, label: 'Jumlah Tendik' },
   { icon: 'fas fa-door-open', value: publicHomeStore.totalRombel, label: 'Jumlah Rombel' },
-  { icon: 'fas fa-trophy', value: 8, label: 'Jumlah Ekskul' },
+  { icon: 'fas fa-trophy', value: publicHomeStore.totalEkskul, label: 'Jumlah Ekskul' },
 ])
 
 const prestasiData = [
@@ -1015,6 +1015,15 @@ onMounted(async () => {
     console.log('Total rombel:', publicHomeStore.totalRombel)
   } catch (error) {
     console.error('Failed to fetch total rombel:', error)
+  }
+  
+  // Fetch total ekstrakurikuler data dari API
+  try {
+    console.log('Fetching total ekstrakurikuler data...')
+    await publicHomeStore.fetchPublicTotalEkskul()
+    console.log('Total ekstrakurikuler:', publicHomeStore.totalEkskul)
+  } catch (error) {
+    console.error('Failed to fetch total ekstrakurikuler:', error)
   }
   
   startSlideshow()

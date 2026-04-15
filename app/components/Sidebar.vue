@@ -134,6 +134,13 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.media" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
+                        <NuxtLink to="/backoffice/media-publikasi/prestasi-siswa"
+                            :class="[
+                                'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                                route.path.includes('/prestasi-siswa') ? 'bg-red-700 font-semibold' : ''
+                            ]">
+                            Prestasi Siswa
+                        </NuxtLink>
                         <NuxtLink to="/backoffice/media-publikasi/artikel"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
