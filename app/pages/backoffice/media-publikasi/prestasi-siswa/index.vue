@@ -145,8 +145,33 @@
                         <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
                             Nama Siswa
                         </label>
-                        <input v-model="filters.nama_siswa" type="text" placeholder="Cari nama siswa..."
-                            class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                        <div class="relative" ref="filterPesertaDidikDropdownRef">
+                            <input type="text" v-model="filterPesertaDidikSearch"
+                                @focus="showFilterPesertaDidikDropdown = true"
+                                @input="showFilterPesertaDidikDropdown = true"
+                                placeholder="Cari nama, NIS, atau rombel..."
+                                class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100" />
+                            <!-- Clear button -->
+                            <div v-if="filters.peserta_didik_id && !showFilterPesertaDidikDropdown"
+                                class="absolute right-3 top-1/2 -translate-y-1/2">
+                                <button type="button" @click="clearFilterPesertaDidik"
+                                    class="text-gray-400 hover:text-red-500 cursor-pointer">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                            <div v-if="showFilterPesertaDidikDropdown && filteredFilterPesertaDidik.length > 0"
+                                class="absolute z-50 mt-1 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                <button type="button" v-for="pd in filteredFilterPesertaDidik" :key="pd.id"
+                                    @click="selectFilterPesertaDidik(pd)"
+                                    class="w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors text-xs sm:text-sm cursor-pointer border-b border-gray-100 last:border-b-0">
+                                    {{ pd.nama }} - NIS: <i>{{ pd.nis }}</i> - Rombel: <i>{{ pd.rombel?.name || '-' }}</i>
+                                </button>
+                            </div>
+                            <div v-if="showFilterPesertaDidikDropdown && filteredFilterPesertaDidik.length === 0 && filterPesertaDidikSearch"
+                                class="absolute z-50 mt-1 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg p-4 text-center text-xs sm:text-sm text-gray-500">
+                                Peserta didik tidak ditemukan
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Nama Grup Filter -->
@@ -556,10 +581,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { usePrestasiStore } from '~/stores/PrestasiStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useEkstrakurikulerStore } from '~/stores/EkstrakurikulerStore'
+import { getPesertaDidikList } from '~/services/peserta-didik'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreatePrestasiModal from '~/components/modals/CreatePrestasiModal.vue'
 import EditPrestasiModal from '~/components/modals/EditPrestasiModal.vue'
@@ -599,7 +625,7 @@ const pagination = ref({
 const filters = ref({
     tahun_pelajaran_id: 0,
     jenis: '',
-    nama_siswa: '',
+    peserta_didik_id: 0,
     nama_grup: '',
     nama_prestasi: '',
     tingkat_prestasi: '',
@@ -609,6 +635,12 @@ const filters = ref({
     start_date: '',
     end_date: '',
 })
+
+// Peserta didik filter dropdown
+const pesertaDidikList = ref<any[]>([])
+const filterPesertaDidikSearch = ref('')
+const showFilterPesertaDidikDropdown = ref(false)
+const filterPesertaDidikDropdownRef = ref<HTMLElement>()
 
 // Photo modal state
 const showPhotoModal = ref(false)
@@ -628,7 +660,44 @@ const endItem = computed(() => {
     return end > prestasiStore.total ? prestasiStore.total : end
 })
 
+const filteredFilterPesertaDidik = computed(() => {
+    if (!filterPesertaDidikSearch.value) return pesertaDidikList.value.slice(0, 10)
+    const search = filterPesertaDidikSearch.value.toLowerCase()
+    return pesertaDidikList.value.filter(pd =>
+        pd.nama.toLowerCase().includes(search) ||
+        pd.nis.toLowerCase().includes(search) ||
+        pd.rombel?.name?.toLowerCase().includes(search)
+    ).slice(0, 10)
+})
+
 // Methods
+const loadPesertaDidikList = async () => {
+    try {
+        const response = await getPesertaDidikList({}, 1, 1000)
+        pesertaDidikList.value = response.data || []
+    } catch (err) {
+        console.error('Error loading peserta didik:', err)
+    }
+}
+
+const selectFilterPesertaDidik = (pd: any) => {
+    filters.value.peserta_didik_id = pd.id
+    filterPesertaDidikSearch.value = `${pd.nama} - NIS: ${pd.nis} - Rombel: ${pd.rombel?.name || '-'}`
+    showFilterPesertaDidikDropdown.value = false
+}
+
+const clearFilterPesertaDidik = () => {
+    filters.value.peserta_didik_id = 0
+    filterPesertaDidikSearch.value = ''
+}
+
+const handleFilterClickOutside = (event: Event) => {
+    const target = event.target as Node
+    if (filterPesertaDidikDropdownRef.value && !filterPesertaDidikDropdownRef.value.contains(target)) {
+        showFilterPesertaDidikDropdown.value = false
+    }
+}
+
 const loadTahunPelajaranList = async () => {
     try {
         const result = await tahunPelajaranStore.fetchTahunPelajarans(1, 100)
@@ -659,6 +728,7 @@ const fetchPrestasiData = async () => {
     const search: any = {
         tahun_pelajaran_id: filters.value.tahun_pelajaran_id || undefined,
         jenis: filters.value.jenis || undefined,
+        peserta_didik_id: filters.value.peserta_didik_id || undefined,
         nama_grup: filters.value.nama_grup || undefined,
         nama_prestasi: filters.value.nama_prestasi || undefined,
         tingkat_prestasi: filters.value.tingkat_prestasi || undefined,
@@ -686,7 +756,7 @@ const clearFilter = async () => {
     filters.value = {
         tahun_pelajaran_id: currentTahunPelajaranId,
         jenis: '',
-        nama_siswa: '',
+        peserta_didik_id: 0,
         nama_grup: '',
         nama_prestasi: '',
         tingkat_prestasi: '',
@@ -696,6 +766,7 @@ const clearFilter = async () => {
         start_date: '',
         end_date: '',
     }
+    filterPesertaDidikSearch.value = ''
     pagination.value.page = 1
     await fetchPrestasiData()
 }
@@ -828,10 +899,16 @@ const formatDate = (dateString: string) => {
 // Load initial data
 onMounted(async () => {
     prestasiStore.clearError()
+    document.addEventListener('click', handleFilterClickOutside)
     await Promise.all([
         loadTahunPelajaranList(),
         loadEkstrakurikulerList(),
+        loadPesertaDidikList(),
     ])
     await fetchPrestasiData()
+})
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', handleFilterClickOutside)
 })
 </script>
