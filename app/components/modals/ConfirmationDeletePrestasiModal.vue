@@ -95,7 +95,8 @@ const handleDelete = async () => {
         const result = await prestasiStore.removePrestasi(props.prestasiData.id)
 
         if (result.success) {
-            toastStore.success('Prestasi berhasil dihapus')
+            isDeleting.value = false
+            toastStore.success('Berhasil!', 'Prestasi berhasil dihapus')
             emit('success')
             closeModal()
         } else {

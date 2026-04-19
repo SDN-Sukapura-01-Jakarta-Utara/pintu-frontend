@@ -78,10 +78,19 @@
 
                         <!-- === INDIVIDU FIELDS === -->
                         <template v-if="form.jenis === 'Individu'">
-                            <!-- Peserta Didik -->
+                            <!-- Peserta Didik Saat Ini -->
                             <div>
                                 <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
-                                    Peserta Didik <span class="text-red-600 ml-1">*</span>
+                                    Peserta Didik Saat Ini
+                                </label>
+                                <input type="text" :value="currentPesertaDidikLabel" disabled
+                                    class="w-full rounded-lg border-2 border-gray-200 bg-gray-100 px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-700 cursor-not-allowed" />
+                            </div>
+
+                            <!-- Ganti Peserta Didik -->
+                            <div>
+                                <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2">
+                                    Ganti Peserta Didik <span class="text-xs text-gray-400 font-normal ml-1">(kosongkan jika tidak ingin mengubah)</span>
                                 </label>
                                 <div class="relative" ref="pesertaDidikDropdownRef">
                                     <input type="text" v-model="pesertaDidikSearch"
@@ -91,7 +100,7 @@
                                         :disabled="isSubmitting"
                                         class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
                                     <!-- Clear button -->
-                                    <div v-if="form.peserta_didik_id && !showPesertaDidikDropdown"
+                                    <div v-if="selectedNewPesertaDidik && !showPesertaDidikDropdown"
                                         class="absolute right-3 top-1/2 -translate-y-1/2">
                                         <button type="button" @click="clearSelectedPesertaDidik"
                                             class="text-gray-400 hover:text-red-500 cursor-pointer">
@@ -110,6 +119,13 @@
                                         class="absolute z-50 mt-1 w-full bg-white border-2 border-gray-200 rounded-lg shadow-lg p-4 text-center text-xs sm:text-sm text-gray-500">
                                         Peserta didik tidak ditemukan
                                     </div>
+                                </div>
+                                <!-- Selected new peserta didik indicator -->
+                                <div v-if="selectedNewPesertaDidik" class="mt-2 flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                                    <i class="fa-solid fa-circle-check text-green-600 text-xs"></i>
+                                    <span class="text-xs sm:text-sm font-medium text-green-800">
+                                        Akan diganti ke: {{ selectedNewPesertaDidik.nama }} - NIS: {{ selectedNewPesertaDidik.nis }}
+                                    </span>
                                 </div>
                             </div>
                         </template>
@@ -565,6 +581,8 @@ const pesertaDidikList = ref<any[]>([])
 const pesertaDidikSearch = ref('')
 const showPesertaDidikDropdown = ref(false)
 const pesertaDidikDropdownRef = ref<HTMLElement>()
+const currentPesertaDidikLabel = ref('')
+const selectedNewPesertaDidik = ref<{ id: number; nama: string; nis: string } | null>(null)
 
 // Team members
 const anggotaTimList = ref<Array<{
@@ -611,17 +629,19 @@ const filteredPesertaDidik = computed(() => {
 })
 
 const filteredAnggotaPesertaDidik = computed(() => {
-    if (!anggotaSearch.value) return pesertaDidikList.value.slice(0, 10)
-    
-    const search = anggotaSearch.value.toLowerCase()
     const usedIds = anggotaTimList.value.map(a => a.peserta_didik_id)
+    let list = pesertaDidikList.value.filter(pd => !usedIds.includes(pd.id))
     
-    return pesertaDidikList.value.filter(pd => 
-        !usedIds.includes(pd.id) &&
-        (pd.nama.toLowerCase().includes(search) ||
-         pd.nis.toLowerCase().includes(search) ||
-         pd.rombel?.name?.toLowerCase().includes(search))
-    ).slice(0, 10)
+    if (anggotaSearch.value) {
+        const search = anggotaSearch.value.toLowerCase()
+        list = list.filter(pd => 
+            pd.nama.toLowerCase().includes(search) ||
+            pd.nis.toLowerCase().includes(search) ||
+            pd.rombel?.name?.toLowerCase().includes(search)
+        )
+    }
+    
+    return list.slice(0, 10)
 })
 
 // Methods
@@ -656,19 +676,22 @@ const loadPrestasiData = async () => {
             ekstrakurikuler_id: prestasi.ekstrakurikuler_id || 0
         }
 
-        // Set peserta didik search if individu
+        // Set peserta didik label if individu
         if (prestasi.jenis === 'Individu' && prestasi.peserta_didik) {
-            pesertaDidikSearch.value = `${prestasi.peserta_didik.nama} - NIS: ${prestasi.peserta_didik.nis} - Rombel: ${prestasi.peserta_didik.rombel?.name || '-'}`
+            currentPesertaDidikLabel.value = `${prestasi.peserta_didik.nama} - NIS: ${prestasi.peserta_didik.nis} - Rombel: ${prestasi.peserta_didik.rombel?.name || '-'}`
         }
 
         // Set team members if tim
-        if (prestasi.jenis === 'Tim' && prestasi.anggota_tim_prestasi) {
+        if (prestasi.jenis === 'Tim' && prestasi.anggota_tim_prestasi && prestasi.anggota_tim_prestasi.length > 0) {
             anggotaTimList.value = prestasi.anggota_tim_prestasi.map((anggota: any) => ({
                 peserta_didik_id: anggota.peserta_didik_id,
                 nama: anggota.peserta_didik?.nama || '',
                 nis: anggota.peserta_didik?.nis || '',
                 rombel_name: anggota.peserta_didik?.rombel?.name || '-'
             }))
+            console.log('Loaded anggota tim:', anggotaTimList.value)
+        } else if (prestasi.jenis === 'Tim') {
+            console.log('No anggota_tim_prestasi in response:', prestasi.anggota_tim_prestasi)
         }
 
         // Set existing photos
@@ -721,16 +744,14 @@ const loadPesertaDidikList = async () => {
 }
 // Peserta Didik methods
 const selectPesertaDidik = (pd: any) => {
-    form.value.peserta_didik_id = pd.id
+    selectedNewPesertaDidik.value = { id: pd.id, nama: pd.nama, nis: pd.nis }
     pesertaDidikSearch.value = `${pd.nama} - NIS: ${pd.nis} - Rombel: ${pd.rombel?.name || '-'}`
     showPesertaDidikDropdown.value = false
-    console.log('Selected peserta didik ID:', pd.id, 'Name:', pd.nama)
 }
 
 const clearSelectedPesertaDidik = () => {
-    form.value.peserta_didik_id = 0
+    selectedNewPesertaDidik.value = null
     pesertaDidikSearch.value = ''
-    showPesertaDidikDropdown.value = true
 }
 
 // Team methods
@@ -821,23 +842,7 @@ const handlePhotoFiles = async (files: File[]) => {
 const removePhoto = (index: number) => {
     const photo = photoPreviews.value[index]
     if (photo) {
-        const wasThumb = photo.isThumbnail
         photoPreviews.value.splice(index, 1)
-        
-        // If removed photo was thumbnail, set first available photo as thumbnail
-        if (wasThumb) {
-            if (photoPreviews.value.length > 0) {
-                const firstPhoto = photoPreviews.value[0]
-                if (firstPhoto) {
-                    firstPhoto.isThumbnail = true
-                }
-            } else if (existingPhotos.value.length > 0) {
-                const firstPhoto = existingPhotos.value[0]
-                if (firstPhoto) {
-                    firstPhoto.isThumbnail = true
-                }
-            }
-        }
     }
 }
 
@@ -881,31 +886,10 @@ const closePhotoModal = () => {
 const removeExistingPhoto = (index: number) => {
     const photo = existingPhotos.value[index]
     if (photo) {
-        const wasThumb = photo.isThumbnail
-        
         // Add photo ID to delete list
-        console.log('Removing photo with ID:', photo.id)
         photosToDelete.value.push(photo.id)
         // Remove from existing photos
         existingPhotos.value.splice(index, 1)
-        
-        // If removed photo was thumbnail AND there are still photos left
-        if (wasThumb && (existingPhotos.value.length > 0 || photoPreviews.value.length > 0)) {
-            // Set first existing photo as thumbnail if available
-            if (existingPhotos.value.length > 0) {
-                const firstPhoto = existingPhotos.value[0]
-                if (firstPhoto) {
-                    firstPhoto.isThumbnail = true
-                }
-            } 
-            // Otherwise set first new photo as thumbnail
-            else if (photoPreviews.value.length > 0) {
-                const firstPhoto = photoPreviews.value[0]
-                if (firstPhoto) {
-                    firstPhoto.isThumbnail = true
-                }
-            }
-        }
     }
 }
 // Validation
@@ -972,8 +956,10 @@ const handleSubmit = async () => {
         formData.append('tahun_pelajaran_id', form.value.tahun_pelajaran_id.toString())
 
         if (form.value.jenis === 'Individu') {
-            formData.append('peserta_didik_id', form.value.peserta_didik_id.toString())
-            console.log('Sending peserta_didik_id:', form.value.peserta_didik_id)
+            const pesertaDidikId = selectedNewPesertaDidik.value
+                ? selectedNewPesertaDidik.value.id
+                : form.value.peserta_didik_id
+            formData.append('peserta_didik_id', pesertaDidikId.toString())
         } else {
             formData.append('nama_grup', form.value.nama_grup)
             formData.append('anggota_tim', JSON.stringify(anggotaTimList.value.map(a => ({
@@ -1014,6 +1000,7 @@ const handleSubmit = async () => {
         const result = await prestasiStore.editPrestasi(formData)
 
         if (result.success) {
+            isSubmitting.value = false
             toastStore.success('Berhasil!', 'Prestasi berhasil diperbarui')
             emit('success')
             closeModal()
@@ -1076,6 +1063,8 @@ watch(() => props.modelValue, (newValue) => {
             ekstrakurikuler_id: 0
         }
         pesertaDidikSearch.value = ''
+        currentPesertaDidikLabel.value = ''
+        selectedNewPesertaDidik.value = null
         anggotaTimList.value = []
         photoPreviews.value = []
         existingPhotos.value = []
