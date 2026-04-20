@@ -713,15 +713,29 @@
             <p class="text-gray-400 text-xs sm:text-sm leading-relaxed mb-4">
               Membangun generasi berkarakter dan berprestasi dengan berlandaskan akhlak mulia dan jiwa Pancasila.
             </p>
-            <div class="flex gap-3">
-              <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
+            <div class="flex gap-3 flex-wrap">
+              <a v-if="kontakDataFromAPI?.website" :href="kontakDataFromAPI.website" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
+                <i class="fas fa-globe"></i>
+              </a>
+              
+              <a v-if="kontakDataFromAPI?.youtube" :href="kontakDataFromAPI.youtube" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
                 <i class="fab fa-youtube"></i>
               </a>
-              <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
+              
+              <a v-if="kontakDataFromAPI?.instagram" :href="kontakDataFromAPI.instagram" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
                 <i class="fab fa-instagram"></i>
               </a>
-              <a href="#" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
+              
+              <a v-if="kontakDataFromAPI?.tiktok" :href="kontakDataFromAPI.tiktok" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
+                <i class="fab fa-tiktok"></i>
+              </a>
+              
+              <a v-if="kontakDataFromAPI?.facebook" :href="kontakDataFromAPI.facebook" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
                 <i class="fab fa-facebook-f"></i>
+              </a>
+              
+              <a v-if="kontakDataFromAPI?.twitter" :href="kontakDataFromAPI.twitter" target="_blank" rel="noopener noreferrer" class="w-9 h-9 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white text-sm transition-all duration-300 hover:-translate-y-1 border border-white/10 hover:border-red-500 hover:bg-red-600">
+                <i class="fab fa-x-twitter"></i>
               </a>
             </div>
           </div>
@@ -760,7 +774,12 @@
               <span class="w-5 h-0.5 rounded-full" style="background: linear-gradient(90deg, #DC143C, #FF6B6B);"></span>
               Kontak
             </h4>
-            <ul class="list-none m-0 p-0 space-y-3">
+            <ul v-if="kontakDataFromAPI" class="list-none m-0 p-0 space-y-3">
+              <li class="flex items-start gap-2 text-gray-400 text-xs sm:text-sm"><i class="fas fa-map-marker-alt text-red-500 mt-0.5"></i> {{ kontakDataFromAPI.alamat }}</li>
+              <li class="flex items-center gap-2 text-gray-400 text-xs sm:text-sm"><i class="fas fa-phone-alt text-red-500"></i> {{ kontakDataFromAPI.telepon }}</li>
+              <li class="flex items-center gap-2 text-gray-400 text-xs sm:text-sm"><i class="fas fa-envelope text-red-500"></i> {{ kontakDataFromAPI.email }}</li>
+            </ul>
+            <ul v-else class="list-none m-0 p-0 space-y-3">
               <li class="flex items-start gap-2 text-gray-400 text-xs sm:text-sm"><i class="fas fa-map-marker-alt text-red-500 mt-0.5"></i> Jl. Beo No.15, Komplek Walikota, Jakarta Utara</li>
               <li class="flex items-center gap-2 text-gray-400 text-xs sm:text-sm"><i class="fas fa-phone-alt text-red-500"></i> 0821-2028-0609</li>
               <li class="flex items-center gap-2 text-gray-400 text-xs sm:text-sm"><i class="fas fa-envelope text-red-500"></i> sdnsukapuraa01@gmail.com</li>
