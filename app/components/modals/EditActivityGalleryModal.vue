@@ -72,30 +72,33 @@
                             <label class="block text-xs sm:text-sm font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Foto Kegiatan Yang Ada
                             </label>
-                            <div v-if="existingPhotos.length > 0" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4">
+                            <div v-if="existingPhotos.length > 0" class="mb-4 space-y-2">
                                 <div v-for="(photo, index) in existingPhotos" :key="photo.id"
-                                    class="relative group aspect-square cursor-pointer">
+                                    class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
                                     <img :src="photo.url" :alt="`Photo ${index + 1}`"
                                         @click="openImageViewerExisting(index)"
-                                        class="w-full h-full object-cover rounded-lg border-2 border-gray-200 shadow-md cursor-pointer" />
-                                    <div class="absolute inset-0 rounded-lg bg-black/20 flex items-center justify-center pointer-events-none">
-                                        <svg class="w-6 h-6 text-white transition-opacity" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
-                                        </svg>
+                                        class="w-16 h-16 object-cover rounded-lg border border-gray-200 flex-shrink-0 cursor-pointer" />
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{
+                                            photo.filename }}</p>
+                                        <p class="text-xs text-gray-500">{{ (photo.size / 1024).toFixed(1) }} KB</p>
                                     </div>
+                                    <!-- Thumbnail checkbox -->
+                                    <label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+                                        :title="photo.is_thumbnail ? 'Thumbnail aktif' : 'Jadikan thumbnail'">
+                                        <input type="checkbox" :checked="photo.is_thumbnail"
+                                            @change="setExistingThumbnail(index)" :disabled="isSubmitting"
+                                            class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer" />
+                                        <span class="text-xs font-medium"
+                                            :class="photo.is_thumbnail ? 'text-green-700' : 'text-gray-500'">
+                                            Thumbnail
+                                        </span>
+                                    </label>
+                                    <!-- Remove -->
                                     <button type="button" @click.stop="markPhotoForDelete(photo.id)" :disabled="isSubmitting"
-                                        class="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 cursor-pointer z-10">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
+                                        class="flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer disabled:opacity-50">
+                                        <i class="fa-solid fa-xmark text-sm"></i>
                                     </button>
-                                    <span class="absolute bottom-1 right-1 text-xs font-semibold bg-gray-900/80 text-white px-2 py-1 rounded">
-                                        {{ (photo.size / 1024).toFixed(1) }}KB
-                                    </span>
                                 </div>
                             </div>
                             <div v-else class="text-xs sm:text-sm text-gray-600 italic">Belum ada foto</div>
@@ -109,30 +112,33 @@
                             </label>
 
                             <!-- Photos Preview -->
-                            <div v-if="newPhotoPreviews.length > 0" class="mb-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div v-if="newPhotoPreviews.length > 0" class="mb-4 space-y-2">
                                 <div v-for="(preview, index) in newPhotoPreviews" :key="index"
-                                    class="relative group aspect-square cursor-pointer">
+                                    class="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                     <img :src="preview.url" :alt="`New Photo ${index + 1}`"
                                         @click="openImageViewerNew(index)"
-                                        class="w-full h-full object-cover rounded-lg border-2 border-blue-200 shadow-md bg-blue-50 cursor-pointer" />
-                                    <div class="absolute inset-0 rounded-lg bg-black/20 flex items-center justify-center pointer-events-none">
-                                        <svg class="w-6 h-6 text-white transition-opacity" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
-                                        </svg>
+                                        class="w-16 h-16 object-cover rounded-lg border border-blue-200 flex-shrink-0 cursor-pointer" />
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{
+                                            preview.file.name }}</p>
+                                        <p class="text-xs text-gray-500">{{ (preview.size / 1024).toFixed(1) }} KB</p>
                                     </div>
+                                    <!-- Thumbnail checkbox -->
+                                    <label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+                                        :title="preview.isThumbnail ? 'Thumbnail aktif' : 'Jadikan thumbnail'">
+                                        <input type="checkbox" :checked="preview.isThumbnail"
+                                            @change="setNewThumbnail(index)" :disabled="isSubmitting"
+                                            class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer" />
+                                        <span class="text-xs font-medium"
+                                            :class="preview.isThumbnail ? 'text-green-700' : 'text-gray-500'">
+                                            Thumbnail
+                                        </span>
+                                    </label>
+                                    <!-- Remove -->
                                     <button type="button" @click.stop="removeNewPhoto(index)" :disabled="isSubmitting"
-                                        class="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 cursor-pointer z-10">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
+                                        class="flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer disabled:opacity-50">
+                                        <i class="fa-solid fa-xmark text-sm"></i>
                                     </button>
-                                    <span class="absolute bottom-1 right-1 text-xs font-semibold bg-gray-900/80 text-white px-2 py-1 rounded">
-                                        {{ (preview.size / 1024).toFixed(1) }}KB
-                                    </span>
                                 </div>
                             </div>
 
@@ -267,6 +273,7 @@ interface NewPhotoPreview {
     url: string
     size: number
     file: File
+    isThumbnail: boolean
 }
 
 const props = defineProps<{
@@ -364,10 +371,12 @@ const processPhotos = async (files: File[]) => {
 
             // Create preview
             const url = URL.createObjectURL(compressedFile)
+            const hasNoThumbnail = existingPhotos.value.every(p => !p.is_thumbnail) && newPhotoPreviews.value.every(p => !p.isThumbnail)
             newPhotoPreviews.value.push({
                 url,
                 size: compressedFile.size,
                 file: compressedFile,
+                isThumbnail: hasNoThumbnail,
             })
         } catch (error) {
             photoError.value = `Error compressing image: ${error}`
@@ -383,9 +392,39 @@ const processPhotos = async (files: File[]) => {
 
 const removeNewPhoto = (index: number) => {
     const preview = newPhotoPreviews.value[index]
+    const wasThumbnail = preview.isThumbnail
     URL.revokeObjectURL(preview.url)
     newPhotoPreviews.value.splice(index, 1)
+    
+    // If removed photo was thumbnail, set first available photo as thumbnail
+    if (wasThumbnail) {
+        if (existingPhotos.value.length > 0) {
+            existingPhotos.value[0].is_thumbnail = true
+        } else if (newPhotoPreviews.value.length > 0) {
+            newPhotoPreviews.value[0].isThumbnail = true
+        }
+    }
     photoError.value = ''
+}
+
+const setExistingThumbnail = (index: number) => {
+    // Unset all thumbnails
+    existingPhotos.value.forEach((p, i) => {
+        p.is_thumbnail = i === index
+    })
+    newPhotoPreviews.value.forEach(p => {
+        p.isThumbnail = false
+    })
+}
+
+const setNewThumbnail = (index: number) => {
+    // Unset all thumbnails
+    existingPhotos.value.forEach(p => {
+        p.is_thumbnail = false
+    })
+    newPhotoPreviews.value.forEach((p, i) => {
+        p.isThumbnail = i === index
+    })
 }
 
 const openImageViewerExisting = (index: number) => {
@@ -410,7 +449,17 @@ const markPhotoForDelete = (photoId: string) => {
         photosToDelete.value.push(photoId)
         const photoIndex = existingPhotos.value.findIndex(p => p.id === photoId)
         if (photoIndex !== -1) {
+            const wasThumbnail = existingPhotos.value[photoIndex].is_thumbnail
             existingPhotos.value.splice(photoIndex, 1)
+            
+            // If removed photo was thumbnail, set first available photo as thumbnail
+            if (wasThumbnail) {
+                if (existingPhotos.value.length > 0) {
+                    existingPhotos.value[0].is_thumbnail = true
+                } else if (newPhotoPreviews.value.length > 0) {
+                    newPhotoPreviews.value[0].isThumbnail = true
+                }
+            }
         }
     } else {
         // Restore photo
@@ -468,6 +517,22 @@ const handleSubmit = async () => {
             formDataObj.append(`foto`, preview.file, preview.file.name)
         })
 
+        // Add existing photo IDs to maintain order
+        const existingPhotoIds = existingPhotos.value.map(p => p.id)
+        formDataObj.append('existing_foto_ids', JSON.stringify(existingPhotoIds))
+        
+        // Add thumbnails for existing photos
+        const existingThumbnails = existingPhotos.value.map(photo => 
+            photo.is_thumbnail ? 'active' : 'inactive'
+        )
+        formDataObj.append('existing_foto_thumbnails', JSON.stringify(existingThumbnails))
+        
+        // Add thumbnails for new photos
+        const newThumbnails = newPhotoPreviews.value.map(preview => 
+            preview.isThumbnail ? 'active' : 'inactive'
+        )
+        formDataObj.append('new_foto_thumbnails', JSON.stringify(newThumbnails))
+
         const result = await galleryStore.editGallery(props.galleryData!.id, formDataObj)
 
         if (result.success) {
@@ -506,7 +571,11 @@ const resetForm = () => {
             status_publikasi: props.galleryData.status_publikasi,
             status: props.galleryData.status,
         }
-        existingPhotos.value = [...props.galleryData.foto]
+        // Map thumbnail field from API to is_thumbnail
+        existingPhotos.value = props.galleryData.foto.map(photo => ({
+            ...photo,
+            is_thumbnail: photo.thumbnail === 'active'
+        }))
     }
     newPhotoPreviews.value.forEach(preview => {
         URL.revokeObjectURL(preview.url)

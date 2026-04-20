@@ -7,6 +7,7 @@ import type { PublicJumbotronResponse, PublicTotalSiswaResponse, PublicTotalPend
 import type { PublicPrestasiResponse } from '~/types/PrestasiType'
 import type { PublicArtikelResponse } from '~/types/ArtikelType'
 import type { PublicPengumumanLatestResponse, PublicPengumumanResponse } from '~/types/PengumumanType'
+import type { GaleriKegiatanPublicResponse } from '~/types/GaleriKegiatanPublicType'
 
 /**
  * Get public jumbotron data (no auth required)
@@ -243,6 +244,29 @@ export async function getPublicDataPengumuman(): Promise<PublicPengumumanRespons
     return response
   } catch (error: any) {
     console.error('Error fetching public data pengumuman:', error)
+    throw error
+  }
+}
+
+/**
+ * Get data galeri kegiatan (no auth required)
+ * @returns Data galeri kegiatan
+ */
+export async function getPublicDataGaleriKegiatan(): Promise<GaleriKegiatanPublicResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-galeri-kegiatan`
+  
+  try {
+    const response = await $fetch<GaleriKegiatanPublicResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public data galeri kegiatan:', error)
     throw error
   }
 }

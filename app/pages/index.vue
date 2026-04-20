@@ -565,6 +565,10 @@
             <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-400" style="background: linear-gradient(to top, rgba(139,0,0,0.9) 0%, rgba(220,20,60,0.6) 40%, transparent 100%);"></div>
             <div class="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
               <h3 class="text-white font-bold text-sm sm:text-base leading-snug drop-shadow-lg">{{ galeri.kegiatan }}</h3>
+              <p v-if="galeri.tanggal" class="text-white/80 text-xs sm:text-sm mt-1 drop-shadow-md flex items-center gap-1.5">
+                <i class="far fa-calendar-alt text-xs"></i>
+                {{ galeri.tanggal }}
+              </p>
             </div>
             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 -translate-y-4 group-hover:translate-y-0">
               <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white text-lg border border-white/30">
@@ -777,7 +781,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import { usePublicHomeStore } from '~/stores/PublicHomeStore'
-import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman } from '~/services/public-home'
+import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman, getPublicDataGaleriKegiatan } from '~/services/public-home'
 import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
 const publicHomeStore = usePublicHomeStore()
@@ -811,6 +815,10 @@ const isLoadingArtikel = ref(false)
 const pengumumanLatestFromAPI = ref(null)
 const pengumumanDataFromAPI = ref([])
 const isLoadingPengumuman = ref(false)
+
+// State untuk data galeri kegiatan dari API
+const galeriKegiatanDataFromAPI = ref([])
+const isLoadingGaleri = ref(false)
 
 // Fetch jumbotron data dari API
 const heroSlides = computed(() => {
@@ -988,14 +996,32 @@ const pengumumanData = computed(() => {
   ]
 })
 
-const galeriData = [
-  { kegiatan: 'Peringatan Hari Kemerdekaan RI ke-79', gambar: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=600&q=80' },
-  { kegiatan: 'Pameran Karya Seni Siswa 2024', gambar: 'https://images.unsplash.com/photo-1541178735493-479c1a27ed24?w=600&q=80' },
-  { kegiatan: 'Pentas Seni dan Budaya Nusantara', gambar: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80' },
-  { kegiatan: 'Lomba Cerdas Cermat Antar Kelas', gambar: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80' },
-  { kegiatan: 'Kegiatan Pramuka dan Outbound', gambar: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=600&q=80' },
-  { kegiatan: 'Pelepasan Siswa Kelas 6 Tahun 2024', gambar: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600&q=80' },
-]
+const galeriData = computed(() => {
+  if (galeriKegiatanDataFromAPI.value.length > 0) {
+    return galeriKegiatanDataFromAPI.value.map(item => {
+      // Format tanggal
+      const date = new Date(item.tanggal)
+      const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+      
+      return {
+        id: item.id,
+        kegiatan: item.judul,
+        tanggal: formattedDate,
+        gambar: item.foto_thumbnail
+      }
+    })
+  }
+  
+  // Fallback dummy data
+  return [
+    { kegiatan: 'Peringatan Hari Kemerdekaan RI ke-79', gambar: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=600&q=80' },
+    { kegiatan: 'Pameran Karya Seni Siswa 2024', gambar: 'https://images.unsplash.com/photo-1541178735493-479c1a27ed24?w=600&q=80' },
+    { kegiatan: 'Pentas Seni dan Budaya Nusantara', gambar: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=600&q=80' },
+    { kegiatan: 'Lomba Cerdas Cermat Antar Kelas', gambar: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&q=80' },
+    { kegiatan: 'Kegiatan Pramuka dan Outbound', gambar: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=600&q=80' },
+    { kegiatan: 'Pelepasan Siswa Kelas 6 Tahun 2024', gambar: 'https://images.unsplash.com/photo-1523580494863-6f3031224c94?w=600&q=80' },
+  ]
+})
 
 const kontakData = [
   { icon: 'fas fa-map-marker-alt', label: 'Alamat', value: 'Jl. Beo No.15, Komp.Walikota No.2, RT.12/RW.6,\nSukapura, Kec. Cilincing, Jakarta Utara 14140' },
@@ -1315,6 +1341,22 @@ onMounted(async () => {
     console.error('Failed to fetch data pengumuman:', error)
   } finally {
     isLoadingPengumuman.value = false
+  }
+  
+  // Fetch data galeri kegiatan dari API
+  try {
+    console.log('Fetching data galeri kegiatan...')
+    isLoadingGaleri.value = true
+    const response = await getPublicDataGaleriKegiatan()
+    console.log('Data galeri kegiatan response:', response)
+    if (response && response.data) {
+      galeriKegiatanDataFromAPI.value = response.data
+      console.log('Data galeri kegiatan loaded:', galeriKegiatanDataFromAPI.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch data galeri kegiatan:', error)
+  } finally {
+    isLoadingGaleri.value = false
   }
   
   startSlideshow()

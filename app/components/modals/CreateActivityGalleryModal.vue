@@ -76,30 +76,33 @@
                             </label>
 
                             <!-- Photos Preview -->
-                            <div v-if="photoPreviews.length > 0" class="mb-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div v-if="photoPreviews.length > 0" class="mb-4 space-y-2">
                                 <div v-for="(preview, index) in photoPreviews" :key="index"
-                                    class="relative group aspect-square cursor-pointer">
+                                    class="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
                                     <img :src="preview.url" :alt="`Photo ${index + 1}`"
                                         @click="openImageViewer(index)"
-                                        class="w-full h-full object-cover rounded-lg border-2 border-gray-200 shadow-md cursor-pointer" />
-                                    <div class="absolute inset-0 rounded-lg bg-black/20 flex items-center justify-center pointer-events-none">
-                                        <svg class="w-6 h-6 text-white transition-opacity" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
-                                        </svg>
+                                        class="w-16 h-16 object-cover rounded-lg border border-gray-200 flex-shrink-0 cursor-pointer" />
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-xs sm:text-sm font-medium text-gray-900 truncate">{{
+                                            preview.file.name }}</p>
+                                        <p class="text-xs text-gray-500">{{ (preview.size / 1024).toFixed(1) }} KB</p>
                                     </div>
+                                    <!-- Thumbnail checkbox -->
+                                    <label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+                                        :title="preview.isThumbnail ? 'Thumbnail aktif' : 'Jadikan thumbnail'">
+                                        <input type="checkbox" :checked="preview.isThumbnail"
+                                            @change="setThumbnail(index)" :disabled="isSubmitting"
+                                            class="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500 cursor-pointer" />
+                                        <span class="text-xs font-medium"
+                                            :class="preview.isThumbnail ? 'text-green-700' : 'text-gray-500'">
+                                            Thumbnail
+                                        </span>
+                                    </label>
+                                    <!-- Remove -->
                                     <button type="button" @click.stop="removePhoto(index)" :disabled="isSubmitting"
-                                        class="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 disabled:opacity-50 cursor-pointer z-10">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd"
-                                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"></path>
-                                        </svg>
+                                        class="flex-shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer disabled:opacity-50">
+                                        <i class="fa-solid fa-xmark text-sm"></i>
                                     </button>
-                                    <span class="absolute bottom-1 right-1 text-xs font-semibold bg-gray-900/80 text-white px-2 py-1 rounded">
-                                        {{ (preview.size / 1024).toFixed(1) }}KB
-                                    </span>
                                 </div>
                             </div>
 
@@ -233,6 +236,7 @@ interface PhotoPreview {
     url: string
     size: number
     file: File
+    isThumbnail: boolean
 }
 
 const props = defineProps<{
@@ -327,10 +331,12 @@ const processPhotos = async (files: File[]) => {
 
             // Create preview
             const url = URL.createObjectURL(compressedFile)
+            const isFirst = photoPreviews.value.length === 0
             photoPreviews.value.push({
                 url,
                 size: compressedFile.size,
                 file: compressedFile,
+                isThumbnail: isFirst,
             })
         } catch (error) {
             photoError.value = `Error compressing image: ${error}`
@@ -346,9 +352,19 @@ const processPhotos = async (files: File[]) => {
 
 const removePhoto = (index: number) => {
     const preview = photoPreviews.value[index]
+    const wasThumbnail = preview.isThumbnail
     URL.revokeObjectURL(preview.url)
     photoPreviews.value.splice(index, 1)
+    if (wasThumbnail && photoPreviews.value.length > 0) {
+        photoPreviews.value[0].isThumbnail = true
+    }
     photoError.value = ''
+}
+
+const setThumbnail = (index: number) => {
+    photoPreviews.value.forEach((p, i) => {
+        p.isThumbnail = i === index
+    })
 }
 
 const openImageViewer = (index: number) => {
@@ -397,6 +413,10 @@ const handleSubmit = async () => {
         photoPreviews.value.forEach((preview, index) => {
             formDataObj.append(`foto`, preview.file, preview.file.name)
         })
+
+        // Add thumbnails
+        const thumbnails = photoPreviews.value.map(p => p.isThumbnail ? 'active' : 'inactive')
+        formDataObj.append('foto_thumbnails', JSON.stringify(thumbnails))
 
         const result = await galleryStore.addGallery(formDataObj)
 

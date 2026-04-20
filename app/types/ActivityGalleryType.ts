@@ -3,6 +3,8 @@ export interface PhotoItem {
     filename: string
     url: string
     size: number
+    thumbnail?: string
+    is_thumbnail?: boolean
 }
 
 export interface ActivityGalleryData {

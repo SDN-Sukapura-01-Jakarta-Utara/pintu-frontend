@@ -136,6 +136,11 @@
                                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
                                         </svg>
                                     </div>
+                                    <!-- Thumbnail Badge -->
+                                    <span v-if="photo.thumbnail === 'active'" class="absolute top-1 left-1 px-2 py-1 text-xs font-semibold bg-green-600 text-white rounded flex items-center gap-1">
+                                        <i class="fa-solid fa-star text-[10px]"></i>
+                                        Thumbnail
+                                    </span>
                                     <span class="absolute bottom-1 right-1 text-xs font-semibold bg-gray-900/80 text-white px-2 py-1 rounded">
                                         {{ (photo.size / 1024).toFixed(1) }}KB
                                     </span>
