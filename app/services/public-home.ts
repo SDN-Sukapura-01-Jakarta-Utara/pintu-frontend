@@ -6,6 +6,7 @@
 import type { PublicJumbotronResponse, PublicTotalSiswaResponse, PublicTotalPendidikResponse, PublicTotalTendikResponse, PublicTotalRombelResponse, PublicTotalEkskulResponse } from '~/types/PublicHomeType'
 import type { PublicPrestasiResponse } from '~/types/PrestasiType'
 import type { PublicArtikelResponse } from '~/types/ArtikelType'
+import type { PublicPengumumanLatestResponse, PublicPengumumanResponse } from '~/types/PengumumanType'
 
 /**
  * Get public jumbotron data (no auth required)
@@ -196,6 +197,52 @@ export async function getPublicDataArtikel(): Promise<PublicArtikelResponse> {
     return response
   } catch (error: any) {
     console.error('Error fetching public data artikel:', error)
+    throw error
+  }
+}
+
+/**
+ * Get latest pengumuman (no auth required)
+ * @returns Latest pengumuman data
+ */
+export async function getPublicPengumumanLatest(): Promise<PublicPengumumanLatestResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-pengumuman-latest`
+  
+  try {
+    const response = await $fetch<PublicPengumumanLatestResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public pengumuman latest:', error)
+    throw error
+  }
+}
+
+/**
+ * Get data pengumuman (no auth required)
+ * @returns Data pengumuman
+ */
+export async function getPublicDataPengumuman(): Promise<PublicPengumumanResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-pengumuman`
+  
+  try {
+    const response = await $fetch<PublicPengumumanResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public data pengumuman:', error)
     throw error
   }
 }

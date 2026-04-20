@@ -467,22 +467,27 @@
           </h2>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-7">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-7 lg:items-stretch">
           <!-- Card Besar (Kiri) -->
-          <div class="group bg-white rounded-2xl overflow-hidden border-2 border-yellow-400/20 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:border-yellow-400/50 reveal">
-            <div class="relative h-52 sm:h-80 overflow-hidden">
-              <img :src="pengumumanData[0].gambar" :alt="pengumumanData[0].judul" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+          <div class="group bg-white rounded-2xl overflow-hidden border-2 border-yellow-400/20 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:border-yellow-400/50 reveal flex flex-col">
+            <div class="relative h-52 lg:h-64 overflow-hidden flex-shrink-0">
+              <img :src="pengumumanLatest.gambar" :alt="pengumumanLatest.judul" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
               <span class="absolute top-3 left-3 sm:top-4 sm:left-4 text-gray-900 text-[10px] sm:text-xs font-bold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full uppercase tracking-wide shadow-lg" style="background: linear-gradient(135deg, #FFD700, #FFA500);">
                 <i class="fas fa-bullhorn mr-1"></i> PENGUMUMAN
               </span>
             </div>
-            <div class="p-4 sm:p-6">
-              <div class="flex items-center gap-1.5 sm:gap-2 text-xs text-red-500 mb-2 sm:mb-3">
-                <i class="far fa-calendar-alt"></i> {{ pengumumanData[0].tanggal }}
+            <div class="p-4 sm:p-6 flex-1 flex flex-col">
+              <div class="flex items-center gap-3 text-xs text-red-500 mb-2 sm:mb-3">
+                <span class="flex items-center gap-1.5">
+                  <i class="far fa-calendar-alt"></i> {{ pengumumanLatest.tanggal }}
+                </span>
+                <span v-if="pengumumanLatest.penulis" class="flex items-center gap-1.5">
+                  <i class="fas fa-user-edit"></i> {{ pengumumanLatest.penulis }}
+                </span>
               </div>
-              <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors">{{ pengumumanData[0].judul }}</h3>
-              <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-3 sm:line-clamp-4 mb-3">{{ pengumumanData[0].deskripsi }}</p>
+              <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-red-600 transition-colors">{{ pengumumanLatest.judul }}</h3>
+              <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-3 mb-3 flex-1">{{ pengumumanLatest.deskripsi }}</p>
               <span class="inline-flex items-center gap-1 text-xs font-semibold text-red-600 group-hover:gap-2 transition-all duration-300">
                 Baca Selengkapnya <i class="fas fa-arrow-right text-[10px]"></i>
               </span>
@@ -490,20 +495,25 @@
           </div>
 
           <!-- Cards Kecil (Kanan) -->
-          <div class="flex flex-col gap-4 sm:gap-5">
+          <div class="flex flex-col gap-4 sm:gap-5 lg:h-full">
             <div
-              v-for="(item, index) in pengumumanData.slice(1, 4)"
-              :key="item.judul"
-              class="group bg-white rounded-2xl overflow-hidden border-2 border-yellow-400/20 cursor-pointer flex flex-row transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/50 reveal"
+              v-for="(item, index) in pengumumanData"
+              :key="item.id || index"
+              class="group bg-white rounded-2xl overflow-hidden border-2 border-yellow-400/20 cursor-pointer flex flex-row transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/50 reveal lg:flex-1"
               :style="{ transitionDelay: `${index * 100}ms` }"
             >
-              <div class="relative w-28 sm:w-40 min-w-28 sm:min-w-40 h-28 sm:h-36 overflow-hidden flex-shrink-0">
+              <div class="relative w-28 sm:w-32 lg:w-36 min-w-28 sm:min-w-32 lg:min-w-36 h-28 sm:h-32 lg:h-full overflow-hidden flex-shrink-0">
                 <img :src="item.gambar" :alt="item.judul" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div class="absolute inset-0 bg-gradient-to-r from-transparent to-black/10"></div>
               </div>
               <div class="p-3 sm:p-4 flex flex-col justify-center min-w-0">
-                <div class="flex items-center gap-1.5 text-[10px] sm:text-xs text-red-500 mb-1.5">
-                  <i class="far fa-calendar-alt"></i> {{ item.tanggal }}
+                <div class="flex items-center gap-2 text-[10px] sm:text-xs text-red-500 mb-1.5">
+                  <span class="flex items-center gap-1">
+                    <i class="far fa-calendar-alt"></i> {{ item.tanggal }}
+                  </span>
+                  <span v-if="item.penulis" class="flex items-center gap-1">
+                    <i class="fas fa-user-edit"></i> {{ item.penulis }}
+                  </span>
                 </div>
                 <h3 class="text-xs sm:text-sm font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-red-600 transition-colors">{{ item.judul }}</h3>
                 <p class="text-[10px] sm:text-xs text-gray-500 leading-relaxed line-clamp-2 mt-1 sm:mt-1.5">{{ item.deskripsi }}</p>
@@ -767,7 +777,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import { usePublicHomeStore } from '~/stores/PublicHomeStore'
-import { getPublicDataPrestasi, getPublicDataArtikel } from '~/services/public-home'
+import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman } from '~/services/public-home'
 import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
 const publicHomeStore = usePublicHomeStore()
@@ -796,6 +806,11 @@ const isLoadingPrestasi = ref(false)
 // State untuk data artikel dari API
 const artikelDataFromAPI = ref([])
 const isLoadingArtikel = ref(false)
+
+// State untuk data pengumuman dari API
+const pengumumanLatestFromAPI = ref(null)
+const pengumumanDataFromAPI = ref([])
+const isLoadingPengumuman = ref(false)
 
 // Fetch jumbotron data dari API
 const heroSlides = computed(() => {
@@ -911,12 +926,67 @@ const artikelData = computed(() => {
   ]
 })
 
-const pengumumanData = [
-  { judul: 'Pengumuman Libur Akhir Semester Ganjil Tahun Ajaran 2024/2025', tanggal: '12 November 2024', gambar: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=800&q=80', deskripsi: 'Diberitahukan kepada seluruh wali murid SDN Sukapura 01 bahwa libur akhir semester ganjil akan dilaksanakan mulai tanggal 23 Desember 2024 hingga 3 Januari 2025.' },
-  { judul: 'Jadwal Penerimaan Rapor Semester Ganjil', tanggal: '10 November 2024', gambar: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400&q=80', deskripsi: 'Penerimaan rapor semester ganjil akan dilaksanakan pada hari Sabtu, 21 Desember 2024.' },
-  { judul: 'Pendaftaran Ekstrakurikuler Semester Genap Dibuka', tanggal: '7 November 2024', gambar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80', deskripsi: 'Pendaftaran kegiatan ekstrakurikuler untuk semester genap 2024/2025 telah dibuka.' },
-  { judul: 'Imunisasi Rutin untuk Siswa Kelas 1 dan 2', tanggal: '4 November 2024', gambar: 'https://images.unsplash.com/photo-1559757175-7cb057fba93a?w=400&q=80', deskripsi: 'Akan dilaksanakan program imunisasi rutin dari Puskesmas untuk siswa kelas 1 dan 2.' },
-]
+// Pengumuman latest (card besar)
+const pengumumanLatest = computed(() => {
+  if (pengumumanLatestFromAPI.value) {
+    const item = pengumumanLatestFromAPI.value
+    const date = new Date(item.tanggal)
+    const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+    
+    // Strip HTML tags dari deskripsi
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = item.deskripsi
+    const plainText = tempDiv.textContent || tempDiv.innerText || ''
+    
+    return {
+      id: item.id,
+      judul: item.judul,
+      tanggal: formattedDate,
+      gambar: item.gambar,
+      deskripsi: plainText,
+      penulis: item.penulis
+    }
+  }
+  
+  // Fallback dummy data
+  return { 
+    judul: 'Pengumuman Libur Akhir Semester Ganjil Tahun Ajaran 2024/2025', 
+    tanggal: '12 November 2024', 
+    gambar: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=800&q=80', 
+    deskripsi: 'Diberitahukan kepada seluruh wali murid SDN Sukapura 01 bahwa libur akhir semester ganjil akan dilaksanakan mulai tanggal 23 Desember 2024 hingga 3 Januari 2025.' 
+  }
+})
+
+// Pengumuman list (3 card kecil)
+const pengumumanData = computed(() => {
+  if (pengumumanDataFromAPI.value.length > 0) {
+    return pengumumanDataFromAPI.value.slice(0, 3).map(item => {
+      const date = new Date(item.tanggal)
+      const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+      
+      // Strip HTML tags dari deskripsi
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = item.deskripsi
+      const plainText = tempDiv.textContent || tempDiv.innerText || ''
+      
+      return {
+        id: item.id,
+        judul: item.judul,
+        tanggal: formattedDate,
+        gambar: item.gambar,
+        deskripsi: plainText,
+        penulis: item.penulis
+      }
+    })
+  }
+  
+  // Fallback dummy data
+  return [
+    { judul: 'Jadwal Penerimaan Rapor Semester Ganjil', tanggal: '10 November 2024', gambar: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400&q=80', deskripsi: 'Penerimaan rapor semester ganjil akan dilaksanakan pada hari Sabtu, 21 Desember 2024.' },
+    { judul: 'Pendaftaran Ekstrakurikuler Semester Genap Dibuka', tanggal: '7 November 2024', gambar: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80', deskripsi: 'Pendaftaran kegiatan ekstrakurikuler untuk semester genap 2024/2025 telah dibuka.' },
+    { judul: 'Imunisasi Rutin untuk Siswa Kelas 1 dan 2', tanggal: '4 November 2024', gambar: 'https://images.unsplash.com/photo-1559757175-7cb057fba93a?w=400&q=80', deskripsi: 'Akan dilaksanakan program imunisasi rutin dari Puskesmas untuk siswa kelas 1 dan 2.' },
+  ]
+})
 
 const galeriData = [
   { kegiatan: 'Peringatan Hari Kemerdekaan RI ke-79', gambar: 'https://images.unsplash.com/photo-1472162072942-cd5147eb3902?w=600&q=80' },
@@ -1216,6 +1286,35 @@ onMounted(async () => {
     console.error('Failed to fetch data artikel:', error)
   } finally {
     isLoadingArtikel.value = false
+  }
+  
+  // Fetch pengumuman latest dari API
+  try {
+    console.log('Fetching pengumuman latest...')
+    isLoadingPengumuman.value = true
+    const response = await getPublicPengumumanLatest()
+    console.log('Pengumuman latest response:', response)
+    if (response) {
+      pengumumanLatestFromAPI.value = response
+      console.log('Pengumuman latest loaded:', pengumumanLatestFromAPI.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch pengumuman latest:', error)
+  }
+  
+  // Fetch data pengumuman dari API
+  try {
+    console.log('Fetching data pengumuman...')
+    const response = await getPublicDataPengumuman()
+    console.log('Data pengumuman response:', response)
+    if (response && response.data) {
+      pengumumanDataFromAPI.value = response.data
+      console.log('Data pengumuman loaded:', pengumumanDataFromAPI.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch data pengumuman:', error)
+  } finally {
+    isLoadingPengumuman.value = false
   }
   
   startSlideshow()
