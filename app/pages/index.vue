@@ -608,9 +608,9 @@
           <p class="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base max-w-lg mx-auto">Hubungi kami untuk informasi lebih lanjut</p>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 items-stretch">
           <!-- Info Kontak -->
-          <div class="space-y-4 sm:space-y-5 reveal">
+          <div class="space-y-4 sm:space-y-5 reveal flex flex-col">
             <div v-for="(kontak, index) in kontakData" :key="kontak.label"
               class="group flex items-start gap-4 sm:gap-5 bg-white rounded-2xl p-4 sm:p-6 shadow-md border border-gray-100 hover:border-red-200 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
               :style="{ transitionDelay: `${index * 80}ms` }"
@@ -618,18 +618,38 @@
               <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-xl flex items-center justify-center text-white text-base sm:text-lg flex-shrink-0 group-hover:scale-110 transition-transform duration-300" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
                 <i :class="kontak.icon"></i>
               </div>
-              <div class="min-w-0">
-                <h3 class="text-sm sm:text-base font-bold text-gray-900 mb-0.5 sm:mb-1">{{ kontak.label }}</h3>
-                <p class="text-xs sm:text-sm text-gray-500 leading-relaxed m-0 whitespace-pre-line break-words">{{ kontak.value }}</p>
+              <div class="min-w-0 flex-1">
+                <h3 class="text-sm sm:text-base font-bold text-gray-900 mb-2 sm:mb-3">{{ kontak.label }}</h3>
+                <!-- Jam Buka dengan format khusus -->
+                <div v-if="kontak.label === 'Jam Buka' && kontak.jamBukaArray" class="grid grid-cols-1 gap-2">
+                  <div v-for="(jam, idx) in kontak.jamBukaArray" :key="idx" 
+                    class="flex items-center justify-between text-xs sm:text-sm rounded-lg px-3 sm:px-4 py-2.5 sm:py-3 border-l-4 transition-all duration-200 hover:translate-x-1"
+                    :style="{
+                      background: 'linear-gradient(90deg, #FFF5F5 0%, #FFFBF5 100%)',
+                      borderColor: '#DC143C'
+                    }">
+                    <span class="font-bold text-gray-800 min-w-[70px] sm:min-w-[80px]">{{ jam.hari }}</span>
+                    <span v-if="jam.hari === 'Sabtu' || jam.hari === 'Minggu'" class="text-gray-500 flex items-center gap-2 font-semibold italic">
+                      Tutup
+                    </span>
+                    <span v-else class="text-gray-600 flex items-center gap-2 font-medium">
+                      <span class="font-semibold text-red-700">{{ jam.jam_buka }}</span>
+                      <span class="text-gray-400">–</span>
+                      <span class="font-semibold text-red-700">{{ jam.jam_tutup }}</span>
+                    </span>
+                  </div>
+                </div>
+                <!-- Format biasa untuk kontak lainnya -->
+                <p v-else class="text-xs sm:text-sm text-gray-500 leading-relaxed m-0 whitespace-pre-line break-words">{{ kontak.value }}</p>
               </div>
             </div>
           </div>
 
           <!-- Map -->
-          <div class="rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100 min-h-[300px] sm:min-h-[450px] reveal">
+          <div class="rounded-2xl overflow-hidden shadow-xl border-2 border-gray-100 reveal lg:h-full">
             <iframe
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.8513517764823!2d106.92182319999999!3d-6.1506563!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e698ab7a5b038f9%3A0x3c1b1cac881e3af!2sSDN%20Sukapura%2001!5e0!3m2!1sid!2sid!4v1764144796548!5m2!1sid!2sid"
-              class="w-full h-full min-h-[300px] sm:min-h-[450px]"
+              class="w-full h-full min-h-[300px] lg:min-h-full"
               style="border:0;"
               allowfullscreen
               loading="lazy"
@@ -781,7 +801,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import { usePublicHomeStore } from '~/stores/PublicHomeStore'
-import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman, getPublicDataGaleriKegiatan } from '~/services/public-home'
+import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman, getPublicDataGaleriKegiatan, getPublicDataKontak } from '~/services/public-home'
 import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
 const publicHomeStore = usePublicHomeStore()
@@ -819,6 +839,10 @@ const isLoadingPengumuman = ref(false)
 // State untuk data galeri kegiatan dari API
 const galeriKegiatanDataFromAPI = ref([])
 const isLoadingGaleri = ref(false)
+
+// State untuk data kontak dari API
+const kontakDataFromAPI = ref(null)
+const isLoadingKontak = ref(false)
 
 // Fetch jumbotron data dari API
 const heroSlides = computed(() => {
@@ -1023,12 +1047,31 @@ const galeriData = computed(() => {
   ]
 })
 
-const kontakData = [
-  { icon: 'fas fa-map-marker-alt', label: 'Alamat', value: 'Jl. Beo No.15, Komp.Walikota No.2, RT.12/RW.6,\nSukapura, Kec. Cilincing, Jakarta Utara 14140' },
-  { icon: 'fas fa-phone-alt', label: 'Telepon', value: '0821-2028-0609' },
-  { icon: 'fas fa-envelope', label: 'Email', value: 'sdnsukapuraa01@gmail.com' },
-  { icon: 'fas fa-clock', label: 'Jam Buka', value: 'Senin – Jumat: 06.30 – 15.00\nSabtu & Minggu: Tutup' },
-]
+const kontakData = computed(() => {
+  if (kontakDataFromAPI.value) {
+    const data = kontakDataFromAPI.value
+    
+    return [
+      { icon: 'fas fa-map-marker-alt', label: 'Alamat', value: data.alamat },
+      { icon: 'fas fa-phone-alt', label: 'Telepon', value: data.telepon },
+      { icon: 'fas fa-envelope', label: 'Email', value: data.email },
+      { 
+        icon: 'fas fa-clock', 
+        label: 'Jam Buka', 
+        value: '', 
+        jamBukaArray: data.jam_buka || [] 
+      },
+    ]
+  }
+  
+  // Fallback dummy data
+  return [
+    { icon: 'fas fa-map-marker-alt', label: 'Alamat', value: 'Jl. Beo No.15, Komp.Walikota No.2, RT.12/RW.6,\nSukapura, Kec. Cilincing, Jakarta Utara 14140' },
+    { icon: 'fas fa-phone-alt', label: 'Telepon', value: '0821-2028-0609' },
+    { icon: 'fas fa-envelope', label: 'Email', value: 'sdnsukapuraa01@gmail.com' },
+    { icon: 'fas fa-clock', label: 'Jam Buka', value: 'Senin – Jumat: 06.30 – 15.00\nSabtu & Minggu: Tutup' },
+  ]
+})
 
 let slideInterval = null
 
@@ -1357,6 +1400,22 @@ onMounted(async () => {
     console.error('Failed to fetch data galeri kegiatan:', error)
   } finally {
     isLoadingGaleri.value = false
+  }
+  
+  // Fetch data kontak dari API
+  try {
+    console.log('Fetching data kontak...')
+    isLoadingKontak.value = true
+    const response = await getPublicDataKontak()
+    console.log('Data kontak response:', response)
+    if (response) {
+      kontakDataFromAPI.value = response
+      console.log('Data kontak loaded:', kontakDataFromAPI.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch data kontak:', error)
+  } finally {
+    isLoadingKontak.value = false
   }
   
   startSlideshow()
