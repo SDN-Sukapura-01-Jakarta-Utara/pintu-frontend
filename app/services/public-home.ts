@@ -5,6 +5,7 @@
 
 import type { PublicJumbotronResponse, PublicTotalSiswaResponse, PublicTotalPendidikResponse, PublicTotalTendikResponse, PublicTotalRombelResponse, PublicTotalEkskulResponse } from '~/types/PublicHomeType'
 import type { PublicPrestasiResponse } from '~/types/PrestasiType'
+import type { PublicArtikelResponse } from '~/types/ArtikelType'
 
 /**
  * Get public jumbotron data (no auth required)
@@ -172,6 +173,29 @@ export async function getPublicDataPrestasi(): Promise<PublicPrestasiResponse> {
     return response
   } catch (error: any) {
     console.error('Error fetching public data prestasi:', error)
+    throw error
+  }
+}
+
+/**
+ * Get data artikel (no auth required)
+ * @returns Data artikel
+ */
+export async function getPublicDataArtikel(): Promise<PublicArtikelResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-artikel`
+  
+  try {
+    const response = await $fetch<PublicArtikelResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public data artikel:', error)
     throw error
   }
 }

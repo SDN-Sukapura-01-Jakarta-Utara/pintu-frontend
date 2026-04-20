@@ -387,48 +387,60 @@
           <p class="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base max-w-lg mx-auto">Berita dan informasi terkini dari SDN Sukapura 01</p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-          <div v-for="(artikel, index) in artikelData" :key="artikel.judul"
-            class="group artikel-card bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer transition-all duration-400 relative hover:-translate-y-3 border border-gray-100 hover:border-red-200 reveal"
-            :style="{ transitionDelay: `${index * 150}ms` }"
-          >
-            <div class="artikel-accent absolute top-0 left-0 right-0 h-1 scale-x-0 origin-left transition-transform duration-400 z-10" style="background: linear-gradient(90deg, #8B0000, #DC143C, #FF6B6B);" />
-            <div class="relative h-44 sm:h-52 overflow-hidden">
-              <img :src="artikel.gambar" :alt="artikel.judul" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <span class="absolute top-3 right-3 sm:top-4 sm:right-4 text-white text-[10px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full uppercase tracking-wide shadow-lg" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-                <i class="fas fa-tag mr-1"></i> {{ artikel.kategori }}
-              </span>
-            </div>
-            <div class="p-4 sm:p-6">
-              <div class="flex items-center gap-3 text-xs text-gray-400 mb-2 sm:mb-3">
-                <span class="flex items-center gap-1.5">
-                  <i class="far fa-calendar-alt text-red-400"></i>
-                  {{ artikel.tanggal }}
-                </span>
-                <span class="flex items-center gap-1.5">
-                  <i class="far fa-clock text-red-400"></i>
-                  3 min
-                </span>
+        <!-- Carousel wrapper -->
+        <div class="relative reveal">
+          <div class="overflow-hidden">
+            <div 
+              ref="artikelTrack"
+              class="flex gap-6 sm:gap-8 transition-transform duration-500 ease-out"
+              :style="{ transform: `translateX(-${currentArtikel * (100 / 3)}%)` }"
+            >
+              <!-- Duplicate articles for infinite loop -->
+              <div 
+                v-for="(artikel, index) in [...artikelData, ...artikelData]" 
+                :key="'artikel-' + index"
+                class="group artikel-card bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer transition-all duration-400 relative hover:-translate-y-3 border border-gray-100 hover:border-red-200 flex-shrink-0"
+                :style="{ width: 'calc((100% - 2rem) / 3)' }"
+              >
+                <div class="artikel-accent absolute top-0 left-0 right-0 h-1 scale-x-0 origin-left transition-transform duration-400 z-10" style="background: linear-gradient(90deg, #8B0000, #DC143C, #FF6B6B);" />
+                <div class="relative h-44 sm:h-52 overflow-hidden">
+                  <img :src="artikel.gambar" :alt="artikel.judul" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <span class="absolute top-3 right-3 sm:top-4 sm:right-4 text-white text-[10px] sm:text-xs font-semibold px-3 sm:px-4 py-1.5 sm:py-2 rounded-full uppercase tracking-wide shadow-lg" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+                    <i class="fas fa-tag mr-1"></i> {{ artikel.kategori }}
+                  </span>
+                </div>
+                <div class="p-4 sm:p-6">
+                  <div class="flex items-center gap-3 text-xs text-gray-400 mb-2 sm:mb-3">
+                    <span class="flex items-center gap-1.5">
+                      <i class="far fa-calendar-alt text-red-400"></i>
+                      {{ artikel.tanggal }}
+                    </span>
+                    <span v-if="artikel.penulis" class="flex items-center gap-1.5">
+                      <i class="fas fa-user-edit text-red-400"></i>
+                      {{ artikel.penulis }}
+                    </span>
+                  </div>
+                  <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2 leading-snug line-clamp-2 transition-colors group-hover:text-red-600">{{ artikel.judul }}</h3>
+                  <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">{{ artikel.deskripsi }}</p>
+                  <span class="inline-flex items-center gap-1 text-xs font-semibold text-red-600 group-hover:gap-2 transition-all duration-300">
+                    Baca Selengkapnya <i class="fas fa-arrow-right text-[10px]"></i>
+                  </span>
+                </div>
               </div>
-              <h3 class="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2 leading-snug line-clamp-2 transition-colors group-hover:text-red-600">{{ artikel.judul }}</h3>
-              <p class="text-xs sm:text-sm text-gray-500 leading-relaxed line-clamp-3 mb-4">{{ artikel.deskripsi }}</p>
-              <span class="inline-flex items-center gap-1 text-xs font-semibold text-red-600 group-hover:gap-2 transition-all duration-300">
-                Baca Selengkapnya <i class="fas fa-arrow-right text-[10px]"></i>
-              </span>
             </div>
           </div>
         </div>
 
         <div class="flex justify-center items-center gap-3 sm:gap-4 mt-10 sm:mt-12 reveal">
-          <button class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+          <button @click="prevArtikel" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
             <i class="fas fa-chevron-left text-xs sm:text-sm"></i>
           </button>
           <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
             Lihat Semua Artikel
             <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
           </button>
-          <button class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+          <button @click="nextArtikel" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
             <i class="fas fa-chevron-right text-xs sm:text-sm"></i>
           </button>
         </div>
@@ -755,7 +767,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import { usePublicHomeStore } from '~/stores/PublicHomeStore'
-import { getPublicDataPrestasi } from '~/services/public-home'
+import { getPublicDataPrestasi, getPublicDataArtikel } from '~/services/public-home'
 import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
 const publicHomeStore = usePublicHomeStore()
@@ -768,6 +780,8 @@ const statsVisible = ref(false)
 const statsSection = ref(null)
 const animatedStats = reactive([0, 0, 0, 0, 0])
 const currentPrestasi = ref(0)
+const currentArtikel = ref(0)
+const artikelTrack = ref(null)
 const galeriWrapper = ref(null)
 const galeriTrack = ref(null)
 
@@ -778,6 +792,10 @@ const selectedTeam = ref({ name: '', members: [] })
 // State untuk data prestasi dari API
 const prestasiDataFromAPI = ref([])
 const isLoadingPrestasi = ref(false)
+
+// State untuk data artikel dari API
+const artikelDataFromAPI = ref([])
+const isLoadingArtikel = ref(false)
 
 // Fetch jumbotron data dari API
 const heroSlides = computed(() => {
@@ -860,11 +878,38 @@ const visiblePrestasi = computed(() => {
   ]
 })
 
-const artikelData = [
-  { judul: 'Peringatan Hari Pahlawan: Upacara Bendera Khidmat di SDN Sukapura 01', kategori: 'Kegiatan', tanggal: '10 November 2024', gambar: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80', deskripsi: 'SDN Sukapura 01 menggelar upacara bendera untuk memperingati Hari Pahlawan dengan penuh khidmat dan semangat nasionalisme yang tinggi.' },
-  { judul: 'Program Literasi Digital: Siswa Belajar Coding Sejak Dini', kategori: 'Akademik', tanggal: '5 November 2024', gambar: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80', deskripsi: 'Dalam rangka meningkatkan literasi digital, SDN Sukapura 01 memperkenalkan program coding dasar bagi siswa kelas 4-6 bekerja sama dengan komunitas teknologi.' },
-  { judul: 'Kunjungan Edukatif ke Museum Nasional Jakarta', kategori: 'Kegiatan', tanggal: '28 Oktober 2024', gambar: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=600&q=80', deskripsi: 'Siswa kelas 5 dan 6 mengadakan kunjungan edukatif ke Museum Nasional Jakarta sebagai bagian dari pembelajaran sejarah dan kebudayaan Indonesia.' },
-]
+// Gunakan data dari API jika ada, fallback ke dummy data
+const artikelData = computed(() => {
+  if (artikelDataFromAPI.value.length > 0) {
+    return artikelDataFromAPI.value.map(item => {
+      // Format tanggal
+      const date = new Date(item.tanggal)
+      const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+      
+      // Strip HTML tags dari deskripsi untuk preview
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = item.deskripsi
+      const plainText = tempDiv.textContent || tempDiv.innerText || ''
+      
+      return {
+        id: item.id,
+        judul: item.judul,
+        kategori: item.kategori,
+        tanggal: formattedDate,
+        gambar: item.gambar,
+        deskripsi: plainText,
+        penulis: item.penulis
+      }
+    })
+  }
+  
+  // Fallback dummy data
+  return [
+    { judul: 'Peringatan Hari Pahlawan: Upacara Bendera Khidmat di SDN Sukapura 01', kategori: 'Kegiatan', tanggal: '10 November 2024', gambar: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&q=80', deskripsi: 'SDN Sukapura 01 menggelar upacara bendera untuk memperingati Hari Pahlawan dengan penuh khidmat dan semangat nasionalisme yang tinggi.' },
+    { judul: 'Program Literasi Digital: Siswa Belajar Coding Sejak Dini', kategori: 'Akademik', tanggal: '5 November 2024', gambar: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&q=80', deskripsi: 'Dalam rangka meningkatkan literasi digital, SDN Sukapura 01 memperkenalkan program coding dasar bagi siswa kelas 4-6 bekerja sama dengan komunitas teknologi.' },
+    { judul: 'Kunjungan Edukatif ke Museum Nasional Jakarta', kategori: 'Kegiatan', tanggal: '28 Oktober 2024', gambar: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=600&q=80', deskripsi: 'Siswa kelas 5 dan 6 mengadakan kunjungan edukatif ke Museum Nasional Jakarta sebagai bagian dari pembelajaran sejarah dan kebudayaan Indonesia.' },
+  ]
+})
 
 const pengumumanData = [
   { judul: 'Pengumuman Libur Akhir Semester Ganjil Tahun Ajaran 2024/2025', tanggal: '12 November 2024', gambar: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=800&q=80', deskripsi: 'Diberitahukan kepada seluruh wali murid SDN Sukapura 01 bahwa libur akhir semester ganjil akan dilaksanakan mulai tanggal 23 Desember 2024 hingga 3 Januari 2025.' },
@@ -932,6 +977,51 @@ function openTeamModal(prestasi) {
 function closeTeamModal() {
   showTeamModal.value = false
   startPrestasiSlide() // Resume auto-slide saat modal ditutup
+}
+
+// Artikel navigation with infinite loop
+function nextArtikel() {
+  if (artikelData.value.length === 0) return
+  
+  const totalArticles = artikelData.value.length
+  currentArtikel.value++
+  
+  // When reaching the end of first set, reset to beginning without transition
+  if (currentArtikel.value >= totalArticles) {
+    setTimeout(() => {
+      if (artikelTrack.value) {
+        artikelTrack.value.style.transition = 'none'
+        currentArtikel.value = 0
+        setTimeout(() => {
+          if (artikelTrack.value) {
+            artikelTrack.value.style.transition = 'transform 0.5s ease-out'
+          }
+        }, 50)
+      }
+    }, 500)
+  }
+}
+
+function prevArtikel() {
+  if (artikelData.value.length === 0) return
+  
+  const totalArticles = artikelData.value.length
+  
+  // If at the beginning, jump to the end of first set without transition
+  if (currentArtikel.value === 0) {
+    if (artikelTrack.value) {
+      artikelTrack.value.style.transition = 'none'
+      currentArtikel.value = totalArticles
+      setTimeout(() => {
+        if (artikelTrack.value) {
+          artikelTrack.value.style.transition = 'transform 0.5s ease-out'
+          currentArtikel.value = totalArticles - 1
+        }
+      }, 50)
+    }
+  } else {
+    currentArtikel.value--
+  }
 }
 
 /* ── GALERI SCROLL ── */
@@ -1112,6 +1202,22 @@ onMounted(async () => {
     isLoadingPrestasi.value = false
   }
   
+  // Fetch data artikel dari API
+  try {
+    console.log('Fetching data artikel...')
+    isLoadingArtikel.value = true
+    const response = await getPublicDataArtikel()
+    console.log('Data artikel response:', response)
+    if (response && response.data) {
+      artikelDataFromAPI.value = response.data
+      console.log('Data artikel loaded:', artikelDataFromAPI.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch data artikel:', error)
+  } finally {
+    isLoadingArtikel.value = false
+  }
+  
   startSlideshow()
   startPrestasiSlide()
   startGaleriScroll()
@@ -1221,6 +1327,15 @@ onUnmounted(() => {
 }
 .prestasi-slide-in {
   animation: prestasiSlideIn 0.5s ease-out;
+}
+
+/* ── ARTIKEL CAROUSEL ── */
+@keyframes artikelSlideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.artikel-slide-in {
+  animation: artikelSlideIn 0.4s ease-out;
 }
 
 /* ── GALERI MARQUEE ── */
