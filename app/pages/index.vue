@@ -314,13 +314,8 @@
 
         <!-- Carousel with 3 visible, center bigger -->
         <div class="relative reveal">
-          <!-- Arrow left (desktop only) -->
-          <button @click="prevPrestasi" class="hidden md:flex absolute -left-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full text-white border-none cursor-pointer items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            <i class="fas fa-chevron-left text-sm"></i>
-          </button>
-
           <!-- Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 items-center px-0 md:px-14">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-center px-0 md:px-14">
             <div v-for="(item, index) in visiblePrestasi" :key="currentPrestasi + '-' + index"
               class="group rounded-2xl overflow-hidden bg-white shadow-lg transition-all duration-500 cursor-pointer relative border border-gray-100 hover:border-red-200 prestasi-slide-in"
               :class="item.position === 'center' ? 'md:scale-110 md:shadow-2xl md:z-10' : 'hidden md:block md:opacity-80 md:hover:opacity-100'"
@@ -337,22 +332,25 @@
                 <h3 class="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-1.5 transition-colors group-hover:text-red-600">{{ item.nama }}</h3>
                 <div class="text-xs font-semibold mb-1 sm:mb-1.5" :class="getJuaraTextClass(item.juara)"><i class="fas fa-medal"></i> {{ item.juara }}</div>
                 <p class="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-2">{{ item.namaPrestasi }}</p>
+                
+                <!-- Button Lihat Anggota Tim untuk prestasi jenis Tim -->
+                <button 
+                  v-if="item.jenis === 'Tim' && item.anggotaTim && item.anggotaTim.length > 0"
+                  @click.stop="openTeamModal(item)"
+                  class="mb-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 hover:bg-red-600 text-red-600 hover:text-white text-[10px] font-semibold transition-all duration-200 border border-red-200 hover:border-red-600 hover:shadow-md cursor-pointer"
+                >
+                  <i class="fas fa-users text-[9px]"></i>
+                  <span>Anggota Tim</span>
+                </button>
+                
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5 text-xs text-gray-400">
                     <i class="far fa-calendar-alt text-red-400"></i> {{ item.tanggal }}
                   </div>
-                  <span class="text-xs font-semibold text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1">
-                    Selengkapnya <i class="fas fa-arrow-right text-[10px]"></i>
-                  </span>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Arrow right (desktop only) -->
-          <button @click="nextPrestasi" class="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full text-white border-none cursor-pointer items-center justify-center transition-all duration-300 hover:scale-110 shadow-lg" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            <i class="fas fa-chevron-right text-sm"></i>
-          </button>
         </div>
 
         <!-- Dot indicators -->
@@ -365,18 +363,10 @@
           ></button>
         </div>
 
-        <div class="flex justify-center items-center gap-3 mt-6 sm:mt-8 reveal">
-          <!-- Arrow left (mobile only) -->
-          <button @click="prevPrestasi" class="md:hidden w-10 h-10 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            <i class="fas fa-chevron-left text-xs"></i>
-          </button>
+        <div class="flex justify-center mt-6 sm:mt-8 reveal">
           <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
             Lihat Semua Prestasi
             <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
-          </button>
-          <!-- Arrow right (mobile only) -->
-          <button @click="nextPrestasi" class="md:hidden w-10 h-10 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            <i class="fas fa-chevron-right text-xs"></i>
           </button>
         </div>
       </div>
@@ -751,12 +741,22 @@
       </button>
     </Transition>
 
+    <!-- Modal Team Members -->
+    <TeamMembersModal 
+      :isOpen="showTeamModal" 
+      :teamName="selectedTeam.name" 
+      :members="selectedTeam.members"
+      @close="closeTeamModal"
+    />
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import { usePublicHomeStore } from '~/stores/PublicHomeStore'
+import { getPublicDataPrestasi } from '~/services/public-home'
+import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
 const publicHomeStore = usePublicHomeStore()
 
@@ -770,6 +770,14 @@ const animatedStats = reactive([0, 0, 0, 0, 0])
 const currentPrestasi = ref(0)
 const galeriWrapper = ref(null)
 const galeriTrack = ref(null)
+
+// State untuk modal team members
+const showTeamModal = ref(false)
+const selectedTeam = ref({ name: '', members: [] })
+
+// State untuk data prestasi dari API
+const prestasiDataFromAPI = ref([])
+const isLoadingPrestasi = ref(false)
 
 // Fetch jumbotron data dari API
 const heroSlides = computed(() => {
@@ -804,23 +812,51 @@ const statsData = computed(() => [
   { icon: 'fas fa-trophy', value: publicHomeStore.totalEkskul, label: 'Jumlah Ekskul' },
 ])
 
-const prestasiData = [
-  { nama: 'Ahmad Fauzi', juara: 'Juara 2', namaPrestasi: 'Olimpiade Matematika Tingkat Kecamatan 2024', tanggal: '15 Oktober 2024', foto: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=80' },
-  { nama: 'Siti Nurhaliza', juara: 'Juara 1', namaPrestasi: 'Lomba Cipta Puisi Tingkat Kota Jakarta Utara', tanggal: '3 November 2024', foto: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&q=80' },
-  { nama: 'Reza Pratama', juara: 'Juara 3', namaPrestasi: 'Kejuaraan Atletik Pelajar Tingkat Provinsi DKI', tanggal: '20 September 2024', foto: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80' },
-  { nama: 'Ayu Lestari', juara: 'Juara 1', namaPrestasi: 'Lomba Menggambar Tingkat Kecamatan 2024', tanggal: '8 Agustus 2024', foto: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=400&q=80' },
-  { nama: 'Budi Santoso', juara: 'Juara 2', namaPrestasi: 'Lomba Pidato Bahasa Indonesia Tingkat Kota', tanggal: '25 Juli 2024', foto: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400&q=80' },
-]
+// Gunakan data dari API jika ada, fallback ke dummy data
+const prestasiData = computed(() => {
+  if (prestasiDataFromAPI.value.length > 0) {
+    return prestasiDataFromAPI.value.map(item => {
+      // Format tanggal
+      const date = new Date(item.tanggal_lomba)
+      const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+      
+      return {
+        id: item.id,
+        jenis: item.jenis,
+        nama: item.jenis === 'Individu' ? item.nama_peserta_didik : item.nama_grup,
+        juara: item.juara,
+        namaPrestasi: item.nama_prestasi,
+        tanggal: formattedDate,
+        foto: item.foto_thumbnail,
+        tingkatPrestasi: item.tingkat_prestasi,
+        // Untuk tim
+        namaGrup: item.nama_grup,
+        anggotaTim: item.anggota_tim || []
+      }
+    })
+  }
+  
+  // Fallback dummy data
+  return [
+    { nama: 'Ahmad Fauzi', juara: 'Juara 2', namaPrestasi: 'Olimpiade Matematika Tingkat Kecamatan 2024', tanggal: '15 Oktober 2024', foto: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=80', jenis: 'Individu' },
+    { nama: 'Siti Nurhaliza', juara: 'Juara 1', namaPrestasi: 'Lomba Cipta Puisi Tingkat Kota Jakarta Utara', tanggal: '3 November 2024', foto: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?w=400&q=80', jenis: 'Individu' },
+    { nama: 'Reza Pratama', juara: 'Juara 3', namaPrestasi: 'Kejuaraan Atletik Pelajar Tingkat Provinsi DKI', tanggal: '20 September 2024', foto: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80', jenis: 'Individu' },
+    { nama: 'Ayu Lestari', juara: 'Juara 1', namaPrestasi: 'Lomba Menggambar Tingkat Kecamatan 2024', tanggal: '8 Agustus 2024', foto: 'https://images.unsplash.com/photo-1588072432836-e10032774350?w=400&q=80', jenis: 'Individu' },
+    { nama: 'Budi Santoso', juara: 'Juara 2', namaPrestasi: 'Lomba Pidato Bahasa Indonesia Tingkat Kota', tanggal: '25 Juli 2024', foto: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=400&q=80', jenis: 'Individu' },
+  ]
+})
 
 const visiblePrestasi = computed(() => {
-  const total = prestasiData.length
+  const total = prestasiData.value.length
+  if (total === 0) return []
+  
   const left = (currentPrestasi.value - 1 + total) % total
   const center = currentPrestasi.value
   const right = (currentPrestasi.value + 1) % total
   return [
-    { ...prestasiData[left], position: 'side' },
-    { ...prestasiData[center], position: 'center' },
-    { ...prestasiData[right], position: 'side' },
+    { ...prestasiData.value[left], position: 'side' },
+    { ...prestasiData.value[center], position: 'center' },
+    { ...prestasiData.value[right], position: 'side' },
   ]
 })
 
@@ -860,9 +896,43 @@ function prevSlide() { currentSlide.value = (currentSlide.value - 1 + heroSlides
 function startSlideshow() { slideInterval = setInterval(nextSlide, 5000) }
 
 let prestasiInterval = null
-function nextPrestasi() { currentPrestasi.value = (currentPrestasi.value + 1) % prestasiData.length }
-function prevPrestasi() { currentPrestasi.value = (currentPrestasi.value - 1 + prestasiData.length) % prestasiData.length }
-function startPrestasiSlide() { prestasiInterval = setInterval(nextPrestasi, 4000) }
+function nextPrestasi() { 
+  if (prestasiData.value.length > 0) {
+    currentPrestasi.value = (currentPrestasi.value + 1) % prestasiData.value.length 
+  }
+}
+function prevPrestasi() { 
+  if (prestasiData.value.length > 0) {
+    currentPrestasi.value = (currentPrestasi.value - 1 + prestasiData.value.length) % prestasiData.value.length 
+  }
+}
+function startPrestasiSlide() { 
+  if (prestasiInterval) clearInterval(prestasiInterval)
+  prestasiInterval = setInterval(nextPrestasi, 4000) 
+}
+function stopPrestasiSlide() {
+  if (prestasiInterval) {
+    clearInterval(prestasiInterval)
+    prestasiInterval = null
+  }
+}
+
+// Function untuk membuka modal team members
+function openTeamModal(prestasi) {
+  if (prestasi.jenis === 'Tim' && prestasi.anggotaTim && prestasi.anggotaTim.length > 0) {
+    selectedTeam.value = {
+      name: prestasi.namaGrup || prestasi.nama,
+      members: prestasi.anggotaTim
+    }
+    showTeamModal.value = true
+    stopPrestasiSlide() // Stop auto-slide saat modal dibuka
+  }
+}
+
+function closeTeamModal() {
+  showTeamModal.value = false
+  startPrestasiSlide() // Resume auto-slide saat modal ditutup
+}
 
 /* ── GALERI SCROLL ── */
 let galeriAnim = null
@@ -1024,6 +1094,22 @@ onMounted(async () => {
     console.log('Total ekstrakurikuler:', publicHomeStore.totalEkskul)
   } catch (error) {
     console.error('Failed to fetch total ekstrakurikuler:', error)
+  }
+  
+  // Fetch data prestasi dari API
+  try {
+    console.log('Fetching data prestasi...')
+    isLoadingPrestasi.value = true
+    const response = await getPublicDataPrestasi()
+    console.log('Data prestasi response:', response)
+    if (response && response.data) {
+      prestasiDataFromAPI.value = response.data
+      console.log('Data prestasi loaded:', prestasiDataFromAPI.value)
+    }
+  } catch (error) {
+    console.error('Failed to fetch data prestasi:', error)
+  } finally {
+    isLoadingPrestasi.value = false
   }
   
   startSlideshow()

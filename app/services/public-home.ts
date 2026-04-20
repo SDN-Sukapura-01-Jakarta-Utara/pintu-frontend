@@ -4,6 +4,7 @@
  */
 
 import type { PublicJumbotronResponse, PublicTotalSiswaResponse, PublicTotalPendidikResponse, PublicTotalTendikResponse, PublicTotalRombelResponse, PublicTotalEkskulResponse } from '~/types/PublicHomeType'
+import type { PublicPrestasiResponse } from '~/types/PrestasiType'
 
 /**
  * Get public jumbotron data (no auth required)
@@ -148,6 +149,29 @@ export async function getPublicTotalEkskul(): Promise<PublicTotalEkskulResponse>
     return response
   } catch (error: any) {
     console.error('Error fetching public total ekskul:', error)
+    throw error
+  }
+}
+
+/**
+ * Get data prestasi (no auth required)
+ * @returns Data prestasi
+ */
+export async function getPublicDataPrestasi(): Promise<PublicPrestasiResponse> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-prestasi`
+  
+  try {
+    const response = await $fetch<PublicPrestasiResponse>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public data prestasi:', error)
     throw error
   }
 }
