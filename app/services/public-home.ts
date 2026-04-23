@@ -294,3 +294,67 @@ export async function getPublicDataKontak(): Promise<KontakPublicResponse> {
     throw error
   }
 }
+
+/**
+ * Get data kutipan kepala sekolah (no auth required)
+ * @returns Data kutipan kepsek
+ */
+export async function getPublicKutipanKepsek(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-kutipan-kepsek`
+  
+  console.log('Fetching kutipan kepsek from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log('Kutipan kepsek API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public kutipan kepsek:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get data visi misi (no auth required)
+ * @returns Data visi misi
+ */
+export async function getPublicVisiMisi(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-visi-misi`
+  
+  console.log('Fetching visi misi from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log('Visi misi API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public visi misi:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
