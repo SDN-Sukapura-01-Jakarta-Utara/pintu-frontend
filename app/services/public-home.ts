@@ -358,3 +358,35 @@ export async function getPublicVisiMisi(): Promise<any> {
     throw error
   }
 }
+
+/**
+ * Get data sarana prasarana (no auth required)
+ * @returns Data sarpras
+ */
+export async function getPublicSarpras(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-sarpras`
+  
+  console.log('Fetching sarpras from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log('Sarpras API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public sarpras:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}

@@ -163,38 +163,68 @@
           <p class="section-desc">Fasilitas lengkap dan modern untuk mendukung proses belajar mengajar yang optimal</p>
         </div>
 
-        <div class="sarpras-grid">
-          <div
-            v-for="(item, i) in sarprasItems"
-            :key="item.nama"
-            class="sarpras-card reveal"
-            :data-delay="i * 80"
-          >
-            <img :src="item.foto" :alt="item.nama" class="sarpras-img">
-            <div class="sarpras-overlay">
-              <div class="sarpras-unit">{{ item.unit }}</div>
-              <div class="sarpras-nama">{{ item.nama }}</div>
+        <div v-if="sarprasData && sarprasData.length > 0" class="sarpras-carousel-wrapper">
+          <!-- Row 1: Scroll Left to Right -->
+          <div class="sarpras-scroll-row">
+            <div class="sarpras-scroll-track scroll-ltr">
+              <div
+                v-for="(item, i) in [...sarprasData, ...sarprasData, ...sarprasData]"
+                :key="`ltr-${i}`"
+                class="sarpras-card-scroll"
+                @click="openSarprasModal(item)"
+              >
+                <img :src="item.foto" :alt="item.name" class="sarpras-img-scroll">
+                <div class="sarpras-overlay-scroll">
+                  <div class="sarpras-nama-scroll">{{ item.name }}</div>
+                </div>
+                <div class="sarpras-zoom-icon">
+                  <i class="fas fa-search-plus"></i>
+                </div>
+              </div>
             </div>
-            <div class="sarpras-badge">
-              <i :class="item.icon" />
-              {{ item.kategori }}
+          </div>
+
+          <!-- Row 2: Scroll Right to Left -->
+          <div class="sarpras-scroll-row">
+            <div class="sarpras-scroll-track scroll-rtl">
+              <div
+                v-for="(item, i) in [...sarprasData, ...sarprasData, ...sarprasData]"
+                :key="`rtl-${i}`"
+                class="sarpras-card-scroll"
+                @click="openSarprasModal(item)"
+              >
+                <img :src="item.foto" :alt="item.name" class="sarpras-img-scroll">
+                <div class="sarpras-overlay-scroll">
+                  <div class="sarpras-nama-scroll">{{ item.name }}</div>
+                </div>
+                <div class="sarpras-zoom-icon">
+                  <i class="fas fa-search-plus"></i>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="sarpras-extras reveal" data-delay="100">
-          <div v-for="extra in sarprasExtras" :key="extra.nama" class="sarpras-extra-item">
-            <div class="extra-icon-wrap">
-              <i :class="extra.icon" class="extra-icon" />
-            </div>
-            <div>
-              <div class="extra-nama">{{ extra.nama }}</div>
-              <div class="extra-unit">{{ extra.unit }}</div>
-            </div>
-          </div>
+        <!-- Loading state -->
+        <div v-else class="text-center py-12 text-gray-500">
+          <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+          <p>Memuat data sarana prasarana...</p>
         </div>
       </div>
     </section>
+
+    <!-- Sarpras Modal -->
+    <Transition name="modal-fade">
+      <div v-if="showSarprasModal" class="sarpras-modal-overlay" @click="closeSarprasModal">
+        <div class="sarpras-modal-content" @click.stop>
+          <button class="sarpras-modal-close" @click="closeSarprasModal">
+            <i class="fas fa-times"></i>
+          </button>
+          <img v-if="selectedSarpras" :src="selectedSarpras.foto" :alt="selectedSarpras.name" class="sarpras-modal-img">
+          <div class="sarpras-modal-title">{{ selectedSarpras?.name }}</div>
+        </div>
+      </div>
+    </Transition>
 
     <!-- STRUKTUR ORGANISASI -->
     <section id="struktur" class="struktur-section">
@@ -298,11 +328,23 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { getPublicDataKontak, getPublicKutipanKepsek, getPublicVisiMisi } from '~/services/public-home'
+import { getPublicDataKontak, getPublicKutipanKepsek, getPublicVisiMisi, getPublicSarpras } from '~/services/public-home'
 
 // ----- DATA -----
 const scrolled = ref(false)
 const kontakDataFromAPI = ref(null)
+const selectedSarpras = ref(null)
+const showSarprasModal = ref(false)
+
+const openSarprasModal = (item) => {
+  selectedSarpras.value = item
+  showSarprasModal.value = true
+}
+
+const closeSarprasModal = () => {
+  showSarprasModal.value = false
+  selectedSarpras.value = null
+}
 
 // Fetch kutipan kepsek using useAsyncData
 const { data: kutipanKepsekData, pending: loadingKepsek, error: errorKepsek } = await useAsyncData(
@@ -334,21 +376,20 @@ const { data: visiMisiData, pending: loadingVisiMisi, error: errorVisiMisi } = a
   }
 )
 
-const sarprasItems = [
-  { nama: 'Ruang Kelas',       unit: '15 Unit', kategori: 'Ruang Kelas',   icon: 'fas fa-door-open',  foto: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&h=400&fit=crop' },
-  { nama: 'Lab. Komputer',     unit: '2 Unit',  kategori: 'Laboratorium',  icon: 'fas fa-desktop',    foto: 'https://images.unsplash.com/photo-1555116505-38ab61800975?w=600&h=400&fit=crop' },
-  { nama: 'Perpustakaan',      unit: '1 Unit',  kategori: 'Perpustakaan',  icon: 'fas fa-book',       foto: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&h=400&fit=crop' },
-  { nama: 'Lapangan Olahraga', unit: '1 Unit',  kategori: 'Olahraga',      icon: 'fas fa-futbol',     foto: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&h=400&fit=crop' },
-  { nama: 'Aula Serba Guna',   unit: '1 Unit',  kategori: 'Aula',          icon: 'fas fa-theater-masks', foto: 'https://images.unsplash.com/photo-1530099486328-e021101a494a?w=600&h=400&fit=crop' },
-  { nama: 'Unit Kesehatan',    unit: '1 Unit',  kategori: 'UKS',           icon: 'fas fa-heartbeat',  foto: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop' },
-]
-
-const sarprasExtras = [
-  { nama: 'Mushola',      unit: '1 Unit',         icon: 'fas fa-mosque' },
-  { nama: 'Kantin Sehat', unit: '2 Unit',          icon: 'fas fa-utensils' },
-  { nama: 'Area Parkir',  unit: '1 Unit',          icon: 'fas fa-parking' },
-  { nama: 'WiFi Area',    unit: 'Seluruh Area',    icon: 'fas fa-wifi' },
-]
+// Fetch sarpras using useAsyncData
+const { data: sarprasData, pending: loadingSarpras, error: errorSarpras } = await useAsyncData(
+  'sarpras',
+  async () => {
+    try {
+      const response = await getPublicSarpras()
+      console.log('Sarpras response:', response)
+      return response?.data || []
+    } catch (error) {
+      console.error('Error fetching sarpras:', error)
+      return []
+    }
+  }
+)
 
 const guruData = [
   { jabatan: 'Guru Kls 1', nama: 'Dewi Lestari, S.Pd',   boxClass: 'box-green' },
@@ -524,7 +565,7 @@ onUnmounted(() => {
 /* ─── VISI MISI ──────────────────────────────────────────────── */
 .visimisi-section { 
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
-  padding: 80px 0;
+  padding: 60px 0 80px 0;
 }
 .visimisi-grid { 
   display: grid; 
@@ -783,50 +824,226 @@ onUnmounted(() => {
 .misi-text { color: rgba(255,255,255,0.85); font-size: 14px; line-height: 1.6; }
 
 /* ─── SARPRAS ────────────────────────────────────────────────── */
-.sarpras-section { background: white; }
-.sarpras-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 28px; }
-@media (max-width: 900px) { .sarpras-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px) { .sarpras-grid { grid-template-columns: 1fr; } }
+.sarpras-section { background: white; padding: 80px 0; overflow: hidden; }
 
-.sarpras-card {
-  border-radius: 20px; overflow: hidden; position: relative; height: 280px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-  transition: all 0.4s ease; cursor: pointer;
-}
-.sarpras-card:hover { transform: translateY(-10px); box-shadow: 0 24px 60px rgba(0,0,0,0.18); }
-.sarpras-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
-.sarpras-card:hover .sarpras-img { transform: scale(1.08); }
-.sarpras-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(139,0,0,0.92) 0%, rgba(220,20,60,0.5) 50%, transparent 100%);
-  display: flex; flex-direction: column; justify-content: flex-end; padding: 20px;
-  opacity: 0; transition: opacity 0.4s;
-}
-.sarpras-card:hover .sarpras-overlay { opacity: 1; }
-.sarpras-unit { font-size: 11px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-.sarpras-nama { font-weight: 700; font-size: 18px; color: white; }
-.sarpras-badge {
-  position: absolute; top: 14px; left: 14px;
-  background: rgba(255,255,255,0.18); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.3); color: white;
-  font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 9999px;
-  display: flex; align-items: center; gap: 6px;
+.sarpras-carousel-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 40px;
 }
 
-.sarpras-extras { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-@media (max-width: 768px) { .sarpras-extras { grid-template-columns: repeat(2, 1fr); } }
-.sarpras-extra-item {
-  display: flex; align-items: center; gap: 14px;
-  background: #f5f5f5; border-radius: 14px; padding: 16px 20px;
+.sarpras-scroll-row {
+  overflow: hidden;
+  position: relative;
 }
-.extra-icon-wrap {
-  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
-  background: linear-gradient(135deg, #8B0000, #DC143C);
-  display: flex; align-items: center; justify-content: center;
+
+.sarpras-scroll-track {
+  display: flex;
+  gap: 20px;
+  width: fit-content;
 }
-.extra-icon { font-size: 16px; color: white; }
-.extra-nama { font-weight: 600; color: #222; font-size: 14px; }
-.extra-unit { font-size: 12px; color: #888; margin-top: 2px; }
+
+.scroll-ltr {
+  animation: scrollLeft 50s linear infinite;
+}
+
+.scroll-rtl {
+  animation: scrollRight 50s linear infinite;
+}
+
+@keyframes scrollLeft {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-100% / 3));
+  }
+}
+
+@keyframes scrollRight {
+  0% {
+    transform: translateX(calc(-100% / 3));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.sarpras-scroll-row:hover .sarpras-scroll-track {
+  animation-play-state: paused;
+}
+
+.sarpras-card-scroll {
+  flex-shrink: 0;
+  width: 300px;
+  height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.sarpras-card-scroll:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.sarpras-img-scroll {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.sarpras-card-scroll:hover .sarpras-img-scroll {
+  transform: scale(1.05);
+}
+
+.sarpras-overlay-scroll {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 16px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sarpras-card-scroll:hover .sarpras-overlay-scroll {
+  opacity: 1;
+}
+
+.sarpras-nama-scroll {
+  font-family: 'Poppins', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  line-height: 1.3;
+}
+
+.sarpras-zoom-icon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.sarpras-card-scroll:hover .sarpras-zoom-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.sarpras-zoom-icon i {
+  font-size: 14px;
+  color: #8B0000;
+}
+
+/* Modal Styles */
+.sarpras-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.sarpras-modal-content {
+  position: relative;
+  max-width: 900px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.sarpras-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.sarpras-modal-close:hover {
+  background: white;
+  transform: rotate(90deg);
+}
+
+.sarpras-modal-close i {
+  font-size: 18px;
+  color: #333;
+}
+
+.sarpras-modal-img {
+  width: 100%;
+  height: auto;
+  max-height: 70vh;
+  object-fit: contain;
+  display: block;
+}
+
+.sarpras-modal-title {
+  padding: 20px 24px;
+  font-family: 'Poppins', 'Plus Jakarta Sans', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.modal-fade-enter-active, .modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-fade-enter-from, .modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active .sarpras-modal-content,
+.modal-fade-leave-active .sarpras-modal-content {
+  transition: transform 0.3s ease;
+}
+
+.modal-fade-enter-from .sarpras-modal-content {
+  transform: scale(0.9);
+}
+
+.modal-fade-leave-to .sarpras-modal-content {
+  transform: scale(0.9);
+}
 
 /* ─── STRUKTUR ───────────────────────────────────────────────── */
 .struktur-section { background: #f4f4f5; }
