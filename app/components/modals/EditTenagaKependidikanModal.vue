@@ -547,20 +547,91 @@ const generateUsernameFromNIPOrNKKI = () => {
     }
 }
 
-const handlePhotoSelect = (event: Event) => {
+const handlePhotoSelect = async (event: Event) => {
     const target = event.target as HTMLInputElement
     if (target.files && target.files[0]) {
         const file = target.files[0]
+        
+        // Validation
+        if (!file.type.startsWith('image/')) {
+            photoError.value = 'Format file harus gambar (JPG, PNG, WebP)'
+            return
+        }
+        
         if (file.size > 1024 * 1024) {
             photoError.value = 'Ukuran file terlalu besar (maks. 1MB)'
             return
         }
+        
         photoError.value = ''
+        
+        // Show preview
         const reader = new FileReader()
         reader.onload = (e) => {
             photoPreview.value = e.target?.result as string
         }
         reader.readAsDataURL(file)
+        
+        // Upload photo immediately
+        await uploadPhoto(file)
+    }
+}
+
+const uploadPhoto = async (file: File) => {
+    try {
+        // Set uploading state
+        uploadingField.value = 'foto'
+
+        // Create FormData
+        const formData = new FormData()
+        formData.append('foto', file)
+
+        // Call API untuk upload file langsung
+        const { updateKepegawaianFile } = await import('~/services/kepegawaian')
+        const response = await updateKepegawaianFile(props.tenagaKependidikan.id, formData)
+
+        // Check if response successful
+        const isSuccess = response?.data && (response.data?.id || response.data?.nama)
+
+        if (isSuccess && response?.data) {
+            // Fetch ulang data kepegawaian untuk get foto URL yang ter-update
+            try {
+                const { getKepegawaianById } = await import('~/services/kepegawaian')
+                const latestData = await getKepegawaianById(props.tenagaKependidikan.id)
+
+                const fotoData = latestData.data?.foto
+
+                if (fotoData) {
+                    toastStore.showToast('success', 'Tersimpan', `${file.name} berhasil diupload`)
+                } else {
+                    toastStore.showToast('error', 'Gagal Tersimpan', `Foto gagal disimpan di server. Silakan coba lagi atau hubungi admin.`)
+                }
+            } catch (fetchErr) {
+                toastStore.showToast('error', 'Gagal', 'Tidak bisa verify foto upload')
+            }
+        } else {
+            // Error response dari backend
+            const errorMsg = response?.message || response?.error?.message || response?.error || 'Gagal upload foto'
+            toastStore.showToast('error', 'Gagal upload', errorMsg)
+        }
+    } catch (err: any) {
+        let message = 'Gagal upload foto'
+
+        if (err.data?.message) {
+            message = err.data.message
+        } else if (err.data?.errors) {
+            const errors = err.data.errors
+            const errorMessages = Object.values(errors).filter(msg => msg).join(', ')
+            if (errorMessages) {
+                message = errorMessages
+            }
+        } else if (err.message) {
+            message = err.message
+        }
+
+        toastStore.showToast('error', 'Gagal upload', message)
+    } finally {
+        uploadingField.value = ''
     }
 }
 

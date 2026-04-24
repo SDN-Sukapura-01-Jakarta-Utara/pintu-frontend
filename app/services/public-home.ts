@@ -422,3 +422,67 @@ export async function getPublicStrukturOrganisasi(): Promise<any> {
     throw error
   }
 }
+
+/**
+ * Get data pendidik (no auth required)
+ * @returns Data pendidik
+ */
+export async function getPublicDataPendidik(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-pendidik`
+  
+  console.log('Fetching pendidik from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log('Pendidik API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public data pendidik:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get data tenaga kependidikan (no auth required)
+ * @returns Data tendik
+ */
+export async function getPublicDataTendik(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-tendik`
+  
+  console.log('Fetching tendik from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log('Tendik API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public data tendik:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
