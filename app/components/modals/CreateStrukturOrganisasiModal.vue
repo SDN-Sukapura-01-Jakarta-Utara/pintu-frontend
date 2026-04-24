@@ -107,11 +107,11 @@
               <select
                 v-model.number="form.pegawai_id"
                 required
-                :disabled="isSubmitting || kepegawaianStore.isLoading"
+                :disabled="isSubmitting || isLoadingPegawai"
                 class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:bg-gray-100 disabled:cursor-not-allowed cursor-pointer"
               >
                 <option :value="null">-- Pilih Pegawai --</option>
-                <option v-for="pegawai in activePegawais" :key="pegawai.id" :value="pegawai.id">
+                <option v-for="pegawai in allPegawais" :key="pegawai.id" :value="pegawai.id">
                   {{ pegawai.nama }} - {{ pegawai.jabatan }}
                 </option>
               </select>
@@ -271,7 +271,7 @@
 import { ref, computed, watch } from 'vue'
 import { useToastStore } from '~/stores/ToastStore'
 import { useStrukturOrganisasiStore } from '~/stores/StrukturOrganisasiStore'
-import { useKepegawaianStore } from '~/stores/KepegawaianStore'
+import { getKepegawaianWithoutPagination } from '~/services/kepegawaian'
 
 const props = defineProps<{
   modelValue: boolean
@@ -285,9 +285,10 @@ const emit = defineEmits<{
 
 const toastStore = useToastStore()
 const strukturOrganisasiStore = useStrukturOrganisasiStore()
-const kepegawaianStore = useKepegawaianStore()
 
 const isSubmitting = ref(false)
+const isLoadingPegawai = ref(false)
+const pegawaiList = ref<any[]>([])
 
 const form = ref({
   tipeInput: 'pegawai' as 'pegawai' | 'non-pegawai',
@@ -299,15 +300,28 @@ const form = ref({
   status: 'active' as 'active' | 'inactive',
 })
 
-const activePegawais = computed(() => {
-  return kepegawaianStore.kepegawaians.filter(p => p.status === 'active')
+const allPegawais = computed(() => {
+  return pegawaiList.value
 })
 
 const selectedPegawaiJabatan = computed(() => {
   if (!form.value.pegawai_id) return '-'
-  const pegawai = activePegawais.value.find(p => p.id === form.value.pegawai_id)
+  const pegawai = allPegawais.value.find(p => p.id === form.value.pegawai_id)
   return pegawai?.jabatan || '-'
 })
+
+const loadPegawaiList = async () => {
+  isLoadingPegawai.value = true
+  try {
+    const response = await getKepegawaianWithoutPagination()
+    pegawaiList.value = response.data || []
+  } catch (error) {
+    console.error('Error loading pegawai:', error)
+    toastStore.error('Gagal', 'Gagal memuat data pegawai')
+  } finally {
+    isLoadingPegawai.value = false
+  }
+}
 
 const closeModal = () => {
   emit('update:modelValue', false)
@@ -356,7 +370,7 @@ watch(
   () => props.modelValue,
   async (newVal) => {
     if (newVal) {
-      await kepegawaianStore.fetchKepegawaian(1, 1000, { status: 'active' })
+      await loadPegawaiList()
     }
   }
 )

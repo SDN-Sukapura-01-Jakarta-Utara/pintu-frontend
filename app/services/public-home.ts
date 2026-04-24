@@ -390,3 +390,35 @@ export async function getPublicSarpras(): Promise<any> {
     throw error
   }
 }
+
+/**
+ * Get data struktur organisasi (no auth required)
+ * @returns Data struktur organisasi
+ */
+export async function getPublicStrukturOrganisasi(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-struktur-organisasi`
+  
+  console.log('Fetching struktur organisasi from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    console.log('Struktur organisasi API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public struktur organisasi:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}

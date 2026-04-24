@@ -234,67 +234,133 @@
           <h2 class="section-title crimson-text">Struktur Organisasi</h2>
         </div>
 
-        <div class="struktur-wrapper reveal" data-delay="100">
+        <div v-if="!loadingStruktur && strukturData && strukturData.length > 0" class="struktur-wrapper reveal" data-delay="100">
           <div class="org-chart">
-
-            <!-- Row 1: Kepala Sekolah -->
-            <div class="org-row">
-              <div class="org-box box-crimson">
-                <div class="org-jabatan">Kepala Sekolah</div>
-                <div class="org-nama">Dra. Hj. Sri Wulandari</div>
+            
+            <!-- Urutan 1: Kepala Sekolah -->
+            <template v-for="(urutanGroup, index) in strukturByUrutan" :key="urutanGroup.urutan">
+              
+              <div v-if="urutanGroup.data && urutanGroup.urutan === 1" class="org-level">
+                <div class="org-box" :class="getColorClass(urutanGroup.urutan)">
+                  <div class="org-jabatan">{{ urutanGroup.data[0].pegawai?.jabatan || urutanGroup.data[0].jabatan_non_pegawai }}</div>
+                  <div class="org-nama">{{ getDisplayName(urutanGroup.data[0]) }}</div>
+                  <div v-if="getNipNkkiWithLabel(urutanGroup.data[0])" class="org-nip">{{ getNipNkkiWithLabel(urutanGroup.data[0]) }}</div>
+                </div>
               </div>
-            </div>
 
-            <div class="org-connector-v" />
-
-            <!-- Row 2: Komite & Wakasek -->
-            <div class="org-row org-row-multi">
-              <div class="org-h-line" />
-              <div class="org-box box-gold">
-                <div class="org-jabatan dark-text">Komite Sekolah</div>
-                <div class="org-nama dark-text">Drs. Ahmad Yani</div>
+              <!-- Urutan 2: Wakil, Komite, dll -->
+              <div v-else-if="urutanGroup.data && urutanGroup.urutan === 2" class="org-level">
+                <!-- Central vertical line segment -->
+                <div class="org-center-line-segment"></div>
+                
+                <!-- Horizontal line with boxes -->
+                <div class="org-horizontal-container">
+                  <div class="org-horizontal-line-full" :style="{ width: getHorizontalLineWidth(urutanGroup.data.length) }"></div>
+                  
+                  <div class="org-boxes-row" :class="getBoxRowClass(urutanGroup.data.length)">
+                    <template v-for="(item, index) in urutanGroup.data" :key="item">
+                      <div class="org-box-container" :style="getBoxMargin(index, urutanGroup.data.length)">
+                        <div class="org-vertical-to-box" :class="{ 'line-dashed': item.relasi === 'Koordinasi' }"></div>
+                        <div class="org-box" :class="getColorClass(urutanGroup.urutan)">
+                          <div class="org-jabatan">{{ item.jabatan_non_pegawai }}</div>
+                          <div class="org-nama">{{ getDisplayName(item) }}</div>
+                          <div v-if="getNipNkkiWithLabel(item)" class="org-nip">{{ getNipNkkiWithLabel(item) }}</div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
               </div>
-              <div class="org-box box-dark">
-                <div class="org-jabatan">Wakil Kepala</div>
-                <div class="org-nama">Budi Santoso, S.Pd</div>
+
+              <!-- Urutan 3: Guru Kelas -->
+              <div v-else-if="urutanGroup.guru_kelas" class="org-level">
+                <!-- Central vertical line segment -->
+                <div class="org-center-line-segment"></div>
+                
+                <!-- Horizontal line with boxes -->
+                <div class="org-horizontal-container">
+                  <div class="org-horizontal-line-full" :style="{ width: getHorizontalLineWidth(urutanGroup.guru_kelas.length) }"></div>
+                  
+                  <div class="org-boxes-row" :class="getBoxRowClass(urutanGroup.guru_kelas.length)">
+                    <template v-for="(kelasGroup, index) in urutanGroup.guru_kelas" :key="kelasGroup.nama_kelas">
+                      <div class="org-box-container" :style="getBoxMargin(index, urutanGroup.guru_kelas.length)">
+                        <div class="org-vertical-to-box"></div>
+                        <div class="org-box" :class="getColorClass(urutanGroup.urutan)">
+                          <div class="org-jabatan">Guru Kelas {{ kelasGroup.nama_kelas }}</div>
+                          <template v-for="(guru, guruIndex) in kelasGroup.guru" :key="guruIndex">
+                            <div class="org-nama" :class="{ 'mt-2': guruIndex > 0 }">
+                              {{ guru.nama_lengkap }}
+                              <div v-if="guru.nip || guru.nkki" class="org-nip">{{ guru.nip ? `NIP: ${guru.nip}` : `NKKI: ${guru.nkki}` }}</div>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="org-connector-v" />
-
-            <!-- Row 3: Tata Usaha -->
-            <div class="org-row">
-              <div class="org-box box-blue">
-                <div class="org-jabatan">Tata Usaha</div>
-                <div class="org-nama">Siti Rahayu, A.Md</div>
+              <!-- Urutan 4: Guru Mapel -->
+              <div v-else-if="urutanGroup.guru_mapel" class="org-level">
+                <!-- Central vertical line segment -->
+                <div class="org-center-line-segment"></div>
+                
+                <!-- Horizontal line with boxes -->
+                <div class="org-horizontal-container">
+                  <div class="org-horizontal-line-full" :style="{ width: getHorizontalLineWidth(urutanGroup.guru_mapel.length) }"></div>
+                  
+                  <div class="org-boxes-row" :class="getBoxRowClass(urutanGroup.guru_mapel.length)">
+                    <template v-for="(mapelGroup, index) in urutanGroup.guru_mapel" :key="mapelGroup.bidang_studi">
+                      <div class="org-box-container" :style="getBoxMargin(index, urutanGroup.guru_mapel.length)">
+                        <div class="org-vertical-to-box"></div>
+                        <div class="org-box" :class="getColorClass(urutanGroup.urutan)">
+                          <div class="org-jabatan">Guru {{ mapelGroup.bidang_studi }}</div>
+                          <template v-for="(guru, guruIndex) in mapelGroup.guru" :key="guruIndex">
+                            <div class="org-nama" :class="{ 'mt-2': guruIndex > 0 }">
+                              {{ guru.nama_lengkap }}
+                              <div v-if="guru.nip || guru.nkki" class="org-nip">{{ guru.nip ? `NIP: ${guru.nip}` : `NKKI: ${guru.nkki}` }}</div>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="org-connector-v" />
-            <div class="org-h-line-full" />
-
-            <!-- Row 4: Guru-guru -->
-            <div class="org-row org-row-multi guru-row">
-              <div v-for="guru in guruData" :key="guru.nama" class="org-box" :class="guru.boxClass">
-                <div class="org-jabatan">{{ guru.jabatan }}</div>
-                <div class="org-nama">{{ guru.nama }}</div>
+              <!-- Urutan 5+: By Jabatan -->
+              <div v-else-if="urutanGroup.by_jabatan" class="org-level">
+                <!-- Central vertical line segment -->
+                <div class="org-center-line-segment"></div>
+                
+                <!-- Horizontal line with boxes (only if multiple boxes) -->
+                <div class="org-horizontal-container">
+                  <div v-if="getTotalBoxCount(urutanGroup) > 1" class="org-horizontal-line-full" :style="{ width: getHorizontalLineWidth(getTotalBoxCount(urutanGroup)) }"></div>
+                  
+                  <div class="org-boxes-row" :class="getBoxRowClass(getTotalBoxCount(urutanGroup))">
+                    <template v-for="jabatanGroup in urutanGroup.by_jabatan" :key="jabatanGroup.jabatan">
+                      <template v-for="(item, itemIndex) in jabatanGroup.data" :key="itemIndex">
+                        <div class="org-box-container" :style="getBoxMarginForByJabatan(urutanGroup, jabatanGroup, itemIndex)">
+                          <!-- Always show vertical line, even for single box -->
+                          <div class="org-vertical-to-box"></div>
+                          <div class="org-box" :class="getColorClass(urutanGroup.urutan)">
+                            <div class="org-jabatan">{{ jabatanGroup.jabatan }}</div>
+                            <div class="org-nama">{{ getDisplayName(item) }}</div>
+                            <div v-if="getNipNkkiWithLabel(item)" class="org-nip">{{ getNipNkkiWithLabel(item) }}</div>
+                          </div>
+                        </div>
+                      </template>
+                    </template>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="org-connector-v" />
-
-            <!-- Row 5: Siswa -->
-            <div class="org-row">
-              <div class="org-box box-red">
-                <div class="org-jabatan">Peserta Didik</div>
-                <div class="org-nama">487 Siswa — Kelas 1 s/d 6</div>
-              </div>
-            </div>
-
+            </template>
           </div>
 
           <!-- Keterangan -->
           <div class="org-legend">
+            <div class="legend-title">Keterangan:</div>
             <div class="legend-item">
               <div class="legend-line solid" />
               <span>Garis Komando</span>
@@ -304,6 +370,18 @@
               <span>Garis Koordinasi</span>
             </div>
           </div>
+        </div>
+
+        <!-- Loading state -->
+        <div v-else-if="loadingStruktur" class="text-center py-12 text-gray-500">
+          <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+          <p>Memuat struktur organisasi...</p>
+        </div>
+
+        <!-- Empty state -->
+        <div v-else class="text-center py-12 text-gray-500">
+          <i class="fas fa-sitemap text-3xl mb-3"></i>
+          <p>Belum ada data struktur organisasi</p>
         </div>
       </div>
     </section>
@@ -327,8 +405,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { getPublicDataKontak, getPublicKutipanKepsek, getPublicVisiMisi, getPublicSarpras } from '~/services/public-home'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { getPublicDataKontak, getPublicKutipanKepsek, getPublicVisiMisi, getPublicSarpras, getPublicStrukturOrganisasi } from '~/services/public-home'
+
+// Set page title
+useHead({
+  title: 'Profil Sekolah - SDN Sukapura 01'
+})
 
 // ----- DATA -----
 const scrolled = ref(false)
@@ -391,6 +474,21 @@ const { data: sarprasData, pending: loadingSarpras, error: errorSarpras } = awai
   }
 )
 
+// Fetch struktur organisasi using useAsyncData
+const { data: strukturData, pending: loadingStruktur, error: errorStruktur } = await useAsyncData(
+  'struktur-organisasi',
+  async () => {
+    try {
+      const response = await getPublicStrukturOrganisasi()
+      console.log('Struktur organisasi response:', response)
+      return response?.data || []
+    } catch (error) {
+      console.error('Error fetching struktur organisasi:', error)
+      return []
+    }
+  }
+)
+
 const guruData = [
   { jabatan: 'Guru Kls 1', nama: 'Dewi Lestari, S.Pd',   boxClass: 'box-green' },
   { jabatan: 'Guru Kls 2', nama: 'Hendra Kusuma, S.Pd',  boxClass: 'box-green' },
@@ -398,6 +496,131 @@ const guruData = [
   { jabatan: 'Guru PAI',   nama: 'Ustaz Fajar, S.Ag',    boxClass: 'box-purple' },
   { jabatan: 'Guru PJOK',  nama: 'Rizky Pratama, S.Pd',  boxClass: 'box-purple' },
 ]
+
+// Process struktur organisasi data - backend already grouped
+const strukturByUrutan = computed(() => {
+  if (!strukturData.value || strukturData.value.length === 0) return []
+  return strukturData.value
+})
+
+// Get color class based on urutan - same color for same urutan
+const getColorClass = (urutan) => {
+  const colors = {
+    1: 'box-crimson',
+    2: 'box-blue',
+    3: 'box-green',
+    4: 'box-purple',
+    5: 'box-orange',
+    6: 'box-teal'
+  }
+  return colors[urutan] || 'box-gray'
+}
+
+// Get total box count for an urutan group
+const getTotalBoxCount = (urutanGroup) => {
+  if (urutanGroup.data) return urutanGroup.data.length
+  if (urutanGroup.guru_kelas) return urutanGroup.guru_kelas.length
+  if (urutanGroup.guru_mapel) return urutanGroup.guru_mapel.length
+  if (urutanGroup.by_jabatan) {
+    return urutanGroup.by_jabatan.reduce((sum, jabatan) => sum + jabatan.data.length, 0)
+  }
+  return 0
+}
+
+// Get box row class based on count
+const getBoxRowClass = (count) => {
+  if (count === 1) return 'single-box'
+  if (count === 2) return 'two-boxes'
+  if (count % 2 === 1) return 'odd-boxes' // Odd numbers
+  return 'even-boxes' // Even numbers
+}
+
+// Get margin for box to create gap in the middle
+const getBoxMargin = (index, totalCount) => {
+  if (totalCount === 1 || totalCount === 2) return {}
+  
+  // For EVEN numbers (4, 6, 8, etc) - equal gap, split in middle
+  if (totalCount % 2 === 0) {
+    const middle = totalCount / 2
+    // Add gap AFTER the last box on the left side
+    // For 6 boxes: index 2 (3rd box, 0-indexed) gets margin
+    if (index === middle - 1) {
+      return { marginRight: '52px' } // Small additional gap (48px normal + 52px = 100px total)
+    }
+  } 
+  // For ODD numbers (3, 5, 7, etc) - larger gap to push right side further
+  else {
+    const middle = Math.floor(totalCount / 2)
+    // For 5 boxes: index 1 (2nd box) gets large margin
+    // This creates: box1, box2 [LARGE GAP] box3, box4, box5
+    if (index === middle - 1) {
+      return { marginRight: '200px' } // LARGER gap for odd numbers to avoid center line
+    }
+  }
+  
+  return {}
+}
+
+// Get margin for by_jabatan boxes
+const getBoxMarginForByJabatan = (urutanGroup, jabatanGroup, itemIndex) => {
+  const totalCount = getTotalBoxCount(urutanGroup)
+  
+  // Calculate global index
+  let globalIndex = 0
+  for (const jg of urutanGroup.by_jabatan) {
+    if (jg.jabatan === jabatanGroup.jabatan) {
+      globalIndex += itemIndex
+      break
+    }
+    globalIndex += jg.data.length
+  }
+  
+  return getBoxMargin(globalIndex, totalCount)
+}
+
+// Calculate horizontal line width based on number of boxes
+const getHorizontalLineWidth = (boxCount) => {
+  if (boxCount === 1) return '0px' // No line for single box
+  
+  // Each box is ~180px min-width + 48px gap
+  const baseWidth = boxCount * 228 // 180 + 48
+  
+  // Different middle gap for even vs odd
+  let middleGap = 0
+  if (boxCount > 2) {
+    if (boxCount % 2 === 0) {
+      middleGap = 52 // Small additional gap for even (total 100px with normal 48px gap)
+    } else {
+      middleGap = 200 // Larger gap for odd numbers to avoid center line
+    }
+  }
+  
+  const totalWidth = baseWidth + middleGap + 40
+  
+  return `${totalWidth}px`
+}
+
+// Get display name
+const getDisplayName = (item) => {
+  if (item.pegawai) {
+    return item.pegawai.nama_lengkap
+  }
+  if (item.nama_lengkap) {
+    return item.nama_lengkap
+  }
+  return item.nama_non_pegawai
+}
+
+// Get NIP/NKKI with label
+const getNipNkkiWithLabel = (item) => {
+  if (item.pegawai) {
+    if (item.pegawai.nip) return `NIP: ${item.pegawai.nip}`
+    if (item.pegawai.nkki) return `NKKI: ${item.pegawai.nkki}`
+  }
+  if (item.nip) return `NIP: ${item.nip}`
+  if (item.nkki) return `NKKI: ${item.nkki}`
+  return null
+}
 
 // ----- LOGIC -----
 const handleScroll = () => {
@@ -1050,44 +1273,311 @@ onUnmounted(() => {
 .struktur-wrapper {
   background: white; border-radius: 28px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.07);
-  padding: 56px; overflow-x: auto;
+  padding: 56px; 
+  overflow-x: auto; /* Scroll horizontal untuk keseluruhan */
+  overflow-y: visible;
 }
 
-.org-chart { display: flex; flex-direction: column; align-items: center; min-width: 680px; }
-.org-row { display: flex; justify-content: center; gap: 20px; position: relative; }
-.org-row-multi { gap: 32px; }
+.struktur-wrapper::-webkit-scrollbar {
+  height: 10px;
+}
 
-.org-connector-v { width: 2px; height: 36px; background: #d1d5db; margin: 0 auto; }
-.org-h-line { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 200px; height: 2px; background: #d1d5db; z-index: 0; }
-.org-h-line-full { width: 70%; height: 2px; background: #d1d5db; margin-bottom: 2px; }
+.struktur-wrapper::-webkit-scrollbar-track {
+  background: #e5e7eb;
+  border-radius: 5px;
+}
 
+.struktur-wrapper::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 5px;
+}
+
+.struktur-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #1f2937;
+}
+
+.org-chart { 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  min-width: max-content; /* Allow chart to expand */
+  position: relative;
+}
+
+/* Central vertical line that runs through all levels */
+.org-chart::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 80px; /* Start below first box */
+  bottom: 140px; /* Stop before last horizontal line - increased from 120px */
+  width: 2px;
+  background: #374151;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+/* Each level container */
+.org-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Urutan 1 specific - keep centered */
+.org-level > .org-box {
+  /* Direct child box (Kepala Sekolah) stays centered */
+  margin: 0 auto;
+}
+
+/* Urutan 1 with legend - horizontal layout */
+.org-level-with-legend {
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center;
+  gap: 60px;
+}
+
+/* Segment of central vertical line between levels */
+.org-center-line-segment {
+  width: 2px;
+  height: 30px;
+  background: #374151;
+  margin: 0 auto;
+}
+
+/* Container for horizontal line and boxes */
+.org-horizontal-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Full horizontal line */
+.org-horizontal-line-full {
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.org-horizontal-line-full::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: #374151;
+}
+
+/* Row of boxes */
+.org-boxes-row {
+  display: flex;
+  justify-content: center; /* Center by default */
+  gap: 48px; /* Increased from 32px to 48px */
+  flex-wrap: nowrap; /* Tidak wrap, tetap sebaris */
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+  overflow-x: visible; /* No individual scroll */
+  overflow-y: visible;
+  padding: 0 20px 10px 20px;
+  width: auto; /* Auto width */
+  min-width: max-content;
+}
+
+/* Single box - offset to right */
+.org-boxes-row.single-box {
+  margin-top: 0; /* Remove top margin, will be handled by lines */
+  padding-left: 0; /* Remove padding, use positioning instead */
+  justify-content: flex-start;
+  position: relative;
+}
+
+.org-boxes-row.single-box .org-box-container {
+  margin-left: 350px; /* Offset single box far to the right */
+}
+
+/* Horizontal line for single box - from center to box */
+.org-boxes-row.single-box::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 175px; /* Half of margin-left (350px / 2) */
+  height: 2px;
+  background: #374151;
+  transform: translateX(0); /* Start from center, go right only */
+}
+
+/* Vertical line above single box */
+.org-boxes-row.single-box .org-vertical-to-box {
+  display: block !important; /* Force show even for single box */
+  height: 28px; /* Slightly shorter to not overlap horizontal line */
+  margin-top: 2px; /* Start below horizontal line */
+}
+
+/* Two boxes - balanced left and right */
+.org-boxes-row.two-boxes {
+  justify-content: center;
+  gap: 150px; /* Increased from 120px to 150px */
+}
+
+/* Odd boxes (3, 5, 7, etc) - need larger gap to avoid center line */
+.org-boxes-row.odd-boxes {
+  justify-content: center;
+}
+
+/* Even boxes (4, 6, 8, etc) - equal spacing */
+.org-boxes-row.even-boxes {
+  justify-content: center;
+}
+
+/* Container for each box with its vertical line */
+.org-box-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -2px; /* Overlap with horizontal line */
+}
+
+/* Vertical line from horizontal bar to box */
+.org-vertical-to-box {
+  width: 2px;
+  height: 30px;
+  background: #374151;
+  margin-bottom: 0;
+}
+
+.org-vertical-to-box.line-dashed {
+  background: repeating-linear-gradient(
+    to bottom,
+    #374151 0,
+    #374151 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+/* Box styling */
 .org-box {
-  border-radius: 14px; padding: 16px 22px; text-align: center; position: relative; z-index: 1;
-  transition: transform 0.25s ease, box-shadow 0.25s ease; min-width: 170px;
+  border-radius: 14px; 
+  padding: 18px 24px; 
+  text-align: center; 
+  position: relative; 
+  z-index: 2;
+  transition: transform 0.25s ease, box-shadow 0.25s ease; 
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  background: white;
 }
-.org-box:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(0,0,0,0.18); }
+.org-box:hover { 
+  transform: translateY(-4px); 
+  box-shadow: 0 14px 36px rgba(0,0,0,0.18); 
+}
 
+/* Box colors */
 .box-crimson { background: linear-gradient(135deg, #8B0000, #DC143C); color: white; }
+.box-blue    { background: linear-gradient(135deg, #1565C0, #1E90FF); color: white; }
+.box-green   { background: linear-gradient(135deg, #2E7D32, #388E3C); color: white; }
+.box-purple  { background: linear-gradient(135deg, #6A1B9A, #9C27B0); color: white; }
+.box-orange  { background: linear-gradient(135deg, #E65100, #FF6F00); color: white; }
+.box-teal    { background: linear-gradient(135deg, #00695C, #00897B); color: white; }
 .box-gold    { background: linear-gradient(135deg, #FFD700, #FFA500); color: #111; }
 .box-dark    { background: linear-gradient(135deg, #1a1a1a, #333); color: white; }
-.box-blue    { background: linear-gradient(135deg, #1565C0, #1E90FF); color: white; }
-.box-green   { background: linear-gradient(135deg, #2E7D32, #388E3C); color: white; min-width: 140px; }
-.box-purple  { background: linear-gradient(135deg, #6A1B9A, #9C27B0); color: white; min-width: 140px; }
 .box-red     { background: linear-gradient(135deg, #C62828, #E53935); color: white; }
+.box-gray    { background: linear-gradient(135deg, #546E7A, #607D8B); color: white; }
 
-.org-jabatan { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.75; margin-bottom: 6px; }
-.org-nama    { font-weight: 700; font-size: 14px; line-height: 1.4; }
-.dark-text   { color: #111 !important; }
-
-.guru-row { flex-wrap: wrap; gap: 12px; }
+.org-jabatan { 
+  font-size: 11px; 
+  font-weight: 700; 
+  text-transform: uppercase; 
+  letter-spacing: 1px; 
+  opacity: 0.85; 
+  margin-bottom: 8px; 
+}
+.org-nama { 
+  font-weight: 700; 
+  font-size: 14px; 
+  line-height: 1.5; 
+}
+.org-nip { 
+  font-size: 10px; 
+  font-weight: 500; 
+  opacity: 0.75; 
+  margin-top: 4px; 
+  font-style: italic;
+}
+.dark-text { color: #111 !important; }
+.mt-2 { 
+  margin-top: 12px; 
+  padding-top: 12px; 
+  border-top: 1px solid rgba(255,255,255,0.25); 
+}
 
 .org-legend {
-  display: flex; gap: 32px; margin-top: 36px; padding-top: 24px;
-  border-top: 1px solid #f0f0f0; justify-content: center;
+  display: flex; 
+  gap: 24px; 
+  padding: 20px 32px;
+  align-items: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  margin-top: 48px;
+  width: fit-content;
 }
-.legend-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #666; }
-.legend-line { width: 36px; height: 2px; background: #9ca3af; }
-.legend-line.dashed { background: repeating-linear-gradient(to right, #9ca3af 0, #9ca3af 5px, transparent 5px, transparent 10px); }
+
+.legend-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-right: 8px;
+}
+
+/* Legend on the side (next to urutan 1) */
+.org-legend-side {
+  margin-top: 0;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px 24px;
+}
+.legend-item { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  font-size: 14px; 
+  color: #374151; 
+  font-weight: 600;
+  padding: 8px 16px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.legend-line { 
+  width: 60px;
+  height: 3px; 
+  background: #374151; 
+  border-radius: 2px;
+}
+.legend-line.dashed { 
+  background: repeating-linear-gradient(
+    to right, 
+    #374151 0, 
+    #374151 6px, 
+    transparent 6px, 
+    transparent 12px
+  ); 
+}
 
 /* ─── FADE TRANSITION ─────────────────────────────────────────── */
 .fade-enter-active, .fade-leave-active {

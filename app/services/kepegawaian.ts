@@ -56,6 +56,33 @@ export async function getKepegawaianList(page: number = 1, limit: number = 10, s
 }
 
 /**
+ * Get all kepegawaian without pagination
+ * @returns All kepegawaian list
+ */
+export async function getKepegawaianWithoutPagination(): Promise<{ data: any[] }> {
+    const config = useRuntimeConfig()
+    const token = localStorage.getItem('auth_token')
+
+    try {
+        const response = await $fetch<{ data: any[] }>(
+            `${config.public.apiBase}/api/v1/kepegawaian/get-kepegawaian-without-pagination`,
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        )
+
+        return response
+    } catch (error: any) {
+        handleApiError(error)
+        throw error
+    }
+}
+
+/**
  * Get kepegawaian by ID
  * @param id - Kepegawaian ID
  * @returns Kepegawaian detail data with roles

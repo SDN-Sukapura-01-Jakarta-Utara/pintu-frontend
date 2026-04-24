@@ -654,6 +654,11 @@ import { usePublicHomeStore } from '~/stores/PublicHomeStore'
 import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman, getPublicDataGaleriKegiatan, getPublicDataKontak } from '~/services/public-home'
 import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
+// Set page title
+useHead({
+  title: 'Portal Informasi Terpadu - SDN Sukapura 01'
+})
+
 const publicHomeStore = usePublicHomeStore()
 
 const scrolled = ref(false)
