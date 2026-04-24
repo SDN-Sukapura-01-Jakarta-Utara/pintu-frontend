@@ -9,7 +9,7 @@
       <!-- Background Image -->
       <div class="absolute inset-0">
         <img 
-          src="https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=1920&h=600&fit=crop" 
+          src="~/assets/images/profil-sekolah.jpg" 
           alt="Profil Sekolah" 
           class="w-full h-full object-cover"
         />
