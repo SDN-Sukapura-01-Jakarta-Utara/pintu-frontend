@@ -486,3 +486,41 @@ export async function getPublicDataTendik(): Promise<any> {
     throw error
   }
 }
+
+/**
+ * Get daftar artikel with filters (no auth required)
+ * @param filter - Filter object with kategori and sort
+ * @param offset - Offset for pagination
+ * @returns Daftar artikel data
+ */
+export async function getPublicDaftarArtikel(filter: any, offset: number = 0): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-daftar-artikel`
+  
+  console.log('Fetching daftar artikel from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        filter,
+        offset
+      }
+    })
+
+    console.log('Daftar artikel API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public daftar artikel:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}

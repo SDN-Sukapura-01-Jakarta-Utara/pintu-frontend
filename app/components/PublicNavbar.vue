@@ -35,7 +35,7 @@
             <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </a>
           <div class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl min-w-48 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 z-50">
-            <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Artikel</a>
+            <a href="/media-publikasi/artikel" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Artikel</a>
             <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pengumuman</a>
             <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Galeri Kegiatan</a>
           </div>
@@ -79,7 +79,7 @@
             Media dan Publikasi <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="mobileSubMenu === 'media' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
           <div v-show="mobileSubMenu === 'media'" class="pl-4 pb-2">
-            <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Artikel</a>
+            <a @click="mobileMenuOpen = false" href="/media-publikasi/artikel" class="text-white/80 text-sm py-1.5 block">Artikel</a>
             <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Pengumuman</a>
             <a @click="mobileMenuOpen = false" href="#" class="text-white/80 text-sm py-1.5 block">Galeri Kegiatan</a>
           </div>
