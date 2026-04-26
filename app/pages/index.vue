@@ -221,77 +221,198 @@
     </div>
 
     <!-- ===== PRESTASI SECTION ===== -->
-    <section class="relative py-16 sm:py-24 overflow-hidden bg-gradient-to-br from-white via-red-50/30 to-white">
-      <div class="absolute top-20 left-0 w-64 h-64 rounded-full opacity-5" style="background: radial-gradient(circle, #DC143C, transparent 70%);"></div>
-      <div class="absolute bottom-0 right-0 w-80 h-80 rounded-full opacity-5" style="background: radial-gradient(circle, #8B0000, transparent 70%);"></div>
+    <section class="relative py-12 sm:py-16 overflow-hidden bg-gradient-to-b from-gray-50 via-white to-red-50/30">
+      <!-- Decorative Background -->
+      <div class="absolute inset-0 overflow-hidden pointer-events-none opacity-5">
+        <div class="absolute top-20 left-10 w-64 h-64 bg-red-500 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-20 right-10 w-80 h-80 bg-yellow-500 rounded-full blur-3xl"></div>
+      </div>
 
-      <div class="max-w-6xl mx-auto px-5 sm:px-8 relative">
-        <div class="text-center mb-10 sm:mb-14 reveal">
-          <span class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold text-red-700 bg-red-100 mb-4">
-            <i class="fas fa-trophy"></i> Prestasi
-          </span>
-          <h2 class="text-2xl sm:text-4xl font-bold text-gray-900">
-            Prestasi <span class="text-red-700">Siswa</span>
+      <div class="relative">
+        <!-- Header -->
+        <div class="text-center mb-0 reveal px-5 sm:px-8">
+          <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-yellow-100 via-red-50 to-red-100 border-2 border-red-200 mb-3 sm:mb-4 shadow-sm">
+            <i class="fas fa-trophy text-yellow-600 text-lg"></i>
+            <span class="text-sm font-bold bg-gradient-to-r from-yellow-600 to-red-600 bg-clip-text text-transparent">Prestasi Gemilang</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-bold text-gray-900 mb-1 sm:mb-1.5">
+            <span class="bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 bg-clip-text text-transparent">Juara</span> Kebanggaan Kami
           </h2>
-          <p class="text-gray-500 mt-3 sm:mt-4 text-sm sm:text-base max-w-lg mx-auto">Kebanggaan dan pencapaian gemilang siswa-siswi SDN Sukapura 01</p>
+          <p class="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto">
+            Pencapaian luar biasa siswa-siswi SDN Sukapura 01 yang membanggakan
+          </p>
         </div>
 
-        <!-- Carousel with 3 visible, center bigger -->
-        <div class="relative reveal">
-          <!-- Cards -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 items-center px-0 md:px-14">
-            <div v-for="(item, index) in visiblePrestasi" :key="currentPrestasi + '-' + index"
-              class="group rounded-2xl overflow-hidden bg-white shadow-lg transition-all duration-500 cursor-pointer relative border border-gray-100 hover:border-red-200 prestasi-slide-in"
-              :class="item.position === 'center' ? 'md:scale-110 md:shadow-2xl md:z-10' : 'hidden md:block md:opacity-80 md:hover:opacity-100'"
-            >
-              <div class="absolute top-0 left-0 right-0 h-1 z-10 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500" style="background: linear-gradient(90deg, #8B0000, #DC143C, #FF6B6B);"></div>
-              <div class="relative overflow-hidden" :class="item.position === 'center' ? 'h-52 sm:h-64 md:h-72' : 'h-44 sm:h-52 md:h-56'">
-                <img :src="item.foto" :alt="item.nama" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div class="absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg" :class="getJuaraClass(item.juara)">
-                  <i class="fas fa-trophy"></i> {{ item.juara }}
-                </div>
-              </div>
-              <div class="p-4 sm:p-5">
-                <h3 class="text-sm sm:text-base font-bold text-gray-900 mb-1 sm:mb-1.5 transition-colors group-hover:text-red-600">{{ item.nama }}</h3>
-                <div class="text-xs font-semibold mb-1 sm:mb-1.5" :class="getJuaraTextClass(item.juara)"><i class="fas fa-medal"></i> {{ item.juara }}</div>
-                <p class="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-2">{{ item.namaPrestasi }}</p>
-                
-                <!-- Button Lihat Anggota Tim untuk prestasi jenis Tim -->
-                <button 
-                  v-if="item.jenis === 'Tim' && item.anggotaTim && item.anggotaTim.length > 0"
-                  @click.stop="openTeamModal(item)"
-                  class="mb-2 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-red-50 hover:bg-red-600 text-red-600 hover:text-white text-[10px] font-semibold transition-all duration-200 border border-red-200 hover:border-red-600 hover:shadow-md cursor-pointer"
-                >
-                  <i class="fas fa-users text-[9px]"></i>
-                  <span>Anggota Tim</span>
-                </button>
-                
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-1.5 text-xs text-gray-400">
-                    <i class="far fa-calendar-alt text-red-400"></i> {{ item.tanggal }}
+        <!-- Full Width Carousel -->
+        <div v-if="prestasiData && prestasiData.length > 0" class="reveal mt-0">
+          <!-- Cards Container - Full Width -->
+          <div class="relative h-[550px] sm:h-[650px] overflow-hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+              <!-- Card Wrapper for Positioning -->
+              <div 
+                v-for="(item, index) in visiblePrestasiCards" 
+                :key="`card-${item.id || item.originalIndex}`"
+                @click="handleCardClick(item.position)"
+                class="absolute cursor-pointer will-change-transform"
+                :style="getCardStyleFullWidth(item.position)"
+              >
+                  <!-- Card Content -->
+                  <div 
+                    class="relative overflow-hidden rounded-3xl transition-all duration-700 ease-out group/card shadow-2xl"
+                    :class="[
+                      item.position === 'center' ? 'w-72 sm:w-96 md:w-[450px]' : 'w-56 sm:w-72 md:w-80',
+                      'prestasi-card-slide'
+                    ]"
+                    style="background: linear-gradient(145deg, #ffffff 0%, #fafafa 100%);"
+                  >
+                  <!-- Gradient Border Effect -->
+                  <div 
+                    class="absolute inset-0 rounded-3xl p-[3px] transition-all duration-700"
+                    :style="item.position === 'center' 
+                      ? 'background: linear-gradient(135deg, #FFD700 0%, #FF6B6B 50%, #DC143C 100%);' 
+                      : 'background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);'"
+                  >
+                    <div 
+                      class="h-full w-full rounded-3xl"
+                      style="background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);"
+                    ></div>
+                  </div>
+
+                  <!-- Card Content -->
+                  <div class="relative z-10">
+                    <!-- Image -->
+                    <div 
+                      class="relative overflow-hidden rounded-t-3xl"
+                      :class="item.position === 'center' ? 'h-72 sm:h-96' : 'h-56 sm:h-64'"
+                    >
+                      <img 
+                        :src="item.foto" 
+                        :alt="item.nama"
+                        class="w-full h-full object-cover transition-transform duration-700"
+                        :class="item.position === 'center' ? 'group-hover/card:scale-110' : ''"
+                      />
+                      <!-- Gradient Overlay -->
+                      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                      
+                      <!-- Shine Effect on Center Card -->
+                      <div 
+                        v-if="item.position === 'center'"
+                        class="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none"
+                        style="background: linear-gradient(135deg, transparent 0%, rgba(255,215,0,0.3) 50%, transparent 100%);"
+                      ></div>
+                      
+                      <!-- Badge Juara -->
+                      <div 
+                        class="absolute top-4 right-4 flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold shadow-2xl backdrop-blur-md border-2 transition-all duration-300"
+                        :class="[
+                          getJuaraClass(item.juara),
+                          item.position === 'center' ? 'text-sm scale-100' : 'text-xs scale-90',
+                          item.position === 'center' ? 'hover:scale-105' : ''
+                        ]"
+                      >
+                        <i class="fas fa-trophy"></i>
+                        <span>{{ item.juara }}</span>
+                      </div>
+
+                      <!-- Overlay Info (Only Center) -->
+                      <div 
+                        v-if="item.position === 'center'"
+                        class="absolute bottom-0 left-0 right-0 p-6"
+                      >
+                        <div class="flex flex-wrap items-center gap-2">
+                          <span class="px-3 py-2 rounded-xl bg-gradient-to-r from-red-600/90 to-red-500/90 backdrop-blur-md text-white text-xs font-bold border border-white/40 shadow-lg">
+                            <i class="fas fa-medal mr-1.5"></i>{{ item.tingkatPrestasi || 'Tingkat Kota' }}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div 
+                      class="p-4 sm:p-5 md:p-6 rounded-b-3xl"
+                      :class="item.position === 'center' ? '' : 'opacity-70'"
+                      style="background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);"
+                    >
+                      <!-- Title with Icon -->
+                      <div class="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
+                        <div 
+                          class="flex-shrink-0 w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center transition-all duration-300 shadow-md"
+                          :class="item.position === 'center' ? 'bg-gradient-to-br from-red-600 to-red-500 text-white shadow-red-500/30' : 'bg-gradient-to-br from-gray-200 to-gray-300 text-gray-500'"
+                        >
+                          <i class="fas fa-user-graduate text-sm sm:text-base"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <h3 
+                            class="font-bold text-gray-900 mb-1 sm:mb-1.5 transition-colors leading-tight"
+                            :class="[
+                              item.position === 'center' ? 'text-base sm:text-lg md:text-xl line-clamp-2' : 'text-xs sm:text-sm line-clamp-1',
+                              item.position === 'center' ? 'group-hover/card:text-red-600' : ''
+                            ]"
+                          >
+                            {{ item.nama }}
+                          </h3>
+                          <p 
+                            class="text-gray-600 leading-relaxed mb-1.5 sm:mb-2"
+                            :class="item.position === 'center' ? 'text-xs sm:text-sm line-clamp-2' : 'text-[10px] sm:text-xs line-clamp-2'"
+                          >
+                            {{ item.namaPrestasi }}
+                          </p>
+                          <!-- Tanggal dan Tingkat -->
+                          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1.5 sm:mt-2">
+                            <span 
+                              class="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-semibold"
+                              :class="item.position === 'center' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'"
+                            >
+                              <i class="far fa-calendar text-[8px] sm:text-[10px]"></i>
+                              <span>{{ item.tanggal }}</span>
+                            </span>
+                            <span 
+                              v-if="item.position === 'center' && item.tingkatPrestasi"
+                              class="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-yellow-100 text-yellow-700 text-[10px] sm:text-xs font-semibold"
+                            >
+                              <i class="fas fa-medal text-[8px] sm:text-[10px]"></i>
+                              <span>{{ item.tingkatPrestasi }}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <!-- Divider (Only Center with Team Button) -->
+                      <div 
+                        v-if="item.position === 'center' && item.jenis === 'Tim' && item.anggotaTim && item.anggotaTim.length > 0"
+                        class="h-[2px] bg-gradient-to-r from-transparent via-red-300 to-transparent mb-4"
+                      ></div>
+                      
+                      <!-- Button Anggota Tim (Only Center) -->
+                      <button 
+                        v-if="item.position === 'center' && item.jenis === 'Tim' && item.anggotaTim && item.anggotaTim.length > 0"
+                        @click.stop="openTeamModal(item)"
+                        class="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-red-600 hover:from-red-700 hover:via-red-600 hover:to-red-700 text-white text-sm font-bold transition-all duration-300 shadow-lg hover:shadow-2xl hover:scale-105 border-none cursor-pointer"
+                      >
+                        <i class="fas fa-users"></i>
+                        <span>Lihat Anggota Tim</span>
+                        <i class="fas fa-arrow-right text-xs ml-1"></i>
+                      </button>
+                    </div>
+                  </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Dot indicators -->
-        <div class="flex justify-center gap-2 mt-6 sm:mt-8 reveal">
-          <button
-            v-for="(_, i) in prestasiData" :key="i"
-            @click="currentPrestasi = i"
-            class="h-2 rounded-full border-none cursor-pointer transition-all duration-300"
-            :class="currentPrestasi === i ? 'w-8 bg-red-600' : 'w-2 bg-gray-300 hover:bg-red-300'"
-          ></button>
-        </div>
-
-        <div class="flex justify-center mt-6 sm:mt-8 reveal">
-          <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            Lihat Semua Prestasi
-            <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
-          </button>
+          <!-- Navigation Arrows -->
+          <div class="flex justify-center items-center gap-3 sm:gap-4 mt-0 reveal">
+            <button @click="prevPrestasi" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+              <i class="fas fa-chevron-left text-xs sm:text-sm"></i>
+            </button>
+            <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+              Lihat Semua Prestasi
+              <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
+            </button>
+            <button @click="nextPrestasi" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+              <i class="fas fa-chevron-right text-xs sm:text-sm"></i>
+            </button>
+          </div>
         </div>
       </div>
     </section>
@@ -667,6 +788,9 @@ const statsVisible = ref(false)
 const statsSection = ref(null)
 const animatedStats = reactive([0, 0, 0, 0, 0])
 const currentPrestasi = ref(0)
+const prestasiTrack = ref(null)
+const prestasiTranslateX = ref(0)
+const prestasiAnimating = ref(false)
 const currentArtikel = ref(0)
 const artikelTrack = ref(null)
 const galeriWrapper = ref(null)
@@ -789,6 +913,170 @@ const visiblePrestasi = computed(() => {
     { ...prestasiData.value[right], position: 'side' },
   ]
 })
+
+// Get 5 visible prestasi cards for carousel (3 on mobile, 5 on desktop)
+const visiblePrestasiCards = computed(() => {
+  const total = prestasiData.value.length
+  if (total === 0) return []
+  
+  // Check if mobile (you can adjust breakpoint as needed)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  
+  if (isMobile) {
+    // Mobile: show 3 cards (left, center, right)
+    const positions = ['left', 'center', 'right']
+    const cards = []
+    
+    for (let i = -1; i <= 1; i++) {
+      const index = (currentPrestasi.value + i + total) % total
+      const item = prestasiData.value[index]
+      
+      cards.push({
+        ...item,
+        position: positions[i + 1],
+        originalIndex: index
+      })
+    }
+    
+    return cards
+  } else {
+    // Desktop: show 5 cards
+    const positions = ['far-left', 'left', 'center', 'right', 'far-right']
+    const cards = []
+    
+    for (let i = -2; i <= 2; i++) {
+      const index = (currentPrestasi.value + i + total) % total
+      const item = prestasiData.value[index]
+      
+      cards.push({
+        ...item,
+        position: positions[i + 2],
+        originalIndex: index
+      })
+    }
+    
+    return cards
+  }
+})
+
+// Get card style based on position (Full Width - from edge to edge)
+const getCardStyleFullWidth = (position) => {
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  
+  const styles = {
+    // Mobile positions (3 cards)
+    'left': {
+      left: isMobile ? '8%' : '10%',
+      transform: 'scale(0.85)',
+      opacity: '0.6',
+      zIndex: '2',
+      pointerEvents: 'auto',
+      transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)'
+    },
+    'center': {
+      left: '50%',
+      transform: 'translateX(-50%) scale(1)',
+      opacity: '1',
+      zIndex: '10',
+      pointerEvents: 'auto',
+      transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)'
+    },
+    'right': {
+      right: isMobile ? '8%' : '10%',
+      transform: 'scale(0.85)',
+      opacity: '0.6',
+      zIndex: '2',
+      pointerEvents: 'auto',
+      transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)'
+    },
+    // Desktop positions (5 cards)
+    'far-left': {
+      left: '5%',
+      transform: 'scale(0.8)',
+      opacity: '0.4',
+      zIndex: '1',
+      pointerEvents: 'auto',
+      transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)'
+    },
+    'far-right': {
+      right: '5%',
+      transform: 'scale(0.8)',
+      opacity: '0.4',
+      zIndex: '1',
+      pointerEvents: 'auto',
+      transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)'
+    }
+  }
+  
+  // Override left/right for desktop (when far-left/far-right exist)
+  if (!isMobile) {
+    styles.left = {
+      left: '20%',
+      transform: 'scale(0.92)',
+      opacity: '0.75',
+      zIndex: '2',
+      pointerEvents: 'auto',
+      transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)'
+    }
+    styles.right = {
+      right: '20%',
+      transform: 'scale(0.92)',
+      opacity: '0.75',
+      zIndex: '2',
+      pointerEvents: 'auto',
+      transition: 'all 0.7s cubic-bezier(0.4, 0, 0.2, 1)'
+    }
+  }
+  
+  return styles[position] || {}
+}
+
+// Get card style based on position
+const getCardStyle = (position) => {
+  const styles = {
+    'far-left': {
+      transform: 'translateX(-120%) scale(0.75) rotateY(25deg)',
+      opacity: '0.3',
+      zIndex: '1',
+      pointerEvents: 'auto'
+    },
+    'left': {
+      transform: 'translateX(-60%) scale(0.85) rotateY(15deg)',
+      opacity: '0.6',
+      zIndex: '2',
+      pointerEvents: 'auto'
+    },
+    'center': {
+      transform: 'translateX(0) scale(1) rotateY(0deg)',
+      opacity: '1',
+      zIndex: '10',
+      pointerEvents: 'auto'
+    },
+    'right': {
+      transform: 'translateX(60%) scale(0.85) rotateY(-15deg)',
+      opacity: '0.6',
+      zIndex: '2',
+      pointerEvents: 'auto'
+    },
+    'far-right': {
+      transform: 'translateX(120%) scale(0.75) rotateY(-25deg)',
+      opacity: '0.3',
+      zIndex: '1',
+      pointerEvents: 'auto'
+    }
+  }
+  
+  return styles[position] || {}
+}
+
+// Handle card click
+const handleCardClick = (position) => {
+  if (position === 'left' || position === 'far-left') {
+    prevPrestasi()
+  } else if (position === 'right' || position === 'far-right') {
+    nextPrestasi()
+  }
+}
 
 // Gunakan data dari API jika ada, fallback ke dummy data
 const artikelData = computed(() => {
@@ -946,23 +1234,24 @@ function startSlideshow() { slideInterval = setInterval(nextSlide, 5000) }
 
 let prestasiInterval = null
 function nextPrestasi() { 
-  if (prestasiData.value.length > 0) {
-    currentPrestasi.value = (currentPrestasi.value + 1) % prestasiData.value.length 
+  if (prestasiData.value.length > 0 && !prestasiAnimating.value) {
+    prestasiAnimating.value = true
+    currentPrestasi.value = (currentPrestasi.value + 1) % prestasiData.value.length
+    
+    setTimeout(() => {
+      prestasiAnimating.value = false
+    }, 700)
   }
 }
+
 function prevPrestasi() { 
-  if (prestasiData.value.length > 0) {
-    currentPrestasi.value = (currentPrestasi.value - 1 + prestasiData.value.length) % prestasiData.value.length 
-  }
-}
-function startPrestasiSlide() { 
-  if (prestasiInterval) clearInterval(prestasiInterval)
-  prestasiInterval = setInterval(nextPrestasi, 4000) 
-}
-function stopPrestasiSlide() {
-  if (prestasiInterval) {
-    clearInterval(prestasiInterval)
-    prestasiInterval = null
+  if (prestasiData.value.length > 0 && !prestasiAnimating.value) {
+    prestasiAnimating.value = true
+    currentPrestasi.value = (currentPrestasi.value - 1 + prestasiData.value.length) % prestasiData.value.length
+    
+    setTimeout(() => {
+      prestasiAnimating.value = false
+    }, 700)
   }
 }
 
@@ -974,13 +1263,11 @@ function openTeamModal(prestasi) {
       members: prestasi.anggotaTim
     }
     showTeamModal.value = true
-    stopPrestasiSlide() // Stop auto-slide saat modal dibuka
   }
 }
 
 function closeTeamModal() {
   showTeamModal.value = false
-  startPrestasiSlide() // Resume auto-slide saat modal ditutup
 }
 
 // Artikel navigation with infinite loop
@@ -1284,7 +1571,6 @@ onMounted(async () => {
   }
   
   startSlideshow()
-  startPrestasiSlide()
   startGaleriScroll()
   setupStatsObserver()
   setTimeout(setupReveal, 100)
@@ -1293,7 +1579,6 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   if (slideInterval) clearInterval(slideInterval)
-  if (prestasiInterval) clearInterval(prestasiInterval)
   if (galeriAnim) cancelAnimationFrame(galeriAnim)
 })
 </script>
@@ -1369,6 +1654,29 @@ onUnmounted(() => {
 }
 .prestasi-slide-in {
   animation: prestasiSlideIn 0.5s ease-out;
+}
+
+/* ── PRESTASI CARD SLIDE ANIMATION ── */
+@keyframes cardSlideIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.prestasi-card-slide {
+  animation: cardSlideIn 0.5s ease-out;
+}
+
+/* Prevent card ghosting during transition */
+.will-change-transform {
+  will-change: transform, opacity, left, right;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
 }
 
 /* ── ARTIKEL CAROUSEL ── */
