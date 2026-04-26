@@ -21,7 +21,7 @@
           <li><a href="/" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 block" :class="isActive('/') ? 'bg-white/25 shadow-lg' : ''">Beranda</a></li>
           <li><a href="/profil-sekolah" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 block" :class="isActive('/profil-sekolah') ? 'bg-white/25 shadow-lg' : ''">Profil Sekolah</a></li>
           <li class="relative group">
-            <a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 flex items-center gap-1">
+            <a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 flex items-center gap-1" :class="isActive('/kepegawaian') ? 'bg-white/25 shadow-lg' : ''">
               Kepegawaian
               <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </a>
@@ -31,14 +31,14 @@
             </div>
           </li>
           <li class="relative group">
-            <a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 flex items-center gap-1">
+            <a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 flex items-center gap-1" :class="isActive('/media-publikasi') ? 'bg-white/25 shadow-lg' : ''">
               Media dan Publikasi
               <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </a>
             <div class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl min-w-48 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 z-50">
               <a href="/media-publikasi/artikel" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Artikel</a>
               <a href="/media-publikasi/pengumuman" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pengumuman</a>
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Galeri Kegiatan</a>
+              <a href="/media-publikasi/galeri-kegiatan" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Galeri Kegiatan</a>
             </div>
           </li>
           <li class="relative group">
@@ -108,7 +108,7 @@
           
           <!-- Kepegawaian -->
           <div class="mb-1">
-            <button @click="mobileSubMenu = mobileSubMenu === 'kepegawaian' ? '' : 'kepegawaian'" class="text-white text-sm font-medium py-3 px-4 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-between w-full hover:bg-white/10 transition-colors">
+            <button @click="mobileSubMenu = mobileSubMenu === 'kepegawaian' ? '' : 'kepegawaian'" class="text-white text-sm font-medium py-3 px-4 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-between w-full hover:bg-white/10 transition-colors" :class="isActive('/kepegawaian') ? 'bg-white/15' : ''">
               <span>Kepegawaian</span>
               <svg class="w-4 h-4 transition-transform duration-200" :class="mobileSubMenu === 'kepegawaian' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -126,7 +126,7 @@
           
           <!-- Media dan Publikasi -->
           <div class="mb-1">
-            <button @click="mobileSubMenu = mobileSubMenu === 'media' ? '' : 'media'" class="text-white text-sm font-medium py-3 px-4 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-between w-full hover:bg-white/10 transition-colors">
+            <button @click="mobileSubMenu = mobileSubMenu === 'media' ? '' : 'media'" class="text-white text-sm font-medium py-3 px-4 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-between w-full hover:bg-white/10 transition-colors" :class="isActive('/media-publikasi') ? 'bg-white/15' : ''">
               <span>Media dan Publikasi</span>
               <svg class="w-4 h-4 transition-transform duration-200" :class="mobileSubMenu === 'media' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -139,7 +139,7 @@
               <a @click="toggleMobileMenu" href="/media-publikasi/pengumuman" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
                 Pengumuman
               </a>
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+              <a @click="toggleMobileMenu" href="/media-publikasi/galeri-kegiatan" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
                 Galeri Kegiatan
               </a>
             </div>
@@ -191,6 +191,14 @@ const mobileMenuOpen = ref(false)
 const mobileSubMenu = ref('')
 
 const isActive = (path) => {
+  if (path === '/media-publikasi') {
+    // Check if current route starts with /media-publikasi/
+    return route.path.startsWith('/media-publikasi/')
+  }
+  if (path === '/kepegawaian') {
+    // Check if current route starts with /kepegawaian/
+    return route.path.startsWith('/kepegawaian/')
+  }
   return route.path === path
 }
 

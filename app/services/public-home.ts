@@ -706,3 +706,113 @@ export async function getPublicPengumumanLainnya(id: number | string): Promise<a
     throw error
   }
 }
+
+/**
+ * Get daftar galeri kegiatan with filters (no auth required)
+ * @param filter - Filter object with sort
+ * @param offset - Offset for pagination
+ * @returns Daftar galeri kegiatan data
+ */
+export async function getPublicDaftarGaleri(filter: any, offset: number = 0): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-daftar-galeri`
+  
+  console.log('Fetching daftar galeri from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        filter,
+        offset
+      }
+    })
+
+    console.log('Daftar galeri API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public daftar galeri:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get detail galeri kegiatan by ID (no auth required)
+ * @param id - Galeri ID
+ * @returns Detail galeri data
+ */
+export async function getPublicDetailGaleri(id: number | string): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-detail-galeri`
+  
+  console.log('Fetching detail galeri from URL:', url, 'with ID:', id)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        id: Number(id)
+      }
+    })
+
+    console.log('Detail galeri API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public detail galeri:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get galeri lainnya (other galleries) by ID (no auth required)
+ * @param id - Current galeri ID to exclude
+ * @returns Other galeri data
+ */
+export async function getPublicGaleriLainnya(id: number | string): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-galeri-lainnya`
+  
+  console.log('Fetching galeri lainnya from URL:', url, 'with ID:', id)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        id: Number(id)
+      }
+    })
+
+    console.log('Galeri lainnya API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public galeri lainnya:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
