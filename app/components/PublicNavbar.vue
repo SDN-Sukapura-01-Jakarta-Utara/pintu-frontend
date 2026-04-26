@@ -37,7 +37,7 @@
             </a>
             <div class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl min-w-48 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 z-50">
               <a href="/media-publikasi/artikel" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Artikel</a>
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pengumuman</a>
+              <a href="/media-publikasi/pengumuman" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pengumuman</a>
               <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Galeri Kegiatan</a>
             </div>
           </li>
@@ -136,7 +136,7 @@
               <a @click="toggleMobileMenu" href="/media-publikasi/artikel" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
                 Artikel
               </a>
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+              <a @click="toggleMobileMenu" href="/media-publikasi/pengumuman" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
                 Pengumuman
               </a>
               <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">

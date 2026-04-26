@@ -596,3 +596,113 @@ export async function getPublicArtikelLainnya(id: number | string): Promise<any>
     throw error
   }
 }
+
+/**
+ * Get daftar pengumuman with filters (no auth required)
+ * @param filter - Filter object with sort
+ * @param offset - Offset for pagination
+ * @returns Daftar pengumuman data
+ */
+export async function getPublicDaftarPengumuman(filter: any, offset: number = 0): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-daftar-pengumuman`
+  
+  console.log('Fetching daftar pengumuman from URL:', url)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        filter,
+        offset
+      }
+    })
+
+    console.log('Daftar pengumuman API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public daftar pengumuman:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get detail pengumuman by ID (no auth required)
+ * @param id - Pengumuman ID
+ * @returns Detail pengumuman data
+ */
+export async function getPublicDetailPengumuman(id: number | string): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-detail-pengumuman`
+  
+  console.log('Fetching detail pengumuman from URL:', url, 'with ID:', id)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        id: Number(id)
+      }
+    })
+
+    console.log('Detail pengumuman API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public detail pengumuman:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get pengumuman lainnya (other announcements) by ID (no auth required)
+ * @param id - Current pengumuman ID to exclude
+ * @returns Other pengumuman data
+ */
+export async function getPublicPengumumanLainnya(id: number | string): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-pengumuman-lainnya`
+  
+  console.log('Fetching pengumuman lainnya from URL:', url, 'with ID:', id)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        id: Number(id)
+      }
+    })
+
+    console.log('Pengumuman lainnya API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public pengumuman lainnya:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
