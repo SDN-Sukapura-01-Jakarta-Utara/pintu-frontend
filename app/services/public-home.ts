@@ -524,3 +524,75 @@ export async function getPublicDaftarArtikel(filter: any, offset: number = 0): P
     throw error
   }
 }
+
+/**
+ * Get detail artikel by ID (no auth required)
+ * @param id - Artikel ID
+ * @returns Detail artikel data
+ */
+export async function getPublicDetailArtikel(id: number | string): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-detail-artikel`
+  
+  console.log('Fetching detail artikel from URL:', url, 'with ID:', id)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        id: Number(id)
+      }
+    })
+
+    console.log('Detail artikel API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public detail artikel:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get artikel lainnya (other articles) by ID (no auth required)
+ * @param id - Current artikel ID to exclude
+ * @returns Other artikel data
+ */
+export async function getPublicArtikelLainnya(id: number | string): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-artikel-lainnya`
+  
+  console.log('Fetching artikel lainnya from URL:', url, 'with ID:', id)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        id: Number(id)
+      }
+    })
+
+    console.log('Artikel lainnya API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public artikel lainnya:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}

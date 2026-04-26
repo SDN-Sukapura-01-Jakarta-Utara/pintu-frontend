@@ -35,7 +35,7 @@
           <!-- Title & Description -->
           <div class="max-w-2xl">
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 leading-tight animate-fadeInUp animation-delay-100">
-              Artikel & <span class="text-yellow-400">Berita</span>
+              <span class="text-yellow-400">Artikel</span>
             </h1>
             <p class="text-sm sm:text-base md:text-lg text-white/85 leading-relaxed animate-fadeInUp animation-delay-200">
               Informasi terkini seputar kegiatan, prestasi, dan berita SDN Sukapura 01.
@@ -187,7 +187,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getPublicDataKontak } from '~/services/public-home'
+import { getPublicDaftarArtikel, getPublicDataKontak } from '~/services/public-home'
 
 const router = useRouter()
 
@@ -207,26 +207,16 @@ const fetchArtikel = async (append = false) => {
   loading.value = true
   
   try {
-    const config = useRuntimeConfig()
-    const body = {
-      filter: {
-        sort: filters.value.sort
-      },
-      offset: currentOffset.value
+    const filterObj = {
+      sort: filters.value.sort
     }
 
     // Add kategori filter if selected
     if (filters.value.kategori) {
-      body.filter.kategori = filters.value.kategori
+      filterObj.kategori = filters.value.kategori
     }
 
-    const response = await $fetch(`${config.public.apiBase}/api/v1/public/get-data-daftar-artikel`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: body
-    })
+    const response = await getPublicDaftarArtikel(filterObj, currentOffset.value)
 
     if (append) {
       artikelList.value = [...artikelList.value, ...response.data]
