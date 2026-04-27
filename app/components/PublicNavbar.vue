@@ -52,7 +52,17 @@
               <div v-if="aplikasiSekolah.length === 0" class="px-5 py-3 text-gray-500 text-sm text-center">Tidak ada aplikasi</div>
             </div>
           </li>
-          <li><a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 block">Pertanyaan dan Pengaduan</a></li>
+          <li class="relative group">
+            <a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 flex items-center gap-1">
+              Layanan Umpan Balik
+              <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </a>
+            <div class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl min-w-48 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 z-50">
+              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pertanyaan</a>
+              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pengaduan Online</a>
+              <a @click.prevent="navigateToKritikSaran" href="/#kritik-saran" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Kritik & Saran</a>
+            </div>
+          </li>
         </ul>
         <button @click="toggleMobileMenu" class="lg:hidden flex flex-col gap-1.5 p-2 bg-transparent border-none cursor-pointer z-50 relative">
           <span class="w-6 h-0.5 bg-white block rounded transition-all duration-300" :class="mobileMenuOpen ? 'rotate-45 translate-y-2' : ''"></span>
@@ -162,9 +172,26 @@
             </div>
           </div>
           
-          <a @click="toggleMobileMenu" href="#" class="text-white text-sm font-medium py-3 px-4 rounded-lg block hover:bg-white/10 transition-colors mb-1">
-            Pertanyaan dan Pengaduan
-          </a>
+          <!-- Layanan Umpan Balik -->
+          <div class="mb-1">
+            <button @click="mobileSubMenu = mobileSubMenu === 'layanan' ? '' : 'layanan'" class="text-white text-sm font-medium py-3 px-4 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-between w-full hover:bg-white/10 transition-colors">
+              <span>Layanan Umpan Balik</span>
+              <svg class="w-4 h-4 transition-transform duration-200" :class="mobileSubMenu === 'layanan' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </button>
+            <div v-show="mobileSubMenu === 'layanan'" class="pl-4 mt-1 space-y-1">
+              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+                Pertanyaan
+              </a>
+              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+                Pengaduan Online
+              </a>
+              <a @click="navigateToKritikSaranMobile" href="/#kritik-saran" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+                Kritik & Saran
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </Transition>
@@ -216,6 +243,49 @@ const fetchAplikasiSekolah = async () => {
   } catch (error) {
     console.error('Error fetching aplikasi sekolah:', error)
     aplikasiSekolah.value = []
+  }
+}
+
+const navigateToKritikSaran = async (event) => {
+  event.preventDefault()
+  if (route.path === '/') {
+    // Already on homepage, just scroll
+    const element = document.getElementById('kritik-saran')
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  } else {
+    // Navigate to homepage first, then scroll
+    await navigateTo('/')
+    setTimeout(() => {
+      const element = document.getElementById('kritik-saran')
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 300)
+  }
+}
+
+const navigateToKritikSaranMobile = async (event) => {
+  event.preventDefault()
+  toggleMobileMenu()
+  if (route.path === '/') {
+    // Already on homepage, just scroll
+    setTimeout(() => {
+      const element = document.getElementById('kritik-saran')
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  } else {
+    // Navigate to homepage first, then scroll
+    await navigateTo('/')
+    setTimeout(() => {
+      const element = document.getElementById('kritik-saran')
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 300)
   }
 }
 

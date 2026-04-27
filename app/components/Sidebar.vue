@@ -244,16 +244,7 @@
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring PDBK</span>
                 </NuxtLink>
 
-                <!-- Kritik dan Saran -->
-                <NuxtLink to="/backoffice/kritik-saran" :class="[
-                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
-                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
-                ]">
-                    <i class="fa-solid fa-comment w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Kritik & Saran</span>
-                </NuxtLink>
-
-                <!-- Pertanyaan Pengaduan -->
+                <!-- Layanan Umpan Balik -->
                 <div>
                     <button @click="toggleSubmenu('pertanyaan')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
@@ -261,7 +252,7 @@
                     ]">
                         <i class="fa-solid fa-circle-question w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                         <div v-if="isOpen" class="flex-1 flex items-center justify-between">
-                            <span class="text-xs sm:text-sm font-medium">Pertanyaan Pengaduan</span>
+                            <span class="text-xs sm:text-sm font-medium">Layanan Umpan Balik</span>
                             <i :class="[
                                 'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
                                 openMenus.pertanyaan ? 'rotate-90' : ''
@@ -277,7 +268,11 @@
                         </NuxtLink>
                         <NuxtLink to="/backoffice/pengaduan"
                             class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
-                            Pengaduan
+                            Pengaduan Online
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/kritik-saran"
+                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            Kritik & Saran
                         </NuxtLink>
                     </div>
                 </div>

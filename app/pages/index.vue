@@ -708,7 +708,7 @@
     </section>
 
     <!-- ===== KRITIK & SARAN SECTION ===== -->
-    <section class="relative py-16 sm:py-24 px-5 sm:px-8 overflow-hidden" style="background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #B22222 100%);">
+    <section id="kritik-saran" class="relative py-16 sm:py-24 px-5 sm:px-8 overflow-hidden" style="background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #B22222 100%);">
       <!-- Decorative -->
       <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 1px); background-size: 30px 30px;"></div>
       <div class="absolute top-10 right-10 w-64 h-64 rounded-full opacity-10" style="background: radial-gradient(circle, #FFD700, transparent 70%);"></div>
