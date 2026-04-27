@@ -890,3 +890,53 @@ export async function getPublicDetailPrestasi(id: number | string): Promise<any>
     throw error
   }
 }
+
+
+/**
+ * Get public aplikasi sekolah data
+ * @returns Aplikasi sekolah data
+ */
+export async function getPublicAplikasiSekolah(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-aplikasi-sekolah`
+  
+  try {
+    const response = await $fetch(url, {
+      method: 'POST',
+      body: {
+        filter: {
+          show_in_jumbotron: null
+        }
+      }
+    })
+    return response
+  } catch (error) {
+    console.error('Error fetching public aplikasi sekolah:', error)
+    throw error
+  }
+}
+
+
+/**
+ * Get public aplikasi sekolah jumbotron data
+ * @returns Aplikasi sekolah jumbotron data
+ */
+export async function getPublicAplikasiJumbotron(): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-aplikasi-sekolah`
+  
+  try {
+    const response = await $fetch(url, {
+      method: 'POST',
+      body: {
+        filter: {
+          show_in_jumbotron: true
+        }
+      }
+    })
+    return response
+  } catch (error) {
+    console.error('Error fetching public aplikasi jumbotron:', error)
+    throw error
+  }
+}

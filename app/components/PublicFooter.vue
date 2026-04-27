@@ -62,10 +62,12 @@
             Aplikasi
           </h4>
           <ul class="list-none m-0 p-0 space-y-2.5">
-            <li><a href="#" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> PINTU</a></li>
-            <li><a href="#" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> SEPAKAT</a></li>
-            <li><a href="#" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> SIEKSA</a></li>
-            <li><a href="#" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Mutasi Siswa</a></li>
+            <li v-for="app in aplikasiSekolah" :key="app.id">
+              <a :href="app.link" target="_blank" rel="noopener noreferrer" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2">
+                <i class="fas fa-chevron-right text-[8px] text-red-500"></i> {{ app.nama }}
+              </a>
+            </li>
+            <li v-if="aplikasiSekolah.length === 0" class="text-gray-500 text-xs sm:text-sm">Tidak ada aplikasi</li>
           </ul>
         </div>
 
@@ -97,10 +99,29 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+import { getPublicAplikasiSekolah } from '~/services/public-home'
+
 defineProps({
   kontakData: {
     type: Object,
     default: null
   }
+})
+
+const aplikasiSekolah = ref([])
+
+const fetchAplikasiSekolah = async () => {
+  try {
+    const response = await getPublicAplikasiSekolah()
+    aplikasiSekolah.value = response.data || []
+  } catch (error) {
+    console.error('Error fetching aplikasi sekolah:', error)
+    aplikasiSekolah.value = []
+  }
+}
+
+onMounted(() => {
+  fetchAplikasiSekolah()
 })
 </script>

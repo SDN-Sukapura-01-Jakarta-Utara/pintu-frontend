@@ -48,11 +48,8 @@
               <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </a>
             <div class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl min-w-72 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 z-50">
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">PINTU (Portal Informasi Terpadu)</a>
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">SEPAKAT</a>
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">SIEKSA</a>
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">SIPERSA</a>
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">MUTASI SISWA</a>
+              <a v-for="app in aplikasiSekolah" :key="app.id" :href="app.link" target="_blank" rel="noopener noreferrer" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">{{ app.nama }}</a>
+              <div v-if="aplikasiSekolah.length === 0" class="px-5 py-3 text-gray-500 text-sm text-center">Tidak ada aplikasi</div>
             </div>
           </li>
           <li><a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 block">Pertanyaan dan Pengaduan</a></li>
@@ -158,21 +155,10 @@
               </svg>
             </button>
             <div v-show="mobileSubMenu === 'aplikasi'" class="pl-4 mt-1 space-y-1">
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
-                PINTU
+              <a v-for="app in aplikasiSekolah" :key="app.id" @click="toggleMobileMenu" :href="app.link" target="_blank" rel="noopener noreferrer" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+                {{ app.nama }}
               </a>
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
-                SEPAKAT
-              </a>
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
-                SIEKSA
-              </a>
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
-                SIPERSA
-              </a>
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
-                MUTASI SISWA
-              </a>
+              <div v-if="aplikasiSekolah.length === 0" class="text-white/60 text-sm py-2 px-4">Tidak ada aplikasi</div>
             </div>
           </div>
           
@@ -188,11 +174,13 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { getPublicAplikasiSekolah } from '~/services/public-home'
 
 const route = useRoute()
 const scrolled = ref(false)
 const mobileMenuOpen = ref(false)
 const mobileSubMenu = ref('')
+const aplikasiSekolah = ref([])
 
 const isActive = (path) => {
   if (path === '/media-publikasi') {
@@ -221,8 +209,19 @@ const handleScroll = () => {
   scrolled.value = window.scrollY > 100
 }
 
+const fetchAplikasiSekolah = async () => {
+  try {
+    const response = await getPublicAplikasiSekolah()
+    aplikasiSekolah.value = response.data || []
+  } catch (error) {
+    console.error('Error fetching aplikasi sekolah:', error)
+    aplikasiSekolah.value = []
+  }
+}
+
 onMounted(() => {
   window.addEventListener('scroll', handleScroll)
+  fetchAplikasiSekolah()
 })
 
 onUnmounted(() => {
