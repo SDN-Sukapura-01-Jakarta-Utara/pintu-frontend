@@ -39,6 +39,7 @@
               <a href="/media-publikasi/artikel" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Artikel</a>
               <a href="/media-publikasi/pengumuman" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pengumuman</a>
               <a href="/media-publikasi/galeri-kegiatan" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Galeri Kegiatan</a>
+              <a href="/media-publikasi/prestasi-siswa" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Prestasi Siswa</a>
             </div>
           </li>
           <li class="relative group">
@@ -141,6 +142,9 @@
               </a>
               <a @click="toggleMobileMenu" href="/media-publikasi/galeri-kegiatan" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
                 Galeri Kegiatan
+              </a>
+              <a @click="toggleMobileMenu" href="/media-publikasi/prestasi-siswa" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+                Prestasi Siswa
               </a>
             </div>
           </div>

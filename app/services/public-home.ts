@@ -816,3 +816,77 @@ export async function getPublicGaleriLainnya(id: number | string): Promise<any> 
     throw error
   }
 }
+
+/**
+ * Get public daftar prestasi (no auth required)
+ * @param filter - Filter object with sort
+ * @param offset - Offset for pagination
+ * @returns Prestasi list data
+ */
+export async function getPublicDaftarPrestasi(filter: any, offset: number = 0): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-daftar-prestasi`
+  
+  console.log('Fetching public daftar prestasi from URL:', url, 'with filter:', filter, 'offset:', offset)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        filter,
+        offset
+      }
+    })
+
+    console.log('Public daftar prestasi API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public daftar prestasi:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
+
+/**
+ * Get public detail prestasi (no auth required)
+ * @param id - Prestasi ID
+ * @returns Prestasi detail data
+ */
+export async function getPublicDetailPrestasi(id: number | string): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/get-data-detail-prestasi`
+  
+  console.log('Fetching public detail prestasi from URL:', url, 'with ID:', id)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        id: Number(id)
+      }
+    })
+
+    console.log('Public detail prestasi API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error fetching public detail prestasi:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}
