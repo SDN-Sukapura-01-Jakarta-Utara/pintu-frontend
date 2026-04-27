@@ -48,9 +48,10 @@
           </h4>
           <ul class="list-none m-0 p-0 space-y-2.5">
             <li><a href="/profil-sekolah" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Profil Sekolah</a></li>
-            <li><a href="#" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Artikel</a></li>
-            <li><a href="#" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Pengumuman</a></li>
-            <li><a href="#" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Galeri</a></li>
+            <li><a href="/media-publikasi/artikel" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Artikel</a></li>
+            <li><a href="/media-publikasi/pengumuman" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Pengumuman</a></li>
+            <li><a href="/media-publikasi/prestasi-siswa" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Prestasi Siswa</a></li>
+            <li><a href="/media-publikasi/galeri-kegiatan" class="text-gray-400 text-xs sm:text-sm hover:text-red-400 transition-colors flex items-center gap-2"><i class="fas fa-chevron-right text-[8px] text-red-500"></i> Galeri</a></li>
           </ul>
         </div>
 

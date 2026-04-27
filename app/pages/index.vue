@@ -405,7 +405,7 @@
             <button @click="prevPrestasi" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
               <i class="fas fa-chevron-left text-xs sm:text-sm"></i>
             </button>
-            <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+            <button @click="$router.push('/media-publikasi/prestasi-siswa')" class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
               Lihat Semua Prestasi
               <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
             </button>
@@ -444,6 +444,7 @@
               <div 
                 v-for="(artikel, index) in [...artikelData, ...artikelData]" 
                 :key="'artikel-' + index"
+                @click="$router.push('/media-publikasi/artikel/' + artikel.id)"
                 class="group artikel-card bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer transition-all duration-400 relative hover:-translate-y-3 border border-gray-100 hover:border-red-200 flex-shrink-0"
                 :style="{ width: 'calc((100% - 2rem) / 3)' }"
               >
@@ -481,7 +482,7 @@
           <button @click="prevArtikel" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
             <i class="fas fa-chevron-left text-xs sm:text-sm"></i>
           </button>
-          <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+          <button @click="$router.push('/media-publikasi/artikel')" class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
             Lihat Semua Artikel
             <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
           </button>
@@ -514,7 +515,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-7 lg:items-stretch">
           <!-- Card Besar (Kiri) -->
-          <div class="group bg-white rounded-2xl overflow-hidden border-2 border-yellow-400/20 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:border-yellow-400/50 reveal flex flex-col">
+          <div @click="$router.push('/media-publikasi/pengumuman/' + pengumumanLatest.id)" class="group bg-white rounded-2xl overflow-hidden border-2 border-yellow-400/20 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:border-yellow-400/50 reveal flex flex-col">
             <div class="relative h-52 lg:h-64 overflow-hidden flex-shrink-0">
               <img :src="pengumumanLatest.gambar" :alt="pengumumanLatest.judul" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
@@ -544,6 +545,7 @@
             <div
               v-for="(item, index) in pengumumanData"
               :key="item.id || index"
+              @click="$router.push('/media-publikasi/pengumuman/' + item.id)"
               class="group bg-white rounded-2xl overflow-hidden border-2 border-yellow-400/20 cursor-pointer flex flex-row transition-all duration-300 hover:-translate-y-1 hover:border-yellow-400/50 reveal lg:flex-1"
               :style="{ transitionDelay: `${index * 100}ms` }"
             >
@@ -568,7 +570,7 @@
         </div>
 
         <div class="flex justify-center mt-10 sm:mt-12 reveal">
-          <button class="group/btn inline-flex items-center gap-2 px-8 sm:px-10 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base text-gray-900 border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);">
+          <button @click="$router.push('/media-publikasi/pengumuman')" class="group/btn inline-flex items-center gap-2 px-8 sm:px-10 py-3 sm:py-4 rounded-full font-semibold text-sm sm:text-base text-gray-900 border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);">
             Lihat Semua Pengumuman
             <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
           </button>
@@ -603,6 +605,7 @@
           <div
             v-for="(galeri, index) in [...galeriData, ...galeriData]"
             :key="index"
+            @click="$router.push('/media-publikasi/galeri-kegiatan/' + galeri.id)"
             class="group relative rounded-2xl overflow-hidden h-60 sm:h-72 lg:h-80 cursor-pointer shadow-lg transition-all duration-400 hover:-translate-y-3 border-2 border-transparent hover:border-red-300 flex-shrink-0 w-72 sm:w-80 lg:w-96"
           >
             <img :src="galeri.gambar" :alt="galeri.kegiatan" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -628,7 +631,7 @@
         <button @click="scrollGaleri('left')" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full text-white border-none cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-lg shadow-md" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
           <i class="fas fa-chevron-left text-xs sm:text-sm"></i>
         </button>
-        <button class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+        <button @click="$router.push('/media-publikasi/galeri-kegiatan')" class="group/btn inline-flex items-center gap-2 px-7 sm:px-9 py-3 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
           Lihat Semua Galeri
           <i class="fas fa-arrow-right text-sm transition-transform duration-300 group-hover/btn:translate-x-1"></i>
         </button>
