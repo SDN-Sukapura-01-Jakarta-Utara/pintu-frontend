@@ -317,15 +317,24 @@
                     <div v-if="isOpen && openMenus.pertanyaan"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
                         <NuxtLink to="/backoffice/pertanyaan"
-                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            :class="[
+                                'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                                route.path.includes('/backoffice/pertanyaan') && !route.path.includes('layanan-umpan-balik') ? 'bg-red-700 font-semibold' : ''
+                            ]">
                             Pertanyaan
                         </NuxtLink>
                         <NuxtLink to="/backoffice/pengaduan"
-                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                            :class="[
+                                'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                                route.path.includes('/backoffice/pengaduan') && !route.path.includes('layanan-umpan-balik') ? 'bg-red-700 font-semibold' : ''
+                            ]">
                             Pengaduan Online
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/kritik-saran"
-                            class="block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700">
+                        <NuxtLink to="/backoffice/layanan-umpan-balik/kritik-saran"
+                            :class="[
+                                'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                                route.path.includes('kritik-saran') ? 'bg-red-700 font-semibold' : ''
+                            ]">
                             Kritik & Saran
                         </NuxtLink>
                     </div>
