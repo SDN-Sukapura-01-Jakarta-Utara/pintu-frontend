@@ -360,6 +360,9 @@
                                     <th class="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm md:text-[14.5px] font-semibold uppercase tracking-wider text-white">
                                         Ekstrakurikuler
                                     </th>
+                                    <th class="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm md:text-[14.5px] font-semibold uppercase tracking-wider text-white">
+                                        Status
+                                    </th>
                                     <th class="px-3 sm:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm md:text-[14.5px] font-semibold uppercase tracking-wider text-white">
                                         Aksi
                                     </th>
@@ -462,6 +465,21 @@
                                         <!-- Ekstrakurikuler -->
                                         <td class="px-3 sm:px-6 py-2 sm:py-4 text-[13px] sm:text-sm md:text-[15px] text-gray-700">
                                             {{ item.ekstrakurikuler?.name || '-' }}
+                                        </td>
+                                        <!-- Status -->
+                                        <td class="px-3 sm:px-6 py-2 sm:py-4">
+                                            <span :class="[
+                                                'inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs sm:text-sm md:text-[15px] font-semibold',
+                                                item.status === 'active'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-red-100 text-red-800',
+                                            ]">
+                                                <span :class="[
+                                                    'inline-block h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full mr-1 sm:mr-2',
+                                                    item.status === 'active' ? 'bg-green-600' : 'bg-red-600',
+                                                ]"></span>
+                                                {{ item.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                            </span>
                                         </td>
                                         <!-- Aksi -->
                                         <td class="px-3 sm:px-6 py-2 sm:py-4">

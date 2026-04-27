@@ -429,6 +429,33 @@
                             </div>
                         </div>
 
+                        <!-- Status Toggle -->
+                        <div class="pt-3 sm:pt-4 border-t border-gray-200">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs sm:text-sm font-semibold text-gray-900">Status</label>
+                                <div class="flex items-center gap-3">
+                                    <button type="button" @click="form.status = form.status === 'active' ? 'inactive' : 'active'" :disabled="isSubmitting" :class="[
+                                        'relative inline-flex h-8 w-14 items-center rounded-full transition-colors duration-300',
+                                        form.status === 'active' ? 'bg-green-600' : 'bg-gray-300',
+                                        isSubmitting && 'opacity-50 cursor-not-allowed'
+                                    ]">
+                                        <span :class="[
+                                            'inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 shadow-md',
+                                            form.status === 'active' ? 'translate-x-7' : 'translate-x-1'
+                                        ]"></span>
+                                    </button>
+                                    <span :class="[
+                                        'px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-semibold',
+                                        form.status === 'active'
+                                            ? 'bg-green-100 text-green-800'
+                                            : 'bg-red-100 text-red-800'
+                                    ]">
+                                        {{ form.status === 'active' ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Error Alert -->
                         <div v-if="formError"
                             class="p-3 sm:p-4 bg-red-50 border-2 border-red-200 rounded-xl">
@@ -569,7 +596,8 @@ const form = ref({
     penyelenggara: '',
     tanggal_lomba: '',
     keterangan: '',
-    ekstrakurikuler_id: 0
+    ekstrakurikuler_id: 0,
+    status: 'active'
 })
 
 // Lists
@@ -673,7 +701,8 @@ const loadPrestasiData = async () => {
             penyelenggara: prestasi.penyelenggara || '',
             tanggal_lomba: prestasi.tanggal_lomba ? prestasi.tanggal_lomba.substring(0, 10) : '',
             keterangan: prestasi.keterangan || '',
-            ekstrakurikuler_id: prestasi.ekstrakurikuler_id || 0
+            ekstrakurikuler_id: prestasi.ekstrakurikuler_id || 0,
+            status: prestasi.status || 'active'
         }
 
         // Set peserta didik label if individu
@@ -953,6 +982,7 @@ const handleSubmit = async () => {
         formData.append('penyelenggara', form.value.penyelenggara)
         formData.append('tanggal_lomba', form.value.tanggal_lomba)
         formData.append('keterangan', form.value.keterangan)
+        formData.append('status', form.value.status)
         formData.append('tahun_pelajaran_id', form.value.tahun_pelajaran_id.toString())
 
         if (form.value.jenis === 'Individu') {
