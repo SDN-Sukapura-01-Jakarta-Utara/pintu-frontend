@@ -940,3 +940,37 @@ export async function getPublicAplikasiJumbotron(): Promise<any> {
     throw error
   }
 }
+
+/**
+ * Submit kritik dan saran (no auth required)
+ * @param data - Object containing nama and kritik_saran
+ * @returns Response with message
+ */
+export async function submitKritikSaran(data: { nama: string; kritik_saran: string }): Promise<any> {
+  const config = useRuntimeConfig()
+  const url = `${config.public.apiBase}/api/v1/public/create-kritik-saran`
+  
+  console.log('Submitting kritik saran to URL:', url, 'with data:', data)
+  
+  try {
+    const response = await $fetch<any>(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: data
+    })
+
+    console.log('Submit kritik saran API Response:', response)
+    return response
+  } catch (error: any) {
+    console.error('Error submitting kritik saran:', error)
+    console.error('Error details:', {
+      status: error?.status,
+      statusText: error?.statusText,
+      data: error?.data,
+      message: error?.message
+    })
+    throw error
+  }
+}

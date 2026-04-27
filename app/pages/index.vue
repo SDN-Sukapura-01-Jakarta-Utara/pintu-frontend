@@ -730,17 +730,32 @@
             <label class="block text-sm font-semibold text-gray-900 mb-2">
               <i class="fas fa-user text-red-500 mr-1"></i> Nama <span class="text-red-600">*</span>
             </label>
-            <input type="text" placeholder="Masukkan nama Anda" class="w-full px-4 sm:px-5 py-3 sm:py-4 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 font-poppins bg-gray-50 hover:bg-white" />
+            <input 
+              v-model="kritikSaranForm.nama" 
+              type="text" 
+              placeholder="Masukkan nama Anda" 
+              maxlength="255"
+              class="w-full px-4 sm:px-5 py-3 sm:py-4 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 font-poppins bg-gray-50 hover:bg-white" 
+            />
+            <p class="text-xs text-gray-500 mt-1">{{ kritikSaranForm.nama.length }}/255 karakter</p>
           </div>
           <div class="mb-5 sm:mb-6">
             <label class="block text-sm font-semibold text-gray-900 mb-2">
               <i class="fas fa-pen text-red-500 mr-1"></i> Kritik &amp; Saran <span class="text-red-600">*</span>
             </label>
-            <textarea placeholder="Tulis kritik dan saran Anda di sini..." rows="5" class="w-full px-4 sm:px-5 py-3 sm:py-4 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 resize-y font-poppins bg-gray-50 hover:bg-white"></textarea>
+            <textarea 
+              v-model="kritikSaranForm.kritik_saran" 
+              placeholder="Tulis kritik dan saran Anda di sini..." 
+              rows="5" 
+              maxlength="5000"
+              class="w-full px-4 sm:px-5 py-3 sm:py-4 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-500/10 transition-all duration-200 resize-y font-poppins bg-gray-50 hover:bg-white"
+            ></textarea>
+            <p class="text-xs text-gray-500 mt-1">{{ kritikSaranForm.kritik_saran.length }}/5000 karakter</p>
           </div>
-          <button class="group w-full flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
-            <i class="fas fa-paper-plane transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
-            Kirim Kritik &amp; Saran
+          <button @click="handleSubmitKritikSaran" :disabled="isSubmittingKritikSaran" class="group w-full flex items-center justify-center gap-2 sm:gap-3 py-3.5 sm:py-4 rounded-full text-white font-semibold text-sm sm:text-base border-none cursor-pointer transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed" style="background: linear-gradient(135deg, #8B0000, #DC143C);">
+            <i v-if="isSubmittingKritikSaran" class="fas fa-spinner fa-spin"></i>
+            <i v-else class="fas fa-paper-plane transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"></i>
+            {{ isSubmittingKritikSaran ? 'Mengirim...' : 'Kirim Kritik & Saran' }}
           </button>
         </div>
       </div>
@@ -769,13 +784,73 @@
       @close="closeTeamModal"
     />
 
+    <!-- Modal Success Kritik Saran -->
+    <Transition name="fade">
+      <div v-if="showSuccessModal" @click="closeSuccessModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+        <div @click.stop class="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden transform transition-all animate-bounce-in">
+          <!-- Header dengan gradient -->
+          <div class="relative bg-gradient-to-r from-red-600 via-red-500 to-red-600 p-8 text-center overflow-hidden">
+            <!-- Decorative circles -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2"></div>
+            
+            <!-- Icon -->
+            <div class="relative">
+              <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg animate-scale-in">
+                <i class="fas fa-check-circle text-4xl text-green-500"></i>
+              </div>
+              <!-- Confetti effect -->
+              <div class="absolute top-0 left-1/2 -translate-x-1/2">
+                <i class="fas fa-star text-yellow-300 text-xs absolute animate-float" style="top: -10px; left: -30px;"></i>
+                <i class="fas fa-star text-yellow-300 text-xs absolute animate-float-delayed" style="top: -15px; right: -30px;"></i>
+                <i class="fas fa-heart text-pink-300 text-xs absolute animate-float" style="top: -5px; left: -40px;"></i>
+                <i class="fas fa-heart text-pink-300 text-xs absolute animate-float-delayed" style="top: -8px; right: -40px;"></i>
+              </div>
+            </div>
+            
+            <h3 class="text-2xl font-bold text-white mb-2 relative">Terima Kasih!</h3>
+            <p class="text-white/90 text-sm relative">Kritik dan saran Anda telah terkirim</p>
+          </div>
+          
+          <!-- Body -->
+          <div class="p-8 text-center">
+            <div class="mb-6">
+              <div class="inline-flex items-center gap-2 px-4 py-2 bg-green-50 rounded-full mb-4">
+                <i class="fas fa-check text-green-600"></i>
+                <span class="text-sm font-semibold text-green-700">Berhasil Dikirim</span>
+              </div>
+              <p class="text-gray-600 leading-relaxed">
+                Terima kasih telah memberikan kritik dan saran untuk kemajuan SDN Sukapura 01. 
+                Masukan Anda sangat berharga bagi kami untuk terus meningkatkan kualitas pendidikan.
+              </p>
+            </div>
+            
+            <!-- Decorative divider -->
+            <div class="flex items-center gap-2 mb-6">
+              <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+              <i class="fas fa-heart text-red-400 text-xs"></i>
+              <div class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+            </div>
+            
+            <button 
+              @click="closeSuccessModal" 
+              class="w-full px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-500 text-white rounded-xl font-semibold hover:from-red-700 hover:to-red-600 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2"
+            >
+              <span>Tutup</span>
+              <i class="fas fa-times text-sm"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, reactive } from 'vue'
 import { usePublicHomeStore } from '~/stores/PublicHomeStore'
-import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman, getPublicDataGaleriKegiatan, getPublicDataKontak } from '~/services/public-home'
+import { getPublicDataPrestasi, getPublicDataArtikel, getPublicPengumumanLatest, getPublicDataPengumuman, getPublicDataGaleriKegiatan, getPublicDataKontak, submitKritikSaran } from '~/services/public-home'
 import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
 // Set page title
@@ -798,6 +873,16 @@ const currentArtikel = ref(0)
 const artikelTrack = ref(null)
 const galeriWrapper = ref(null)
 const galeriTrack = ref(null)
+
+// State untuk kritik saran form
+const kritikSaranForm = reactive({
+  nama: '',
+  kritik_saran: ''
+})
+const isSubmittingKritikSaran = ref(false)
+const showSuccessModal = ref(false)
+const successMessage = ref('')
+
 
 // State untuk modal team members
 const showTeamModal = ref(false)
@@ -1277,6 +1362,66 @@ function closeTeamModal() {
   showTeamModal.value = false
 }
 
+// Handle submit kritik saran
+async function handleSubmitKritikSaran() {
+  // Validasi
+  if (!kritikSaranForm.nama.trim()) {
+    alert('Nama harus diisi')
+    return
+  }
+  if (!kritikSaranForm.kritik_saran.trim()) {
+    alert('Kritik & Saran harus diisi')
+    return
+  }
+
+  // Validasi panjang input
+  if (kritikSaranForm.nama.trim().length > 255) {
+    alert('Nama terlalu panjang (maksimal 255 karakter)')
+    return
+  }
+  if (kritikSaranForm.kritik_saran.trim().length > 5000) {
+    alert('Kritik & Saran terlalu panjang (maksimal 5000 karakter)')
+    return
+  }
+
+  // Sanitasi input - hapus HTML tags dan karakter berbahaya
+  const sanitizeInput = (input) => {
+    return input
+      .trim()
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+      .replace(/<[^>]*>/g, '') // Remove all HTML tags
+      .replace(/javascript:/gi, '') // Remove javascript: protocol
+      .replace(/on\w+\s*=/gi, '') // Remove event handlers like onclick=
+  }
+
+  isSubmittingKritikSaran.value = true
+
+  try {
+    const response = await submitKritikSaran({
+      nama: sanitizeInput(kritikSaranForm.nama),
+      kritik_saran: sanitizeInput(kritikSaranForm.kritik_saran)
+    })
+
+    // Sanitasi message dari API juga untuk keamanan
+    successMessage.value = sanitizeInput(response.message || 'Kritik dan saran berhasil dikirim')
+    showSuccessModal.value = true
+
+    // Reset form
+    kritikSaranForm.nama = ''
+    kritikSaranForm.kritik_saran = ''
+  } catch (error) {
+    console.error('Error submitting kritik saran:', error)
+    alert('Gagal mengirim kritik dan saran. Silakan coba lagi.')
+  } finally {
+    isSubmittingKritikSaran.value = false
+  }
+}
+
+// Close success modal
+function closeSuccessModal() {
+  showSuccessModal.value = false
+}
+
 // Artikel navigation with infinite loop
 function nextArtikel() {
   if (artikelData.value.length === 0) return
@@ -1729,4 +1874,75 @@ onUnmounted(() => {
 .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .line-clamp-4 { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ── SUCCESS MODAL ANIMATIONS ── */
+@keyframes bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-50px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-20px) rotate(10deg);
+    opacity: 0.8;
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-25px) rotate(-10deg);
+    opacity: 0.7;
+  }
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.animate-scale-in {
+  animation: scale-in 0.5s ease-out 0.2s both;
+}
+
+.animate-float {
+  animation: float 2s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 2s ease-in-out infinite 0.3s;
+}
 </style>
+

@@ -224,6 +224,16 @@
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Mutasi Siswa Baru</span>
                 </NuxtLink>
 
+                <!-- Administrasi Guru -->
+                <NuxtLink to="/backoffice/administrasi-guru" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('administrasi-guru') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-chalkboard-user w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Administrasi Guru</span>
+                </NuxtLink>
+
                 <!-- Absensi Siswa -->
                 <NuxtLink to="/backoffice/kehadiran-siswa" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
@@ -242,6 +252,50 @@
                 ]">
                     <i class="fa-solid fa-chart-line w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring PDBK</span>
+                </NuxtLink>
+
+                <!-- Arsip dan Surat -->
+                <div>
+                    <button @click="toggleSubmenu('arsip')" :class="[
+                        'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                        isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
+                    ]">
+                        <i class="fa-solid fa-folder-open w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                        <div v-if="isOpen" class="flex-1 flex items-center justify-between">
+                            <span class="text-xs sm:text-sm font-medium">Arsip dan Surat</span>
+                            <i :class="[
+                                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
+                                openMenus.arsip ? 'rotate-90' : ''
+                            ]"></i>
+                        </div>
+                    </button>
+
+                    <!-- Submenu -->
+                    <div v-if="isOpen && openMenus.arsip"
+                        class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
+                        <NuxtLink to="/backoffice/arsip-kegiatan" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('arsip-kegiatan') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Arsip Kegiatan
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/surat-menyurat" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('surat-menyurat') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Surat Menyurat
+                        </NuxtLink>
+                    </div>
+                </div>
+
+                <!-- Monitoring Adiwiyata -->
+                <NuxtLink to="/backoffice/monitoring-adiwiyata" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('monitoring-adiwiyata') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-leaf w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring Adiwiyata</span>
                 </NuxtLink>
 
                 <!-- Layanan Umpan Balik -->
@@ -276,6 +330,16 @@
                         </NuxtLink>
                     </div>
                 </div>
+
+                <!-- Buku Panduan -->
+                <NuxtLink to="/backoffice/buku-panduan" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('buku-panduan') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-book w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Buku Panduan Aplikasi</span>
+                </NuxtLink>
             </nav>
 
             <!-- User Info & Logout (Mobile/Tablet Only) -->
@@ -346,6 +410,7 @@ const openMenus = ref({
     sekolah: false,
     media: false,
     kepegawaian: false,
+    arsip: false,
     pertanyaan: false,
 })
 
@@ -354,7 +419,8 @@ const isActiveSubmenu = computed(() => ({
     sekolah: route.path.includes('informasi-sekolah'),
     media: route.path.includes('media'),
     kepegawaian: route.path.includes('kepegawaian'),
-    pertanyaan: route.path.includes('pertanyaan') || route.path.includes('pengaduan'),
+    arsip: route.path.includes('arsip-kegiatan') || route.path.includes('surat-menyurat'),
+    pertanyaan: route.path.includes('pertanyaan') || route.path.includes('pengaduan') || route.path.includes('kritik-saran'),
 }))
 
 // Auto-open submenu if current path is in that submenu
@@ -367,6 +433,9 @@ watch(() => route.path, () => {
     }
     if (isActiveSubmenu.value.kepegawaian && !openMenus.value.kepegawaian) {
         openMenus.value.kepegawaian = true
+    }
+    if (isActiveSubmenu.value.arsip && !openMenus.value.arsip) {
+        openMenus.value.arsip = true
     }
     if (isActiveSubmenu.value.pertanyaan && !openMenus.value.pertanyaan) {
         openMenus.value.pertanyaan = true
