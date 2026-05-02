@@ -53,12 +53,12 @@
             </div>
           </li>
           <li class="relative group">
-            <a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 flex items-center gap-1">
+            <a href="#" class="text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-white/20 transition-all duration-200 flex items-center gap-1" :class="isActive('/layanan-umpan-balik') ? 'bg-white/25 shadow-lg' : ''">
               Layanan Umpan Balik
               <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </a>
             <div class="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-2xl min-w-48 overflow-hidden opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 z-50">
-              <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pertanyaan</a>
+              <a href="/layanan-umpan-balik/pertanyaan" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pertanyaan</a>
               <a href="#" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Pengaduan Online</a>
               <a @click.prevent="navigateToKritikSaran" href="/#kritik-saran" class="block px-5 py-3 text-gray-700 text-sm hover:bg-red-700 hover:text-white transition-all duration-200 hover:pl-7">Kritik & Saran</a>
             </div>
@@ -174,14 +174,14 @@
           
           <!-- Layanan Umpan Balik -->
           <div class="mb-1">
-            <button @click="mobileSubMenu = mobileSubMenu === 'layanan' ? '' : 'layanan'" class="text-white text-sm font-medium py-3 px-4 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-between w-full hover:bg-white/10 transition-colors">
+            <button @click="mobileSubMenu = mobileSubMenu === 'layanan' ? '' : 'layanan'" class="text-white text-sm font-medium py-3 px-4 rounded-lg bg-transparent border-none cursor-pointer flex items-center justify-between w-full hover:bg-white/10 transition-colors" :class="isActive('/layanan-umpan-balik') ? 'bg-white/15' : ''">
               <span>Layanan Umpan Balik</span>
               <svg class="w-4 h-4 transition-transform duration-200" :class="mobileSubMenu === 'layanan' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </button>
             <div v-show="mobileSubMenu === 'layanan'" class="pl-4 mt-1 space-y-1">
-              <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
+              <a @click="toggleMobileMenu" href="/layanan-umpan-balik/pertanyaan" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
                 Pertanyaan
               </a>
               <a @click="toggleMobileMenu" href="#" class="text-white/90 text-sm py-2 px-4 rounded-lg block hover:bg-white/10 transition-colors">
@@ -217,6 +217,10 @@ const isActive = (path) => {
   if (path === '/kepegawaian') {
     // Check if current route starts with /kepegawaian/
     return route.path.startsWith('/kepegawaian/')
+  }
+  if (path === '/layanan-umpan-balik') {
+    // Check if current route starts with /layanan-umpan-balik/
+    return route.path.startsWith('/layanan-umpan-balik/')
   }
   return route.path === path
 }
