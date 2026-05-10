@@ -254,36 +254,46 @@
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring PDBK</span>
                 </NuxtLink>
 
-                <!-- Arsip dan Surat -->
+                <!-- Arsip Rapat & Kegiatan -->
+                <NuxtLink to="/backoffice/arsip-kegiatan" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('arsip-kegiatan') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-folder-open w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Arsip Rapat & Kegiatan</span>
+                </NuxtLink>
+
+                <!-- Surat Menyurat -->
                 <div>
-                    <button @click="toggleSubmenu('arsip')" :class="[
+                    <button @click="toggleSubmenu('surat')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                     ]">
-                        <i class="fa-solid fa-folder-open w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                        <i class="fa-solid fa-envelope w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                         <div v-if="isOpen" class="flex-1 flex items-center justify-between">
-                            <span class="text-xs sm:text-sm font-medium">Arsip dan Surat</span>
+                            <span class="text-xs sm:text-sm font-medium">Surat Menyurat</span>
                             <i :class="[
                                 'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
-                                openMenus.arsip ? 'rotate-90' : ''
+                                openMenus.surat ? 'rotate-90' : ''
                             ]"></i>
                         </div>
                     </button>
 
                     <!-- Submenu -->
-                    <div v-if="isOpen && openMenus.arsip"
+                    <div v-if="isOpen && openMenus.surat"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/arsip-kegiatan" :class="[
+                        <NuxtLink to="/backoffice/surat-menyurat/surat-masuk" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
-                            route.path.includes('arsip-kegiatan') ? 'bg-red-700 font-semibold' : ''
+                            route.path.includes('surat-masuk') ? 'bg-red-700 font-semibold' : ''
                         ]">
-                            Arsip Kegiatan
+                            Surat Masuk
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/surat-menyurat" :class="[
+                        <NuxtLink to="/backoffice/surat-menyurat/surat-keluar" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
-                            route.path.includes('surat-menyurat') ? 'bg-red-700 font-semibold' : ''
+                            route.path.includes('surat-keluar') ? 'bg-red-700 font-semibold' : ''
                         ]">
-                            Surat Menyurat
+                            Surat Keluar
                         </NuxtLink>
                     </div>
                 </div>
@@ -419,7 +429,7 @@ const openMenus = ref({
     sekolah: false,
     media: false,
     kepegawaian: false,
-    arsip: false,
+    surat: false,
     pertanyaan: false,
 })
 
@@ -428,7 +438,7 @@ const isActiveSubmenu = computed(() => ({
     sekolah: route.path.includes('informasi-sekolah'),
     media: route.path.includes('media'),
     kepegawaian: route.path.includes('kepegawaian'),
-    arsip: route.path.includes('arsip-kegiatan') || route.path.includes('surat-menyurat'),
+    surat: route.path.includes('surat-masuk') || route.path.includes('surat-keluar'),
     pertanyaan: route.path.includes('layanan-umpan-balik/pertanyaan') || route.path.includes('layanan-umpan-balik/pengaduan') || route.path.includes('kritik-saran'),
 }))
 
@@ -443,8 +453,8 @@ watch(() => route.path, () => {
     if (isActiveSubmenu.value.kepegawaian && !openMenus.value.kepegawaian) {
         openMenus.value.kepegawaian = true
     }
-    if (isActiveSubmenu.value.arsip && !openMenus.value.arsip) {
-        openMenus.value.arsip = true
+    if (isActiveSubmenu.value.surat && !openMenus.value.surat) {
+        openMenus.value.surat = true
     }
     if (isActiveSubmenu.value.pertanyaan && !openMenus.value.pertanyaan) {
         openMenus.value.pertanyaan = true

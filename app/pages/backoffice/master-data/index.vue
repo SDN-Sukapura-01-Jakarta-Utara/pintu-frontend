@@ -628,8 +628,8 @@
                                             <ViewButton title="Lihat Detail" label="Lihat"
                                                 @click="openDetailRoleModal(item)" />
 
-                                            <!-- Edit Button (Disabled for role id 1) -->
-                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit"
+                                            <!-- Edit Button -->
+                                            <EditButton title="Edit" label="Edit"
                                                 @click="openEditRoleModal(item)" />
 
                                             <!-- Delete Button (Disabled for role id 1) -->
