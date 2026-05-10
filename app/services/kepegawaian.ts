@@ -158,10 +158,14 @@ export async function updateKepegawaian(id: number, kepegawaianData: any) {
         // Append all kepegawaian data
         Object.keys(kepegawaianData).forEach(key => {
             const value = kepegawaianData[key]
-            if (value === null || value === undefined) {
-                return // Skip null/undefined
+            // Skip hanya undefined, tapi tetap kirim null
+            if (value === undefined) {
+                return // Skip undefined
             }
-            if (Array.isArray(value)) {
+            if (value === null) {
+                // Kirim null sebagai string kosong atau 'null' tergantung backend
+                formData.append(key, '')
+            } else if (Array.isArray(value)) {
                 // Append all arrays as JSON string to preserve array format
                 formData.append(key, JSON.stringify(value))
             } else {

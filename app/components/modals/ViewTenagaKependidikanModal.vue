@@ -144,6 +144,22 @@
                         </div>
                     </div>
 
+                    <!-- Foto Section -->
+                    <div v-if="tenagaKependidikan.foto" class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
+                        <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
+                            <h3
+                                class="text-sm sm:text-base md:text-base font-bold text-gray-900 flex items-center gap-2">
+                                <i
+                                    class="fa-solid fa-image w-3.5 sm:w-4 h-3.5 sm:h-4 text-orange-600 flex-shrink-0"></i>
+                                <span>Foto Tenaga Kependidikan</span>
+                            </h3>
+                        </div>
+                        <div class="p-3 sm:p-4 md:p-6 flex justify-center">
+                            <img :src="tenagaKependidikan.foto" :alt="tenagaKependidikan.nama"
+                                class="h-40 sm:h-48 aspect-[3/4] object-cover rounded-lg border border-gray-200 shadow-md" />
+                        </div>
+                    </div>
+
                     <!-- Dokumen Section -->
                     <div class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">

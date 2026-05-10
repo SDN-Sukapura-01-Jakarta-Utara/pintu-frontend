@@ -1362,15 +1362,13 @@ const handleSubmit = async () => {
         const payload: Record<string, any> = {
             nama: form.value.nama,
             username: form.value.username,
-            nip: form.value.nip,
+            // Jika honorer, kirim null untuk NIP dan NKKI. Jika tidak, kirim value (bisa kosong atau ada isi)
+            nip: form.value.isHonorer ? null : (form.value.nip.trim() || null),
+            nkki: form.value.isHonorer ? null : (form.value.nkki.trim() || null),
             kategori: form.value.kategori,
             jabatan: form.value.jabatan,
             role_ids: Object.values(form.value.roleIds).filter(role => role !== null && role !== undefined) as number[],
             status: form.value.status
-        }
-
-        if (form.value.nkki.trim()) {
-            payload.nkki = form.value.nkki
         }
 
         if (form.value.rombelGuruKelasId) {
