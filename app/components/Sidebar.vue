@@ -321,14 +321,14 @@
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('layanan-umpan-balik/pertanyaan') ? 'bg-red-700 font-semibold' : ''
                             ]">
-                            Pertanyaan
+                            Layanan Pertanyaan
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/pengaduan"
+                        <NuxtLink to="/backoffice/layanan-umpan-balik/pengaduan"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
-                                route.path.includes('/backoffice/pengaduan') && !route.path.includes('layanan-umpan-balik') ? 'bg-red-700 font-semibold' : ''
+                                route.path.includes('layanan-umpan-balik/pengaduan') ? 'bg-red-700 font-semibold' : ''
                             ]">
-                            Pengaduan Online
+                            Layanan Pengaduan
                         </NuxtLink>
                         <NuxtLink to="/backoffice/layanan-umpan-balik/kritik-saran"
                             :class="[
@@ -429,7 +429,7 @@ const isActiveSubmenu = computed(() => ({
     media: route.path.includes('media'),
     kepegawaian: route.path.includes('kepegawaian'),
     arsip: route.path.includes('arsip-kegiatan') || route.path.includes('surat-menyurat'),
-    pertanyaan: route.path.includes('pertanyaan') || route.path.includes('pengaduan') || route.path.includes('kritik-saran'),
+    pertanyaan: route.path.includes('layanan-umpan-balik/pertanyaan') || route.path.includes('layanan-umpan-balik/pengaduan') || route.path.includes('kritik-saran'),
 }))
 
 // Auto-open submenu if current path is in that submenu
