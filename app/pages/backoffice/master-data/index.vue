@@ -140,23 +140,23 @@
                         Kelola data master sistem PINTU SDN Sukapura 01
                     </p>
                 </div>
-                <AddButton v-if="activeTab === 'user'" label="Tambah User" iconClass="fa-solid fa-plus"
+                <AddButton v-if="activeTab === 'user' && hasPermission('CREATE_MASTER_DATA')" label="Tambah User" iconClass="fa-solid fa-plus"
                     @click="openCreateUserModal" />
-                <AddButton v-if="activeTab === 'system'" label="Tambah Sistem" iconClass="fa-solid fa-plus"
+                <AddButton v-if="activeTab === 'system' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Sistem" iconClass="fa-solid fa-plus"
                     @click="openCreateSystemModal" />
-                <AddButton v-if="activeTab === 'role'" label="Tambah Role" iconClass="fa-solid fa-plus"
+                <AddButton v-if="activeTab === 'role' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Role" iconClass="fa-solid fa-plus"
                     @click="openCreateRoleModal" />
-                <AddButton v-if="activeTab === 'permission'" label="Tambah Permission" iconClass="fa-solid fa-plus"
+                <AddButton v-if="activeTab === 'permission' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Permission" iconClass="fa-solid fa-plus"
                     @click="openCreatePermissionModal" />
-                <AddButton v-if="activeTab === 'tahun-pelajaran'" label="Tambah Tahun Pelajaran"
+                <AddButton v-if="activeTab === 'tahun-pelajaran' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Tahun Pelajaran"
                     iconClass="fa-solid fa-plus" @click="openCreateTahunPelajaranModal" />
-                <AddButton v-if="activeTab === 'kelas'" label="Tambah Kelas" iconClass="fa-solid fa-plus"
+                <AddButton v-if="activeTab === 'kelas' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Kelas" iconClass="fa-solid fa-plus"
                     @click="openCreateKelasModal" />
-                <AddButton v-if="activeTab === 'rombel'" label="Tambah Rombel" iconClass="fa-solid fa-plus"
+                <AddButton v-if="activeTab === 'rombel' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Rombel" iconClass="fa-solid fa-plus"
                     @click="openCreateRombelModal" />
-                <AddButton v-if="activeTab === 'bidang-studi'" label="Tambah Bidang Studi" iconClass="fa-solid fa-plus"
+                <AddButton v-if="activeTab === 'bidang-studi' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Bidang Studi" iconClass="fa-solid fa-plus"
                     @click="openCreateBidangStudiModal" />
-                <AddButton v-if="activeTab === 'ekstrakurikuler'" label="Tambah Ekstrakurikuler"
+                <AddButton v-if="activeTab === 'ekstrakurikuler' && hasPermission('CREATE_MASTER_DATA')" label="Tambah Ekstrakurikuler"
                     iconClass="fa-solid fa-plus" @click="openCreateEkstrakurikulerModal" />
             </div>
         </div>
@@ -329,11 +329,11 @@
                                                 @click="openDetailUserModal(item)" />
 
                                             <!-- Edit Button (Disabled for user id 1) -->
-                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit"
+                                            <EditButton :disabled="item.id === 1 || !hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit"
                                                 @click="openEditUserModal(item)" />
 
                                             <!-- Delete Button (Disabled for user id 1) -->
-                                            <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="item.id === 1 || !hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteConfirm(item)" />
                                         </div>
                                     </template>
@@ -468,11 +468,11 @@
                                                 @click="openDetailSystemModal(item)" />
 
                                             <!-- Edit Button (Disabled for system id 1) -->
-                                            <EditButton :disabled="item.id === 1" title="Edit" label="Edit"
+                                            <EditButton :disabled="item.id === 1 || !hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit"
                                                 @click="openEditSystemModal(item)" />
 
                                             <!-- Delete Button (Disabled for system id 1) -->
-                                            <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="item.id === 1 || !hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteSystemConfirm(item)" />
                                         </div>
                                     </template>
@@ -629,11 +629,11 @@
                                                 @click="openDetailRoleModal(item)" />
 
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit"
+                                            <EditButton :disabled="!hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit"
                                                 @click="openEditRoleModal(item)" />
 
                                             <!-- Delete Button (Disabled for role id 1) -->
-                                            <DeleteButton :disabled="item.id === 1" title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="item.id === 1 || !hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteRoleConfirm(item)" />
                                         </div>
                                     </template>
@@ -804,11 +804,11 @@
                                                 @click="openDetailPermissionModal(item)" />
 
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit"
+                                            <EditButton :disabled="!hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit"
                                                 @click="openEditPermissionModal(item)" />
 
                                             <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="!hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeletePermissionConfirm(item)" />
                                         </div>
                                     </template>
@@ -946,11 +946,11 @@
                                     <template #actions="{ item }">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit"
+                                            <EditButton :disabled="!hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit"
                                                 @click="openEditTahunPelajaranModal(item)" />
 
                                             <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="!hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteTahunPelajaranConfirm(item)" />
                                         </div>
                                     </template>
@@ -1085,10 +1085,10 @@
                                     <template #actions="{ item }">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit" @click="openEditKelasModal(item)" />
+                                            <EditButton :disabled="!hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit" @click="openEditKelasModal(item)" />
 
                                             <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="!hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteKelasConfirm(item)" />
                                         </div>
                                     </template>
@@ -1250,10 +1250,10 @@
                                     <template #actions="{ item }">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit" @click="openEditRombelModal(item)" />
+                                            <EditButton :disabled="!hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit" @click="openEditRombelModal(item)" />
 
                                             <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="!hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteRombelConfirm(item)" />
                                         </div>
                                     </template>
@@ -1391,11 +1391,11 @@
                                     <template #actions="{ item }">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit"
+                                            <EditButton :disabled="!hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit"
                                                 @click="openEditBidangStudiModal(item)" />
 
                                             <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="!hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteBidangStudiConfirm(item)" />
                                         </div>
                                     </template>
@@ -1584,11 +1584,11 @@
                                     <template #actions="{ item }">
                                         <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                             <!-- Edit Button -->
-                                            <EditButton title="Edit" label="Edit"
+                                            <EditButton :disabled="!hasPermission('UPDATE_MASTER_DATA')" title="Edit" label="Edit"
                                                 @click="openEditEkstrakurikulerModal(item)" />
 
                                             <!-- Delete Button -->
-                                            <DeleteButton title="Hapus" label="Hapus"
+                                            <DeleteButton :disabled="!hasPermission('DELETE_MASTER_DATA')" title="Hapus" label="Hapus"
                                                 @click="openDeleteEkstrakurikulerConfirm(item)" />
                                         </div>
                                     </template>
@@ -1642,6 +1642,7 @@ import { useRoleStore } from '~/stores/RoleStore'
 import { usePermissionStore } from '~/stores/PermissionStore'
 import { useKelasStore } from '~/stores/KelasStore'
 import { useAuthGuard } from '~/composables/useAuthGuard'
+import { useAuth } from '~/composables/useAuth'
 import { useToast } from '~/composables/useToast'
 import AddButton from '~/components/common/AddButton.vue'
 import ViewButton from '~/components/common/ViewButton.vue'
@@ -1678,6 +1679,8 @@ import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useRombelStore } from '~/stores/RombelStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
 import { useEkstrakurikulerStore } from '~/stores/EkstrakurikulerStore'
+
+const { hasPermission } = useAuth()
 
 definePageMeta({
     middleware: 'auth',

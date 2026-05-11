@@ -36,6 +36,7 @@
           </p>
         </div>
         <AddButton
+          v-if="hasPermission('CREATE_INFORMASI_SEKOLAH')"
           label="Tambah Data"
           iconClass="fa-solid fa-plus"
           @click="openCreateModal"
@@ -194,6 +195,19 @@
           <template #cell-created_at="{ item }">
             {{ formatDate(item.created_at) }}
           </template>
+
+          <!-- Custom actions slot -->
+          <template #actions="{ item }">
+            <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+              <!-- Edit Button -->
+              <EditButton :disabled="!hasPermission('UPDATE_INFORMASI_SEKOLAH')" title="Edit" label="Edit"
+                @click="openEditModal(item)" />
+
+              <!-- Delete Button -->
+              <DeleteButton :disabled="!hasPermission('DELETE_INFORMASI_SEKOLAH')" title="Hapus" label="Hapus"
+                @click="openDeleteConfirm(item)" />
+            </div>
+          </template>
         </Table>
       </div>
 
@@ -240,12 +254,16 @@ import {
   deleteSaranaPrasarana,
 } from '~/services/sarana-prasarana'
 import AddButton from '~/components/common/AddButton.vue'
+import EditButton from '~/components/common/EditButton.vue'
+import DeleteButton from '~/components/common/DeleteButton.vue'
 import CreateSaranaPrasaranaModal from '~/components/modals/CreateSaranaPrasaranaModal.vue'
 import EditSaranaPrasaranaModal from '~/components/modals/EditSaranaPrasaranaModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 
 const { success } = useToast()
+const { hasPermission } = useAuth()
 
 definePageMeta({
   layout: 'default',

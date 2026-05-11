@@ -31,13 +31,13 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <button @click="showImportModal = true"
+                    <button v-if="hasPermission('CREATE_PESERTA_DIDIK')" @click="showImportModal = true"
                         class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg border-2 border-green-600 bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 hover:border-green-700 transition-colors duration-200 cursor-pointer">
                         <i class="fa-solid fa-file-excel w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                         <span class="hidden sm:inline">Import Data Peserta Didik</span>
                         <span class="sm:hidden">Import</span>
                     </button>
-                    <AddButton label="Tambah Peserta Didik" iconClass="fa-solid fa-plus"
+                    <AddButton v-if="hasPermission('CREATE_PESERTA_DIDIK')" label="Tambah Peserta Didik" iconClass="fa-solid fa-plus"
                         @click="openCreateModal" />
                 </div>
             </div>
@@ -263,10 +263,12 @@
 
                                     <!-- Edit Button -->
                                     <EditButton title="Edit" label="Edit"
+                                        :disabled="!hasPermission('UPDATE_PESERTA_DIDIK')"
                                         @click="openEditPesertaDidik(item)" />
 
                                     <!-- Delete Button -->
                                     <DeleteButton title="Hapus" label="Hapus"
+                                        :disabled="!hasPermission('DELETE_PESERTA_DIDIK')"
                                         @click="openDeletePesertaDidik(item)" />
                                 </div>
                             </template>
@@ -299,6 +301,7 @@ import { usePesertaDidikStore } from '~/stores/PesertaDidikStore'
 import { useToastStore } from '~/stores/ToastStore'
 import { useRombelStore } from '~/stores/RombelStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
+import { useAuth } from '~/composables/useAuth'
 import { getPesertaDidikById } from '~/services/peserta-didik'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreatePesertaDidikModal from '~/components/modals/CreatePesertaDidikModal.vue'
@@ -316,6 +319,7 @@ const pesertaDidikStore = usePesertaDidikStore()
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const toastStore = useToastStore()
+const { hasPermission } = useAuth()
 
 const showCreateModal = ref(false)
 const showViewModal = ref(false)

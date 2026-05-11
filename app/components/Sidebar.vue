@@ -50,7 +50,7 @@
                 </NuxtLink>
 
                 <!-- Master Data -->
-                <NuxtLink to="/backoffice/master-data" :class="[
+                <NuxtLink v-if="hasPermission('READ_MASTER_DATA')" to="/backoffice/master-data" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('master-data') ? 'bg-red-700' : ''
@@ -60,7 +60,7 @@
                 </NuxtLink>
 
                 <!-- Informasi Sekolah -->
-                <div>
+                <div v-if="hasPermission('READ_INFORMASI_SEKOLAH')">
                     <button @click="toggleSubmenu('sekolah')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
@@ -123,7 +123,7 @@
                 </div>
 
                 <!-- Media dan Publikasi -->
-                <div>
+                <div v-if="hasPermission('READ_MEDIA_PUBLIKASI')">
                     <button @click="toggleSubmenu('media')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
@@ -172,7 +172,7 @@
                 </div>
 
                 <!-- Kepegawaian -->
-                <div>
+                <div v-if="hasPermission('READ_KEPEGAWAIAN')">
                     <button @click="toggleSubmenu('kepegawaian')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
@@ -206,7 +206,7 @@
                 </div>
 
                 <!-- Peserta Didik -->
-                <NuxtLink to="/backoffice/peserta-didik" :class="[
+                <NuxtLink v-if="hasPermission('READ_PESERTA_DIDIK')" to="/backoffice/peserta-didik" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('peserta-didik') && !route.path.includes('mutasi-siswa') ? 'bg-red-700' : ''
@@ -216,7 +216,7 @@
                 </NuxtLink>
 
                 <!-- Mutasi Siswa Baru -->
-                <NuxtLink to="/backoffice/mutasi-siswa" :class="[
+                <NuxtLink v-if="hasPermission('READ_MUTASI_SISWA')" to="/backoffice/mutasi-siswa" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
                 ]">
@@ -225,7 +225,7 @@
                 </NuxtLink>
 
                 <!-- Administrasi Guru -->
-                <NuxtLink to="/backoffice/administrasi-guru" :class="[
+                <NuxtLink v-if="hasPermission('READ_ADMINISTRASI_GURU')" to="/backoffice/administrasi-guru" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('administrasi-guru') ? 'bg-red-700' : ''
@@ -235,7 +235,7 @@
                 </NuxtLink>
 
                 <!-- Absensi Siswa -->
-                <NuxtLink to="/backoffice/kehadiran-siswa" :class="[
+                <NuxtLink v-if="hasPermission('READ_ABSENSI_SISWA')" to="/backoffice/kehadiran-siswa" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('kehadiran-siswa') ? 'bg-red-700' : ''
@@ -245,7 +245,7 @@
                 </NuxtLink>
 
                 <!-- Monitoring PDBK -->
-                <NuxtLink to="/backoffice/monitoring-pdbk" :class="[
+                <NuxtLink v-if="hasPermission('READ_MONITORING_PDBK')" to="/backoffice/monitoring-pdbk" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('monitoring-pdbk') ? 'bg-red-700' : ''
@@ -255,7 +255,7 @@
                 </NuxtLink>
 
                 <!-- Arsip Rapat & Kegiatan -->
-                <NuxtLink to="/backoffice/arsip-kegiatan" :class="[
+                <NuxtLink v-if="hasPermission('READ_ARSIP_RAPAT_KEGIATAN')" to="/backoffice/arsip-kegiatan" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('arsip-kegiatan') ? 'bg-red-700' : ''
@@ -265,7 +265,7 @@
                 </NuxtLink>
 
                 <!-- Surat Menyurat -->
-                <div>
+                <div v-if="hasPermission('READ_SURAT_MENYURAT')">
                     <button @click="toggleSubmenu('surat')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
@@ -299,7 +299,7 @@
                 </div>
 
                 <!-- Monitoring Adiwiyata -->
-                <NuxtLink to="/backoffice/monitoring-adiwiyata" :class="[
+                <NuxtLink v-if="hasPermission('READ_MONITORING_ADIWIYATA')" to="/backoffice/monitoring-adiwiyata" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('monitoring-adiwiyata') ? 'bg-red-700' : ''
@@ -309,7 +309,7 @@
                 </NuxtLink>
 
                 <!-- Layanan Umpan Balik -->
-                <div>
+                <div v-if="hasPermission('READ_LAYANAN_UMPAN_BALIK')">
                     <button @click="toggleSubmenu('pertanyaan')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
@@ -391,10 +391,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
 
 import type { User } from '~/types/AuthType'
 
 const route = useRoute()
+const { hasPermission } = useAuth()
 
 defineProps<{
     isOpen: boolean

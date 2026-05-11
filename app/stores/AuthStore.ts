@@ -65,6 +65,11 @@ export const useAuthStore = defineStore('auth', () => {
       // Sanitize user data from API response to prevent XSS
       const sanitizedUser = sanitizeObject(response.data.user)
       
+      // Add permissions to user object
+      if (response.data.permissions) {
+        sanitizedUser.permissions = response.data.permissions
+      }
+      
       token.value = response.data.token
       user.value = sanitizedUser
 

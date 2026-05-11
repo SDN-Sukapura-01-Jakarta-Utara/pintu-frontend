@@ -23,7 +23,7 @@
                         Kelola aplikasi sekolah yang ditampilkan di website
                     </p>
                 </div>
-                <AddButton label="Tambah Aplikasi" iconClass="fa-solid fa-plus" @click="openCreateModal" />
+                <AddButton v-if="hasPermission('CREATE_INFORMASI_SEKOLAH')" label="Tambah Aplikasi" iconClass="fa-solid fa-plus" @click="openCreateModal" />
             </div>
         </div>
 
@@ -138,10 +138,10 @@
                             <template #actions="{ item }">
                                 <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                     <!-- Edit Button -->
-                                    <EditButton title="Edit" label="Edit" @click="openEditModal(item)" />
+                                    <EditButton :disabled="!hasPermission('UPDATE_INFORMASI_SEKOLAH')" title="Edit" label="Edit" @click="openEditModal(item)" />
 
                                     <!-- Delete Button -->
-                                    <DeleteButton title="Hapus" label="Hapus" @click="openDeleteConfirm(item)" />
+                                    <DeleteButton :disabled="!hasPermission('DELETE_INFORMASI_SEKOLAH')" title="Hapus" label="Hapus" @click="openDeleteConfirm(item)" />
                                 </div>
                             </template>
                         </Table>
@@ -173,6 +173,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useApplicationStore } from '~/stores/application'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 import type { Application } from '~/stores/application'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreateApplicationModal from '~/components/modals/CreateApplicationModal.vue'
@@ -189,6 +190,7 @@ definePageMeta({
 
 const applicationStore = useApplicationStore()
 const { success, error } = useToast()
+const { hasPermission } = useAuth()
 
 // State
 const isLoading = ref(false)

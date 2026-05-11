@@ -75,6 +75,37 @@ export function useAuth() {
     authStore.initializeAuth()
   }
 
+  /**
+   * Get user permissions
+   */
+  const getPermissions = computed(() => {
+    return authStore.user?.permissions || []
+  })
+
+  /**
+   * Check if user has a specific permission
+   */
+  const hasPermission = (permission: string): boolean => {
+    const permissions = authStore.user?.permissions || []
+    return permissions.includes(permission)
+  }
+
+  /**
+   * Check if user has any of the specified permissions
+   */
+  const hasAnyPermission = (permissions: string[]): boolean => {
+    const userPermissions = authStore.user?.permissions || []
+    return permissions.some(p => userPermissions.includes(p))
+  }
+
+  /**
+   * Check if user has all of the specified permissions
+   */
+  const hasAllPermissions = (permissions: string[]): boolean => {
+    const userPermissions = authStore.user?.permissions || []
+    return permissions.every(p => userPermissions.includes(p))
+  }
+
   return {
     performLogin,
     performLogout,
@@ -85,5 +116,9 @@ export function useAuth() {
     getError,
     clearError,
     initializeAuth,
+    getPermissions,
+    hasPermission,
+    hasAnyPermission,
+    hasAllPermissions,
   }
 }

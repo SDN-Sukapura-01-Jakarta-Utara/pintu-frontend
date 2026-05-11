@@ -337,10 +337,14 @@
                             <template #actions="{ item }">
                                 <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                     <!-- View Button -->
-                                    <ViewButton title="Lihat Detail" label="Lihat" @click="viewDetail(item)" />
+                                    <ViewButton title="Lihat Detail" label="Lihat" 
+                                        :disabled="!hasPermission('UPDATE_LAYANAN_UMPAN_BALIK')"
+                                        @click="viewDetail(item)" />
 
                                     <!-- Delete Button -->
-                                    <DeleteButton title="Hapus" label="Hapus" @click="confirmDelete(item)" />
+                                    <DeleteButton title="Hapus" label="Hapus" 
+                                        :disabled="!hasPermission('DELETE_LAYANAN_UMPAN_BALIK')"
+                                        @click="confirmDelete(item)" />
                                 </div>
                             </template>
                         </Table>
@@ -370,6 +374,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import PengaduanDetailModal from '~/components/modals/PengaduanDetailModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
@@ -382,6 +387,7 @@ definePageMeta({
 })
 
 const { success, error } = useToast()
+const { hasPermission } = useAuth()
 const config = useRuntimeConfig()
 
 // State

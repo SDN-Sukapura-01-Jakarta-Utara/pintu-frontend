@@ -27,7 +27,7 @@
                         Kelola data tenaga kependidikan SDN Sukapura 01
                     </p>
                 </div>
-                <AddButton label="Tambah Tenaga Kependidikan" iconClass="fa-solid fa-plus"
+                <AddButton v-if="hasPermission('CREATE_KEPEGAWAIAN')" label="Tambah Tenaga Kependidikan" iconClass="fa-solid fa-plus"
                     @click="openCreateModal" />
             </div>
         </div>
@@ -187,10 +187,12 @@
 
                                     <!-- Edit Button -->
                                     <EditButton title="Edit" label="Edit"
+                                        :disabled="!hasPermission('UPDATE_KEPEGAWAIAN')"
                                         @click="openEditModal(item)" />
 
                                     <!-- Delete Button -->
                                     <DeleteButton title="Hapus" label="Hapus"
+                                        :disabled="!hasPermission('DELETE_KEPEGAWAIAN')"
                                         @click="openDeleteModal(item)" />
                                 </div>
                             </template>
@@ -221,6 +223,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useKepegawaianStore } from '~/stores/KepegawaianStore'
 import { useToastStore } from '~/stores/ToastStore'
+import { useAuth } from '~/composables/useAuth'
 import { getRoleList } from '~/services/user'
 import { getKepegawaianById } from '~/services/kepegawaian'
 import DashboardLayout from '~/components/DashboardLayout.vue'
@@ -236,6 +239,7 @@ import DeleteButton from '~/components/common/DeleteButton.vue'
 
 const kepegawaianStore = useKepegawaianStore()
 const toastStore = useToastStore()
+const { hasPermission } = useAuth()
 
 const showCreateModal = ref(false)
 const showViewModal = ref(false)

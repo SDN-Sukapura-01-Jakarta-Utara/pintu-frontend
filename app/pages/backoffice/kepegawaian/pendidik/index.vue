@@ -27,7 +27,7 @@
                         Kelola data pendidik SDN Sukapura 01
                     </p>
                 </div>
-                <AddButton label="Tambah Pendidik" iconClass="fa-solid fa-plus"
+                <AddButton v-if="hasPermission('CREATE_KEPEGAWAIAN')" label="Tambah Pendidik" iconClass="fa-solid fa-plus"
                     @click="openCreatePendidikModal" />
             </div>
         </div>
@@ -186,11 +186,11 @@
                                         @click="openDetailPendidik(item)" />
 
                                     <!-- Edit Button -->
-                                    <EditButton title="Edit" label="Edit"
+                                    <EditButton :disabled="!hasPermission('UPDATE_KEPEGAWAIAN')" title="Edit" label="Edit"
                                         @click="openEditPendidik(item)" />
 
                                     <!-- Delete Button -->
-                                    <DeleteButton title="Hapus" label="Hapus"
+                                    <DeleteButton :disabled="!hasPermission('DELETE_KEPEGAWAIAN')" title="Hapus" label="Hapus"
                                         @click="openDeletePendidik(item)" />
                                 </div>
                             </template>
@@ -221,6 +221,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useKepegawaianStore } from '~/stores/KepegawaianStore'
 import { useToastStore } from '~/stores/ToastStore'
+import { useAuth } from '~/composables/useAuth'
 import { getRoleList } from '~/services/user'
 import { getKepegawaianById } from '~/services/kepegawaian'
 import DashboardLayout from '~/components/DashboardLayout.vue'
@@ -236,6 +237,7 @@ import DeleteButton from '~/components/common/DeleteButton.vue'
 
 const kepegawaianStore = useKepegawaianStore()
 const toastStore = useToastStore()
+const { hasPermission } = useAuth()
 
 const showCreatePendidikModal = ref(false)
 const showViewPendidikModal = ref(false)

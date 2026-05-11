@@ -27,7 +27,7 @@
                         Kelola artikel dan berita di portal sekolah
                     </p>
                 </div>
-                <AddButton label="Tambah Artikel" iconClass="fa-solid fa-plus"
+                <AddButton v-if="hasPermission('CREATE_MEDIA_PUBLIKASI')" label="Tambah Artikel" iconClass="fa-solid fa-plus"
                     @click="openCreateModal" />
             </div>
         </div>
@@ -232,9 +232,9 @@
                             <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                 <ViewButton title="Lihat Detail" label="Lihat"
                                     @click="openDetailModal(item)" />
-                                <EditButton title="Edit" label="Edit"
+                                <EditButton :disabled="!hasPermission('UPDATE_MEDIA_PUBLIKASI')" title="Edit" label="Edit"
                                     @click="openEditModal(item)" />
-                                <DeleteButton title="Hapus" label="Hapus"
+                                <DeleteButton :disabled="!hasPermission('DELETE_MEDIA_PUBLIKASI')" title="Hapus" label="Hapus"
                                     @click="openDeleteConfirm(item)" />
                             </div>
                         </template>
@@ -266,6 +266,7 @@ import { ref, computed, onMounted } from 'vue'
 import type { ArticleData, ArticleSearchFilter } from '~/types/ArticleType'
 import { useArticleStore } from '~/stores/ArticleStore'
 import { useToastStore } from '~/stores/ToastStore'
+import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreateArticleModal from '~/components/modals/CreateArticleModal.vue'
 import EditArticleModal from '~/components/modals/EditArticleModal.vue'
@@ -279,6 +280,7 @@ import DeleteButton from '~/components/common/DeleteButton.vue'
 
 const articleStore = useArticleStore()
 const toastStore = useToastStore()
+const { hasPermission } = useAuth()
 
 // Modal states
 const showCreateModal = ref(false)

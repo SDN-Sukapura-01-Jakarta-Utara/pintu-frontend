@@ -128,7 +128,9 @@
                                     <ViewButton title="Lihat Detail" label="Lihat" @click="viewDetail(item.id)" />
 
                                     <!-- Delete Button -->
-                                    <DeleteButton title="Hapus" label="Hapus" @click="confirmDelete(item)" />
+                                    <DeleteButton title="Hapus" label="Hapus" 
+                                        :disabled="!hasPermission('DELETE_LAYANAN_UMPAN_BALIK')"
+                                        @click="confirmDelete(item)" />
                                 </div>
                             </template>
                         </Table>
@@ -159,6 +161,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useKritikSaranStore } from '~/stores/kritik-saran'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import KritikSaranDetailModal from '~/components/modals/KritikSaranDetailModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
@@ -172,6 +175,7 @@ definePageMeta({
 
 const store = useKritikSaranStore()
 const { success, error } = useToast()
+const { hasPermission } = useAuth()
 
 // State
 const isLoading = ref(false)

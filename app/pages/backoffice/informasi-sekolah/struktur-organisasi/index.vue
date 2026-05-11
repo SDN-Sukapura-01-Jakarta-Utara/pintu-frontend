@@ -36,6 +36,7 @@
           </p>
         </div>
         <AddButton
+          v-if="hasPermission('CREATE_INFORMASI_SEKOLAH')"
           label="Tambah Data"
           iconClass="fa-solid fa-plus"
           @click="openCreateModal"
@@ -239,6 +240,7 @@
                 <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                   <!-- Edit Button -->
                   <EditButton
+                    :disabled="!hasPermission('UPDATE_INFORMASI_SEKOLAH')"
                     title="Edit"
                     label="Edit"
                     @click="openEditModal(item)"
@@ -246,6 +248,7 @@
 
                   <!-- Delete Button -->
                   <DeleteButton
+                    :disabled="!hasPermission('DELETE_INFORMASI_SEKOLAH')"
                     title="Hapus"
                     label="Hapus"
                     @click="openDeleteConfirm(item)"
@@ -280,6 +283,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useStrukturOrganisasiStore } from '~/stores/StrukturOrganisasiStore'
 import { useToastStore } from '~/stores/ToastStore'
+import { useAuth } from '~/composables/useAuth'
 import type { StrukturOrganisasi } from '~/types/StrukturOrganisasiType'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreateStrukturOrganisasiModal from '~/components/modals/CreateStrukturOrganisasiModal.vue'
@@ -297,6 +301,7 @@ definePageMeta({
 
 const strukturOrganisasiStore = useStrukturOrganisasiStore()
 const toastStore = useToastStore()
+const { hasPermission } = useAuth()
 
 const showCreateModal = ref(false)
 const showEditModal = ref(false)

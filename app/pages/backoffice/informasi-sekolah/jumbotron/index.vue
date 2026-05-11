@@ -26,7 +26,7 @@
                     <p class="text-[13px] sm:text-sm md:text-[15px] text-gray-600 mt-1 sm:mt-2">Kelola gambar jumbotron
                         untuk halaman utama sekolah</p>
                 </div>
-                <AddButton label="Tambah Data" iconClass="fa-solid fa-plus" @click="openCreateModal" />
+                <AddButton v-if="hasPermission('CREATE_INFORMASI_SEKOLAH')" label="Tambah Data" iconClass="fa-solid fa-plus" @click="openCreateModal" />
             </div>
         </div>
 
@@ -94,6 +94,19 @@
                     <template #cell-created_at="{ item }">
                         {{ formatDate(item.created_at) }}
                     </template>
+
+                    <!-- Custom actions slot -->
+                    <template #actions="{ item }">
+                        <div class="flex items-center justify-center gap-1.5 sm:gap-2">
+                            <!-- Edit Button -->
+                            <EditButton :disabled="!hasPermission('UPDATE_INFORMASI_SEKOLAH')" title="Edit" label="Edit"
+                                @click="openEditModal(item)" />
+
+                            <!-- Delete Button -->
+                            <DeleteButton :disabled="!hasPermission('DELETE_INFORMASI_SEKOLAH')" title="Hapus" label="Hapus"
+                                @click="openDeleteConfirm(item)" />
+                        </div>
+                    </template>
                 </Table>
             </div>
 
@@ -120,12 +133,16 @@ import type { JumbotronData } from '~/types/JumbotronType'
 import type { TableColumn } from '~/components/Table.vue'
 import { getJumbotronList, deleteJumbotron } from '~/services/jumbotron'
 import AddButton from '~/components/common/AddButton.vue'
+import EditButton from '~/components/common/EditButton.vue'
+import DeleteButton from '~/components/common/DeleteButton.vue'
 import CreateJumbotronModal from '~/components/modals/CreateJumbotronModal.vue'
 import EditJumbotronModal from '~/components/modals/EditJumbotronModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 
 const { success } = useToast()
+const { hasPermission } = useAuth()
 
 definePageMeta({
     layout: 'default',

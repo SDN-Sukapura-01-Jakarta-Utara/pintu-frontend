@@ -17,12 +17,14 @@ export interface User {
   status: string
   token: string
   created_at: string
+  permissions?: string[]
 }
 
 export interface LoginResponse {
   data: {
     token: string
     user: User
+    permissions: string[]
     expires_at: string
   }
   status: string

@@ -102,7 +102,7 @@
                         Kelola data prestasi siswa SDN Sukapura 01
                     </p>
                 </div>
-                <AddButton label="Tambah Data Prestasi" iconClass="fa-solid fa-plus"
+                <AddButton v-if="hasPermission('CREATE_MEDIA_PUBLIKASI')" label="Tambah Data Prestasi" iconClass="fa-solid fa-plus"
                     @click="showCreateModal = true" />
             </div>
         </div>
@@ -485,8 +485,8 @@
                                         <td class="px-3 sm:px-6 py-2 sm:py-4">
                                             <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                                 <ViewButton title="Lihat Detail" @click="openDetailPrestasi(item)" />
-                                                <EditButton title="Edit" @click="openEditPrestasi(item)" />
-                                                <DeleteButton title="Hapus" @click="openDeletePrestasi(item)" />
+                                                <EditButton :disabled="!hasPermission('UPDATE_MEDIA_PUBLIKASI')" title="Edit" @click="openEditPrestasi(item)" />
+                                                <DeleteButton :disabled="!hasPermission('DELETE_MEDIA_PUBLIKASI')" title="Hapus" @click="openDeletePrestasi(item)" />
                                             </div>
                                         </td>
                                     </tr>
@@ -604,6 +604,7 @@ import { usePrestasiStore } from '~/stores/PrestasiStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useEkstrakurikulerStore } from '~/stores/EkstrakurikulerStore'
 import { getPesertaDidikList } from '~/services/peserta-didik'
+import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreatePrestasiModal from '~/components/modals/CreatePrestasiModal.vue'
 import EditPrestasiModal from '~/components/modals/EditPrestasiModal.vue'
@@ -618,6 +619,7 @@ import type { PrestasiPhoto } from '~/types/PrestasiType'
 const prestasiStore = usePrestasiStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const ekstrakurikulerStore = useEkstrakurikulerStore()
+const { hasPermission } = useAuth()
 
 const showCreateModal = ref(false)
 const showEditModal = ref(false)

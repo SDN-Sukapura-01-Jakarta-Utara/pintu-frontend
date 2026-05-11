@@ -165,14 +165,14 @@
           <button
             type="button"
             @click="resetForm"
-            :disabled="isSubmitting"
+            :disabled="isSubmitting || !hasPermission('UPDATE_INFORMASI_SEKOLAH')"
             class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm"
           >
             Batal
           </button>
           <button
             type="submit"
-            :disabled="!isFormValid || isSubmitting"
+            :disabled="!isFormValid || isSubmitting || !hasPermission('UPDATE_INFORMASI_SEKOLAH')"
             class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs sm:text-sm"
           >
             <svg v-if="isSubmitting" class="w-3 h-3 sm:w-4 sm:h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,12 +192,15 @@ import { ref, computed, onMounted } from 'vue'
 import { getKutipanKepsekById, createKutipanKepsek, updateKutipanKepsek } from '~/services/kutipan-kepsek'
 import { compressImage, getFileSizeInMB } from '~/utils/imageCompressor'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 import RichTextEditor from '~/components/common/RichTextEditor.vue'
 
 definePageMeta({
   layout: 'default',
   middleware: 'auth',
 })
+
+const { hasPermission } = useAuth()
 
 const { success: showToast } = useToast()
 
