@@ -278,3 +278,65 @@ export async function deletePesertaDidik(id: number) {
 
     return response
 }
+
+/**
+ * Generate barcode by tahun pelajaran
+ */
+export async function generateBarcodeByTahunPelajaran(tahun_pelajaran_id: number) {
+    const config = useRuntimeConfig()
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    const response = await $fetch<{
+        data: {
+            total_generated: number
+            message: string
+        }
+    }>(
+        `${config.public.apiBase}/api/v1/peserta-didik/generate-barcode-by-tahun-pelajaran`,
+        {
+            method: 'POST',
+            body: { tahun_pelajaran_id },
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : '',
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        }
+    )
+
+    return response
+}
+
+/**
+ * Generate barcode by tahun pelajaran and rombel
+ */
+export async function generateBarcodeByTahunPelajaranAndRombel(
+    tahun_pelajaran_id: number,
+    rombel_id: number
+) {
+    const config = useRuntimeConfig()
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    const response = await $fetch<{
+        data: {
+            total_generated: number
+            message: string
+        }
+    }>(
+        `${config.public.apiBase}/api/v1/peserta-didik/generate-barcode-by-tahun-pelajaran-and-rombel`,
+        {
+            method: 'POST',
+            body: {
+                tahun_pelajaran_id,
+                rombel_id
+            },
+            headers: {
+                'Authorization': token ? `Bearer ${token}` : '',
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        }
+    )
+
+    return response
+}

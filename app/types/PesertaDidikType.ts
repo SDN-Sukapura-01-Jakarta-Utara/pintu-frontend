@@ -48,6 +48,8 @@ export interface PesertaDidikData {
     }
     status: 'active' | 'inactive'
     username: string
+    barcode?: string
+    barcode_generated_at?: string
     roles: Array<{
         id: number
         name: string

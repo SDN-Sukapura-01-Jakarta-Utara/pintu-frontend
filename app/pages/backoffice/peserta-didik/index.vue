@@ -14,6 +14,9 @@
         <!-- Import Excel Modal -->
         <ImportPesertaDidikModal v-model="showImportModal" @success="handleImportSuccess" />
 
+        <!-- Generate Barcode Modal -->
+        <GenerateBarcodeModal v-model="showGenerateBarcodeModal" @success="handleGenerateBarcodeSuccess" />
+
         <!-- Delete Confirmation Modal -->
         <ConfirmationDeleteModal v-model="showDeleteConfirm" title="Hapus Peserta Didik"
             :message="`Apakah Anda yakin ingin menghapus peserta didik '${selectedPesertaDidik?.nama}'? Tindakan ini tidak dapat dibatalkan.`"
@@ -36,6 +39,12 @@
                         <i class="fa-solid fa-file-excel w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
                         <span class="hidden sm:inline">Import Data Peserta Didik</span>
                         <span class="sm:hidden">Import</span>
+                    </button>
+                    <button v-if="hasPermission('CREATE_PESERTA_DIDIK')" @click="showGenerateBarcodeModal = true"
+                        class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg border-2 border-blue-600 bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 hover:border-blue-700 transition-colors duration-200 cursor-pointer">
+                        <i class="fa-solid fa-barcode w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                        <span class="hidden sm:inline">Generate Barcode Siswa</span>
+                        <span class="sm:hidden">Barcode</span>
                     </button>
                     <AddButton v-if="hasPermission('CREATE_PESERTA_DIDIK')" label="Tambah Peserta Didik" iconClass="fa-solid fa-plus"
                         @click="openCreateModal" />
@@ -238,6 +247,11 @@
                                 </span>
                             </template>
 
+                            <!-- Custom cell for Barcode -->
+                            <template #cell-barcode="{ item }">
+                                <BarcodeDisplay :value="item.barcode" :size="80" />
+                            </template>
+
                             <!-- Custom cell for Status column -->
                             <template #cell-status="{ item }">
                                 <span :class="[
@@ -309,7 +323,9 @@ import ViewPesertaDidikModal from '~/components/modals/ViewPesertaDidikModal.vue
 import EditPesertaDidikModal from '~/components/modals/EditPesertaDidikModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
 import ImportPesertaDidikModal from '~/components/modals/ImportPesertaDidikModal.vue'
+import GenerateBarcodeModal from '~/components/modals/GenerateBarcodeModal.vue'
 import AddButton from '~/components/common/AddButton.vue'
+import BarcodeDisplay from '~/components/common/BarcodeDisplay.vue'
 import Table from '~/components/Table.vue'
 import ViewButton from '~/components/common/ViewButton.vue'
 import EditButton from '~/components/common/EditButton.vue'
@@ -326,6 +342,7 @@ const showViewModal = ref(false)
 const showEditModal = ref(false)
 const showDeleteConfirm = ref(false)
 const showImportModal = ref(false)
+const showGenerateBarcodeModal = ref(false)
 const selectedPesertaDidik = ref<any>(null)
 const selectedPesertaDidikId = ref(0)
 const isDeletingPesertaDidik = ref(false)
@@ -362,6 +379,7 @@ const tableColumns = [
     { key: 'nik', label: 'NIK', sortable: true },
     { key: 'agama', label: 'Agama', sortable: true },
     { key: 'rombel.name', label: 'Rombel', sortable: true },
+    { key: 'barcode', label: 'Barcode', sortable: false },
     { key: 'status', label: 'Status', sortable: true }
 ]
 
@@ -487,6 +505,11 @@ const handleCreateError = () => {
 }
 
 const handleImportSuccess = () => {
+    pagination.value.page = 1
+    fetchPesertaDidikData()
+}
+
+const handleGenerateBarcodeSuccess = () => {
     pagination.value.page = 1
     fetchPesertaDidikData()
 }

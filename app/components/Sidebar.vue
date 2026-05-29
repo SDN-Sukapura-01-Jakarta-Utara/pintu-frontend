@@ -235,14 +235,43 @@
                 </NuxtLink>
 
                 <!-- Absensi Siswa -->
-                <NuxtLink v-if="hasPermission('READ_ABSENSI_SISWA')" to="/backoffice/kehadiran-siswa" :class="[
-                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
-                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
-                    route.path.includes('kehadiran-siswa') ? 'bg-red-700' : ''
-                ]">
-                    <i class="fa-solid fa-clipboard-check w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Absensi Siswa</span>
-                </NuxtLink>
+                <div v-if="hasPermission('READ_ABSENSI_SISWA')">
+                    <button @click="toggleSubmenu('absensi')" :class="[
+                        'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                        isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
+                    ]">
+                        <i class="fa-solid fa-clipboard-check w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                        <div v-if="isOpen" class="flex-1 flex items-center justify-between">
+                            <span class="text-xs sm:text-sm font-medium">Absensi Siswa</span>
+                            <i :class="[
+                                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
+                                openMenus.absensi ? 'rotate-90' : ''
+                            ]"></i>
+                        </div>
+                    </button>
+
+                    <!-- Submenu -->
+                    <div v-if="isOpen && openMenus.absensi" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
+                        <NuxtLink to="/backoffice/absensi-siswa/monitoring" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('absensi-siswa/monitoring') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Monitoring Kehadiran
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/absensi-siswa/input-kehadiran" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('absensi-siswa/input-kehadiran') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Input Kehadiran
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/absensi-siswa/rekap" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('absensi-siswa/rekap') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Rekap Kehadiran
+                        </NuxtLink>
+                    </div>
+                </div>
 
                 <!-- Monitoring PDBK -->
                 <NuxtLink v-if="hasPermission('READ_MONITORING_PDBK')" to="/backoffice/monitoring-pdbk" :class="[
@@ -433,6 +462,7 @@ const openMenus = ref({
     kepegawaian: false,
     surat: false,
     pertanyaan: false,
+    absensi: false,
 })
 
 // Check if submenu should be active based on current route
@@ -442,6 +472,7 @@ const isActiveSubmenu = computed(() => ({
     kepegawaian: route.path.includes('kepegawaian'),
     surat: route.path.includes('surat-masuk') || route.path.includes('surat-keluar'),
     pertanyaan: route.path.includes('layanan-umpan-balik/pertanyaan') || route.path.includes('layanan-umpan-balik/pengaduan') || route.path.includes('kritik-saran'),
+    absensi: route.path.includes('absensi-siswa'),
 }))
 
 // Auto-open submenu if current path is in that submenu
@@ -460,6 +491,9 @@ watch(() => route.path, () => {
     }
     if (isActiveSubmenu.value.pertanyaan && !openMenus.value.pertanyaan) {
         openMenus.value.pertanyaan = true
+    }
+    if (isActiveSubmenu.value.absensi && !openMenus.value.absensi) {
+        openMenus.value.absensi = true
     }
 }, { immediate: true })
 
