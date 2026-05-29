@@ -174,3 +174,186 @@ export async function deleteAbsensi(id: number) {
 
   return response
 }
+
+/**
+ * Get dashboard summary
+ */
+export async function getDashboardSummary(data: {
+  tahun_pelajaran_id: number
+  semester: number
+  rombel_id: number | null
+  bidang_studi_id?: number | null
+  tanggal_mulai: string
+  tanggal_selesai: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/dashboard-summary`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Get grafik kehadiran
+ */
+export async function getGrafikKehadiran(data: {
+  tahun_pelajaran_id: number
+  semester: number
+  rombel_id: number | null
+  bidang_studi_id?: number | null
+  periode: string
+  tanggal_mulai: string
+  tanggal_selesai: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/grafik-kehadiran`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Get statistik per hari
+ */
+export async function getStatistikPerHari(data: {
+  tahun_pelajaran_id: number
+  semester: number
+  rombel_id: number | null
+  bidang_studi_id?: number | null
+  bulan: number
+  tahun: number
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/statistik-per-hari`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Get perbandingan rombel
+ */
+export async function getPerbandinganRombel(data: {
+  tahun_pelajaran_id: number
+  semester: number
+  bidang_studi_id?: number | null
+  tanggal_mulai: string
+  tanggal_selesai: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/perbandingan-rombel`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Get siswa dengan kehadiran terendah
+ */
+export async function getSiswaTerendah(data: {
+  tahun_pelajaran_id: number
+  semester: number
+  rombel_id: number | null
+  bidang_studi_id?: number | null
+  limit: number
+  tanggal_mulai: string
+  tanggal_selesai: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/siswa-terendah`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Get dashboard siswa
+ */
+export async function getDashboardSiswa(data: {
+  peserta_didik_id: number
+  tahun_pelajaran_id: number
+  rombel_id: number
+  semester: number
+  bidang_studi_id?: number | null
+  periode: string
+  tanggal_mulai: string
+  tanggal_selesai: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/dashboard-siswa`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
