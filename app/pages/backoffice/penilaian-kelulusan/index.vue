@@ -135,13 +135,20 @@
         <div class="p-4 sm:p-6">
           <!-- Action Buttons -->
           <div class="flex items-center justify-end gap-2 sm:gap-3 mb-4">
-            <button @click="showImportModal = true"
+            <button 
+              v-if="hasPermission('CREATE_PENILAIAN_KELULUSAN')"
+              @click="showImportModal = true"
               class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg border-2 border-green-600 bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 hover:border-green-700 transition-colors duration-200 cursor-pointer">
               <i class="fa-solid fa-file-excel w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               <span class="hidden sm:inline">Import Data Kelulusan</span>
               <span class="sm:hidden">Import</span>
             </button>
-            <AddButton label="Tambah Data Kelulusan" iconClass="fa-solid fa-plus" @click="openCreateModal" />
+            <AddButton 
+              v-if="hasPermission('CREATE_PENILAIAN_KELULUSAN')"
+              label="Tambah Data Kelulusan" 
+              iconClass="fa-solid fa-plus" 
+              @click="openCreateModal" 
+            />
           </div>
 
           <!-- Table Component -->
@@ -194,8 +201,14 @@
             <template #actions="{ item }">
               <div class="flex items-center justify-center gap-2">
                 <ViewButton @click="viewDetail(item)" />
-                <EditButton @click="editData(item)" />
-                <DeleteButton @click="confirmDelete(item)" />
+                <EditButton 
+                  @click="editData(item)" 
+                  :disabled="!hasPermission('UPDATE_PENILAIAN_KELULUSAN')"
+                />
+                <DeleteButton 
+                  @click="confirmDelete(item)" 
+                  :disabled="!hasPermission('DELETE_PENILAIAN_KELULUSAN')"
+                />
               </div>
             </template>
           </Table>
@@ -267,14 +280,14 @@
             <button
               type="button"
               @click="resetConfigForm"
-              :disabled="isSubmittingConfig"
+              :disabled="isSubmittingConfig || !hasPermission('CREATE_PENILAIAN_KELULUSAN')"
               class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold text-sm hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               Reset
             </button>
             <button
               type="submit"
-              :disabled="!isConfigFormValid || isSubmittingConfig"
+              :disabled="!isConfigFormValid || isSubmittingConfig || !hasPermission('CREATE_PENILAIAN_KELULUSAN')"
               class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold text-sm hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
             >
               <i v-if="isSubmittingConfig" class="fa-solid fa-spinner fa-spin"></i>
@@ -291,6 +304,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { getDataKelulusan, deleteKelulusan, getKonfigurasiPengumuman, saveKonfigurasiPengumuman } from '~/services/kelulusan'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import Table from '~/components/Table.vue'
 import AddButton from '~/components/common/AddButton.vue'
@@ -311,6 +325,7 @@ definePageMeta({
 
 const { showToast } = useToast()
 const toast = useToast()
+const { hasPermission } = useAuth()
 
 // State
 const activeTab = ref('data-kelulusan')
