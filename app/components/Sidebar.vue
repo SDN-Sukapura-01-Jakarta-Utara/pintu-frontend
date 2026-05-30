@@ -171,6 +171,16 @@
                     </div>
                 </div>
 
+                <!-- Penilaian & Kelulusan -->
+                <NuxtLink v-if="hasPermission('READ_PENILAIAN_KELULUSAN')" to="/backoffice/penilaian-kelulusan" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('penilaian-kelulusan') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-graduation-cap w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Penilaian & Kelulusan</span>
+                </NuxtLink>
+
                 <!-- Kepegawaian -->
                 <div v-if="hasPermission('READ_KEPEGAWAIAN')">
                     <button @click="toggleSubmenu('kepegawaian')" :class="[
