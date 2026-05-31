@@ -855,7 +855,14 @@ import TeamMembersModal from '~/components/modals/TeamMembersModal.vue'
 
 // Set page title
 useHead({
-  title: 'Portal Informasi Terpadu - SDN Sukapura 01'
+  title: 'Portal Informasi Terpadu - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const publicHomeStore = usePublicHomeStore()

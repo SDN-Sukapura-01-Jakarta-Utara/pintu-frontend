@@ -261,6 +261,13 @@ useHead({
   title: 'Pengumuman TKA | Portal Informasi Terpadu',
   meta: [
     { name: 'description', content: 'Pengumuman Nilai TKA (Tes Kemampuan Akhir) Kelas VI SDN Sukapura 01 Jakarta' }
+  ],
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
   ]
 })
 

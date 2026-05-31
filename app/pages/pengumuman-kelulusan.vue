@@ -442,6 +442,13 @@ useHead({
   title: 'Pengumuman Kelulusan | Portal Informasi Terpadu',
   meta: [
     { name: 'description', content: 'Pengumuman Kelulusan Kelas VI SDN Sukapura 01 Jakarta' }
+  ],
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
   ]
 })
 

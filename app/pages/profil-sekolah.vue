@@ -410,7 +410,14 @@ import { getPublicDataKontak, getPublicKutipanKepsek, getPublicVisiMisi, getPubl
 
 // Set page title
 useHead({
-  title: 'Profil Sekolah - SDN Sukapura 01'
+  title: 'Profil Sekolah - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 // ----- DATA -----
