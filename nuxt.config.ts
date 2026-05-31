@@ -14,7 +14,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:3000',
+      apiBase: '',
     },
   },
   modules: ['@pinia/nuxt'],
