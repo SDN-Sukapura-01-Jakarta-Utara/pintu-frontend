@@ -602,7 +602,14 @@ import PublicNavbar from '~/components/PublicNavbar.vue'
 import PublicFooter from '~/components/PublicFooter.vue'
 
 useHead({
-  title: 'Layanan Pengaduan - SDN Sukapura 01'
+  title: 'Layanan Pengaduan - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const activeTab = ref('ajukan')

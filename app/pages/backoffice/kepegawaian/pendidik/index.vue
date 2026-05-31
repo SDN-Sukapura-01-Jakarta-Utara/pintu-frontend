@@ -236,7 +236,14 @@ import EditButton from '~/components/common/EditButton.vue'
 import DeleteButton from '~/components/common/DeleteButton.vue'
 
 useHead({
-  title: 'Kepegawaian - Pendidik | Pintu SDN Sukapura 01'
+  title: 'Kepegawaian - Pendidik | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const kepegawaianStore = useKepegawaianStore()

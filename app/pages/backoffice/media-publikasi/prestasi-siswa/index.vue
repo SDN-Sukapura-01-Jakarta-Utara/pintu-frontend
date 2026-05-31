@@ -617,7 +617,14 @@ import DeleteButton from '~/components/common/DeleteButton.vue'
 import type { PrestasiPhoto } from '~/types/PrestasiType'
 
 useHead({
-  title: 'Prestasi Siswa | Pintu SDN Sukapura 01'
+  title: 'Prestasi Siswa | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const prestasiStore = usePrestasiStore()

@@ -150,7 +150,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Jumbotron | Pintu SDN Sukapura 01'
+  title: 'Jumbotron | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 // State

@@ -246,7 +246,14 @@ import EditButton from '~/components/common/EditButton.vue'
 import DeleteButton from '~/components/common/DeleteButton.vue'
 
 useHead({
-  title: 'Galeri Kegiatan | Pintu SDN Sukapura 01'
+  title: 'Galeri Kegiatan | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const galleryStore = useActivityGalleryStore()

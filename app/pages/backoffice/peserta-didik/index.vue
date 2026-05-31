@@ -332,7 +332,14 @@ import EditButton from '~/components/common/EditButton.vue'
 import DeleteButton from '~/components/common/DeleteButton.vue'
 
 useHead({
-  title: 'Peserta Didik | Pintu SDN Sukapura 01'
+  title: 'Peserta Didik | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const pesertaDidikStore = usePesertaDidikStore()

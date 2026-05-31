@@ -271,7 +271,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Sarana Prasarana | Pintu SDN Sukapura 01'
+  title: 'Sarana Prasarana | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 // State

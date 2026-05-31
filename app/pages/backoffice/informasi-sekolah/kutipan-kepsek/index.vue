@@ -201,7 +201,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Kutipan Kepsek | Pintu SDN Sukapura 01'
+  title: 'Kutipan Kepsek | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const { hasPermission } = useAuth()

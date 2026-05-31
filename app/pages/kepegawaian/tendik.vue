@@ -148,7 +148,14 @@ import { getPublicDataTendik, getPublicDataKontak } from '~/services/public-home
 
 // Set page title
 useHead({
-  title: 'Tenaga Kependidikan - SDN Sukapura 01'
+  title: 'Tenaga Kependidikan - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 // ----- DATA -----

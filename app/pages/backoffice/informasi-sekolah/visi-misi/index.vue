@@ -109,7 +109,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Visi Misi | Pintu SDN Sukapura 01'
+  title: 'Visi Misi | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const { success: showToast } = useToast()

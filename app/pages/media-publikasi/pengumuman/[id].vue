@@ -212,6 +212,17 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPublicDetailPengumuman, getPublicPengumumanLainnya, getPublicDataKontak } from '~/services/public-home'
 
+useHead({
+  title: 'Detail Pengumuman - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
+})
+
 const route = useRoute()
 
 // State

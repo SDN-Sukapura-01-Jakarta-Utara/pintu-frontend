@@ -400,7 +400,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Penilaian & Kelulusan | Pintu SDN Sukapura 01'
+  title: 'Penilaian & Kelulusan | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const { showToast } = useToast()

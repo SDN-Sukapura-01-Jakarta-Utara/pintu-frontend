@@ -438,6 +438,17 @@
 import { ref, onMounted } from 'vue'
 import { getPublicDaftarPrestasi, getPublicDetailPrestasi, getPublicDataKontak } from '~/services/public-home'
 
+useHead({
+  title: 'Prestasi Siswa - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
+})
+
 // State
 const prestasiList = ref([])
 const loading = ref(false)

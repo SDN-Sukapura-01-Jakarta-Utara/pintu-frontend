@@ -168,6 +168,17 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPublicDaftarPengumuman, getPublicDataKontak } from '~/services/public-home'
 
+useHead({
+  title: 'Pengumuman - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
+})
+
 const router = useRouter()
 
 // State

@@ -1688,7 +1688,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Master Data | Pintu SDN Sukapura 01'
+  title: 'Master Data | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const userStore = useUserStore()

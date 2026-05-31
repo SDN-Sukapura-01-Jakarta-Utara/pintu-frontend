@@ -189,7 +189,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Aplikasi Sekolah | Pintu SDN Sukapura 01'
+  title: 'Aplikasi Sekolah | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const applicationStore = useApplicationStore()

@@ -96,7 +96,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Dashboard | Pintu SDN Sukapura 01'
+  title: 'Dashboard | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const { getCurrentUser } = useAuth()

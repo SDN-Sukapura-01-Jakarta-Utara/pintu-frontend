@@ -335,7 +335,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Pertanyaan | Pintu SDN Sukapura 01'
+  title: 'Pertanyaan | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const { success, error } = useToast()

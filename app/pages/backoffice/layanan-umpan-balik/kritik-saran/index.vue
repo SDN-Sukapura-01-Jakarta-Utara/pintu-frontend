@@ -174,7 +174,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Kritik & Saran | Pintu SDN Sukapura 01'
+  title: 'Kritik & Saran | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const store = useKritikSaranStore()

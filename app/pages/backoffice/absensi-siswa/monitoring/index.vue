@@ -1279,7 +1279,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Monitoring Kehadiran | Pintu SDN Sukapura 01'
+  title: 'Monitoring Kehadiran | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const rombelStore = useRombelStore()

@@ -170,6 +170,17 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getPublicDaftarGaleri, getPublicDataKontak } from '~/services/public-home'
 
+useHead({
+  title: 'Galeri Kegiatan - SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
+})
+
 const router = useRouter()
 
 // State

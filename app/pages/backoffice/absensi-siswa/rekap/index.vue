@@ -413,7 +413,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Rekap Kehadiran | Pintu SDN Sukapura 01'
+  title: 'Rekap Kehadiran | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const route = useRoute()

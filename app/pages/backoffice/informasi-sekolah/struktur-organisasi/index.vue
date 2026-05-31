@@ -300,7 +300,14 @@ definePageMeta({
 })
 
 useHead({
-  title: 'Struktur Organisasi | Pintu SDN Sukapura 01'
+  title: 'Struktur Organisasi | PINTU SDN Sukapura 01',
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/jpeg',
+      href: '/logo-sekolah.jpg'
+    }
+  ]
 })
 
 const strukturOrganisasiStore = useStrukturOrganisasiStore()
