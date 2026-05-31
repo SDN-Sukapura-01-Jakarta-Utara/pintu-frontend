@@ -188,6 +188,10 @@ definePageMeta({
     middleware: 'auth'
 })
 
+useHead({
+  title: 'Aplikasi Sekolah | Pintu SDN Sukapura 01'
+})
+
 const applicationStore = useApplicationStore()
 const { success, error } = useToast()
 const { hasPermission } = useAuth()

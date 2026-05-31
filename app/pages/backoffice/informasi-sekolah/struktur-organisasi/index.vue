@@ -299,6 +299,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Struktur Organisasi | Pintu SDN Sukapura 01'
+})
+
 const strukturOrganisasiStore = useStrukturOrganisasiStore()
 const toastStore = useToastStore()
 const { hasPermission } = useAuth()

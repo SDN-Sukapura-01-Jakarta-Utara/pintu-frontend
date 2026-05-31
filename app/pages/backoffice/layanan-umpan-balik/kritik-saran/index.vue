@@ -173,6 +173,10 @@ definePageMeta({
     middleware: 'auth'
 })
 
+useHead({
+  title: 'Kritik & Saran | Pintu SDN Sukapura 01'
+})
+
 const store = useKritikSaranStore()
 const { success, error } = useToast()
 const { hasPermission } = useAuth()

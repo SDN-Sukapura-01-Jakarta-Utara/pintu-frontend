@@ -270,6 +270,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Sarana Prasarana | Pintu SDN Sukapura 01'
+})
+
 // State
 const saranaPrasaranaList = ref<SaranaPrasaranaData[]>([])
 const isLoading = ref(false)

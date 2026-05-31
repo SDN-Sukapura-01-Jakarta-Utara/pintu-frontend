@@ -252,6 +252,10 @@ import ViewButton from '~/components/common/ViewButton.vue'
 import EditButton from '~/components/common/EditButton.vue'
 import DeleteButton from '~/components/common/DeleteButton.vue'
 
+useHead({
+  title: 'Pengumuman | Pintu SDN Sukapura 01'
+})
+
 const announcementStore = useAnnouncementStore()
 const toastStore = useToastStore()
 const { hasPermission } = useAuth()

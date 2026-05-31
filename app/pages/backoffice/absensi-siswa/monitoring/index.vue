@@ -1278,6 +1278,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Monitoring Kehadiran | Pintu SDN Sukapura 01'
+})
+
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const bidangStudiStore = useBidangStudiStore()

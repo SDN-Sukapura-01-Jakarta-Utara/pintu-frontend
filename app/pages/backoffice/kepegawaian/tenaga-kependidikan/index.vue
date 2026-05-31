@@ -237,6 +237,10 @@ import ViewButton from '~/components/common/ViewButton.vue'
 import EditButton from '~/components/common/EditButton.vue'
 import DeleteButton from '~/components/common/DeleteButton.vue'
 
+useHead({
+  title: 'Kepegawaian - Tendik | Pintu SDN Sukapura 01'
+})
+
 const kepegawaianStore = useKepegawaianStore()
 const toastStore = useToastStore()
 const { hasPermission } = useAuth()

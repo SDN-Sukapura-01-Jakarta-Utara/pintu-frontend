@@ -284,6 +284,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Kontak Sekolah | Pintu SDN Sukapura 01'
+})
+
 const { success: showToast } = useToast()
 const contactStore = useContactStore()
 const { hasPermission } = useAuth()

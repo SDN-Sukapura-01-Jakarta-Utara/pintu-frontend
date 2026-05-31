@@ -275,6 +275,82 @@
             />
           </div>
 
+          <!-- Nama Kepala Sekolah -->
+          <div>
+            <label class="block text-sm sm:text-base font-semibold text-gray-900 mb-2">
+              Nama Kepala Sekolah
+              <span class="text-red-600 ml-1">*</span>
+            </label>
+            <p class="text-xs sm:text-sm text-gray-600 mb-3">
+              Masukkan nama lengkap kepala sekolah
+            </p>
+            <input
+              v-model="configForm.nama_kepsek"
+              type="text"
+              required
+              placeholder="Contoh: Fitriana, M.Pd"
+              class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100"
+            />
+          </div>
+
+          <!-- Foto Kepala Sekolah -->
+          <div>
+            <label class="block text-sm sm:text-base font-semibold text-gray-900 mb-2">
+              Foto Kepala Sekolah
+              <span class="text-red-600 ml-1">*</span>
+            </label>
+            <p class="text-xs sm:text-sm text-gray-600 mb-3">
+              Upload foto kepala sekolah (format: JPG, PNG, max 2MB)
+            </p>
+            
+            <!-- Preview existing image -->
+            <div v-if="configForm.foto_kepsek_url && !configForm.foto_kepsek" class="mb-3">
+              <img :src="configForm.foto_kepsek_url" alt="Foto Kepala Sekolah" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-300">
+            </div>
+            
+            <!-- File input -->
+            <input
+              type="file"
+              accept="image/*"
+              @change="handleFotoKepsekChange"
+              class="w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none focus:border-red-600 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+            />
+            
+            <!-- Preview new image -->
+            <div v-if="fotoKepsekPreview" class="mt-3">
+              <img :src="fotoKepsekPreview" alt="Preview Foto" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-300">
+            </div>
+          </div>
+
+          <!-- Tanda Tangan Kepala Sekolah -->
+          <div>
+            <label class="block text-sm sm:text-base font-semibold text-gray-900 mb-2">
+              Tanda Tangan Kepala Sekolah
+              <span class="text-red-600 ml-1">*</span>
+            </label>
+            <p class="text-xs sm:text-sm text-gray-600 mb-3">
+              Upload tanda tangan kepala sekolah (format: JPG, PNG, max 2MB)
+            </p>
+            
+            <!-- Preview existing image -->
+            <div v-if="configForm.ttd_kepsek_url && !configForm.ttd_kepsek" class="mb-3">
+              <img :src="configForm.ttd_kepsek_url" alt="Tanda Tangan Kepala Sekolah" class="w-32 h-32 object-contain rounded-lg border-2 border-gray-300 bg-white p-2">
+            </div>
+            
+            <!-- File input -->
+            <input
+              type="file"
+              accept="image/*"
+              @change="handleTtdKepsekChange"
+              class="w-full text-sm text-gray-900 border-2 border-gray-300 rounded-lg cursor-pointer bg-white focus:outline-none focus:border-red-600 file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+            />
+            
+            <!-- Preview new image -->
+            <div v-if="ttdKepsekPreview" class="mt-3">
+              <img :src="ttdKepsekPreview" alt="Preview TTD" class="w-32 h-32 object-contain rounded-lg border-2 border-gray-300 bg-white p-2">
+            </div>
+          </div>
+
           <!-- Action Buttons -->
           <div class="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-gray-200">
             <button
@@ -323,6 +399,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Penilaian & Kelulusan | Pintu SDN Sukapura 01'
+})
+
 const { showToast } = useToast()
 const toast = useToast()
 const { hasPermission } = useAuth()
@@ -343,17 +423,29 @@ const isDeletingKelulusan = ref(false)
 // Configuration state
 const isLoadingConfig = ref(false)
 const isSubmittingConfig = ref(false)
+const fotoKepsekPreview = ref('')
+const ttdKepsekPreview = ref('')
 const configForm = ref({
   id: null as number | null,
   sambutan_kelulusan: '',
   tanggal_pengumuman_nilai: '',
-  tanggal_pengumuman_kelulusan: ''
+  tanggal_pengumuman_kelulusan: '',
+  nama_kepsek: '',
+  foto_kepsek: null as File | null,
+  foto_kepsek_url: '',
+  ttd_kepsek: null as File | null,
+  ttd_kepsek_url: ''
 })
 const originalConfigForm = ref({
   id: null as number | null,
   sambutan_kelulusan: '',
   tanggal_pengumuman_nilai: '',
-  tanggal_pengumuman_kelulusan: ''
+  tanggal_pengumuman_kelulusan: '',
+  nama_kepsek: '',
+  foto_kepsek: null as File | null,
+  foto_kepsek_url: '',
+  ttd_kepsek: null as File | null,
+  ttd_kepsek_url: ''
 })
 
 // Computed
@@ -361,7 +453,10 @@ const isConfigFormValid = computed(() => {
   return (
     configForm.value.sambutan_kelulusan.trim() !== '' &&
     configForm.value.tanggal_pengumuman_nilai !== '' &&
-    configForm.value.tanggal_pengumuman_kelulusan !== ''
+    configForm.value.tanggal_pengumuman_kelulusan !== '' &&
+    configForm.value.nama_kepsek.trim() !== '' &&
+    (configForm.value.foto_kepsek !== null || configForm.value.foto_kepsek_url !== '') &&
+    (configForm.value.ttd_kepsek !== null || configForm.value.ttd_kepsek_url !== '')
   )
 })
 
@@ -526,7 +621,12 @@ const loadConfigData = async () => {
         id: response.data.id || null,
         sambutan_kelulusan: response.data.sambutan_kelulusan || '',
         tanggal_pengumuman_nilai: formatDateTimeForInput(response.data.tanggal_pengumuman_nilai || ''),
-        tanggal_pengumuman_kelulusan: formatDateTimeForInput(response.data.tanggal_pengumuman_kelulusan || '')
+        tanggal_pengumuman_kelulusan: formatDateTimeForInput(response.data.tanggal_pengumuman_kelulusan || ''),
+        nama_kepsek: response.data.nama_kepsek || '',
+        foto_kepsek: null,
+        foto_kepsek_url: response.data.foto_kepsek || '',
+        ttd_kepsek: null,
+        ttd_kepsek_url: response.data.ttd_kepsek || ''
       }
       originalConfigForm.value = { ...configForm.value }
     }
@@ -537,7 +637,12 @@ const loadConfigData = async () => {
       id: null,
       sambutan_kelulusan: '',
       tanggal_pengumuman_nilai: '',
-      tanggal_pengumuman_kelulusan: ''
+      tanggal_pengumuman_kelulusan: '',
+      nama_kepsek: '',
+      foto_kepsek: null,
+      foto_kepsek_url: '',
+      ttd_kepsek: null,
+      ttd_kepsek_url: ''
     }
     originalConfigForm.value = { ...configForm.value }
   } finally {
@@ -557,14 +662,30 @@ const handleSubmitConfig = async () => {
       return datetime.replace('T', ' ') + ':00'
     }
 
-    const payload = {
+    // Create FormData for file uploads
+    const formData = new FormData()
+    
+    // Create data object
+    const dataPayload = {
       id: configForm.value.id,
       sambutan_kelulusan: configForm.value.sambutan_kelulusan,
       tanggal_pengumuman_nilai: formatDateTimeForAPI(configForm.value.tanggal_pengumuman_nilai),
-      tanggal_pengumuman_kelulusan: formatDateTimeForAPI(configForm.value.tanggal_pengumuman_kelulusan)
+      tanggal_pengumuman_kelulusan: formatDateTimeForAPI(configForm.value.tanggal_pengumuman_kelulusan),
+      nama_kepsek: configForm.value.nama_kepsek
+    }
+    
+    // Append data as JSON string
+    formData.append('data', JSON.stringify(dataPayload))
+    
+    // Append files if they exist
+    if (configForm.value.foto_kepsek) {
+      formData.append('foto_kepsek', configForm.value.foto_kepsek)
+    }
+    if (configForm.value.ttd_kepsek) {
+      formData.append('ttd_kepsek', configForm.value.ttd_kepsek)
     }
 
-    await saveKonfigurasiPengumuman(payload)
+    await saveKonfigurasiPengumuman(formData)
     toast.success('Berhasil', 'Konfigurasi pengumuman berhasil disimpan')
     
     // Reload config data to get updated ID if it was null
@@ -580,6 +701,69 @@ const handleSubmitConfig = async () => {
 
 const resetConfigForm = () => {
   configForm.value = { ...originalConfigForm.value }
+  fotoKepsekPreview.value = ''
+  ttdKepsekPreview.value = ''
+}
+
+// File upload handlers
+const handleFotoKepsekChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (file) {
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Gagal', 'Ukuran file maksimal 2MB')
+      target.value = ''
+      return
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Gagal', 'File harus berupa gambar')
+      target.value = ''
+      return
+    }
+    
+    configForm.value.foto_kepsek = file
+    
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      fotoKepsekPreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
+}
+
+const handleTtdKepsekChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (file) {
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Gagal', 'Ukuran file maksimal 2MB')
+      target.value = ''
+      return
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Gagal', 'File harus berupa gambar')
+      target.value = ''
+      return
+    }
+    
+    configForm.value.ttd_kepsek = file
+    
+    // Create preview
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      ttdKepsekPreview.value = e.target?.result as string
+    }
+    reader.readAsDataURL(file)
+  }
 }
 
 onMounted(() => {

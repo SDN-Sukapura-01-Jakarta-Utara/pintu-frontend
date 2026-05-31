@@ -95,6 +95,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Dashboard | Pintu SDN Sukapura 01'
+})
+
 const { getCurrentUser } = useAuth()
 
 const user = computed(() => getCurrentUser())

@@ -1687,6 +1687,10 @@ definePageMeta({
     layout: 'default'
 })
 
+useHead({
+  title: 'Master Data | Pintu SDN Sukapura 01'
+})
+
 const userStore = useUserStore()
 const roleStore = useRoleStore()
 const permissionStore = usePermissionStore()

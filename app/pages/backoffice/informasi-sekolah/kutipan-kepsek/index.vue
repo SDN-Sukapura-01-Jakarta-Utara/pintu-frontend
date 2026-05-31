@@ -200,6 +200,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Kutipan Kepsek | Pintu SDN Sukapura 01'
+})
+
 const { hasPermission } = useAuth()
 
 const { success: showToast } = useToast()

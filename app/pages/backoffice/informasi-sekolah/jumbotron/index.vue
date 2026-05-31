@@ -149,6 +149,10 @@ definePageMeta({
     middleware: 'auth',
 })
 
+useHead({
+  title: 'Jumbotron | Pintu SDN Sukapura 01'
+})
+
 // State
 const jumbotronList = ref<JumbotronData[]>([])
 const isLoading = ref(false)

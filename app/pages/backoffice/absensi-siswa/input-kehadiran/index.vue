@@ -561,6 +561,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Input Kehadiran | Pintu SDN Sukapura 01'
+})
+
 const { success: showToast, error: showErrorToast } = useToast()
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()

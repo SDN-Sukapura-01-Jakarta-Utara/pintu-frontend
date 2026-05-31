@@ -108,6 +108,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Visi Misi | Pintu SDN Sukapura 01'
+})
+
 const { success: showToast } = useToast()
 const { hasPermission } = useAuth()
 

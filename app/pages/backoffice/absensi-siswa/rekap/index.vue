@@ -412,6 +412,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Rekap Kehadiran | Pintu SDN Sukapura 01'
+})
+
 const route = useRoute()
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()

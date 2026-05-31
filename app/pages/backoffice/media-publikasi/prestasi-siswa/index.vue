@@ -616,6 +616,10 @@ import EditButton from '~/components/common/EditButton.vue'
 import DeleteButton from '~/components/common/DeleteButton.vue'
 import type { PrestasiPhoto } from '~/types/PrestasiType'
 
+useHead({
+  title: 'Prestasi Siswa | Pintu SDN Sukapura 01'
+})
+
 const prestasiStore = usePrestasiStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const ekstrakurikulerStore = useEkstrakurikulerStore()

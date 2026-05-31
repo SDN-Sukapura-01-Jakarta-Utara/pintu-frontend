@@ -334,6 +334,10 @@ definePageMeta({
     middleware: 'auth'
 })
 
+useHead({
+  title: 'Pertanyaan | Pintu SDN Sukapura 01'
+})
+
 const { success, error } = useToast()
 const { hasPermission } = useAuth()
 const config = useRuntimeConfig()

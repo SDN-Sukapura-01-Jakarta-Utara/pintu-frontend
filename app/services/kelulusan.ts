@@ -207,12 +207,7 @@ export async function getKonfigurasiPengumuman() {
 /**
  * Save konfigurasi pengumuman
  */
-export async function saveKonfigurasiPengumuman(data: {
-  id: number | null
-  sambutan_kelulusan: string
-  tanggal_pengumuman_nilai: string
-  tanggal_pengumuman_kelulusan: string
-}) {
+export async function saveKonfigurasiPengumuman(formData: FormData) {
   const config = useRuntimeConfig()
   const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
 
@@ -220,10 +215,9 @@ export async function saveKonfigurasiPengumuman(data: {
     `${config.public.apiBase}/api/v1/kelulusan/konfigurasi-pengumuman`,
     {
       method: 'POST',
-      body: data,
+      body: formData,
       headers: {
         'Authorization': token ? `Bearer ${token}` : '',
-        'Content-Type': 'application/json',
       },
       credentials: 'include',
     }
