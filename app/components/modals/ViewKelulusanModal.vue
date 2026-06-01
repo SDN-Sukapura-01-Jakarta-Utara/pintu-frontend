@@ -109,6 +109,32 @@
                                 </div>
                             </div>
 
+                            <!-- Max Attempts -->
+                            <div class="flex items-center gap-2 sm:gap-2.5">
+                                <div
+                                    class="flex-shrink-0 w-6 sm:w-8 h-6 sm:h-8 rounded-lg bg-yellow-200 flex items-center justify-center">
+                                    <i class="fa-solid fa-key text-xs sm:text-sm text-yellow-600"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[11px] sm:text-xs text-gray-600">Maks. Percobaan</p>
+                                    <p class="text-[11px] sm:text-xs font-semibold text-gray-900 truncate">{{
+                                        kelulusan.max_attempts || '-' }} kali</p>
+                                </div>
+                            </div>
+
+                            <!-- Attempt Count -->
+                            <div class="flex items-center gap-2 sm:gap-2.5">
+                                <div
+                                    class="flex-shrink-0 w-6 sm:w-8 h-6 sm:h-8 rounded-lg bg-teal-200 flex items-center justify-center">
+                                    <i class="fa-solid fa-rotate text-xs sm:text-sm text-teal-600"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[11px] sm:text-xs text-gray-600">Sudah Dibuka</p>
+                                    <p class="text-[11px] sm:text-xs font-semibold text-gray-900 truncate">{{
+                                        kelulusan.attempt_count || 0 }} kali</p>
+                                </div>
+                            </div>
+
                             <!-- Created At -->
                             <div class="flex items-center gap-2 sm:gap-2.5">
                                 <div

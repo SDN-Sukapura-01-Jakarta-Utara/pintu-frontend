@@ -163,6 +163,21 @@
                             </select>
                         </div>
 
+                        <!-- Percobaan Buka Pengumuman -->
+                        <div>
+                            <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
+                                Percobaan Buka Pengumuman
+                                <span class="text-red-600 ml-1">*</span>
+                            </label>
+                            <input v-model.number="form.max_attempts" type="number" min="1" max="5" placeholder="Maksimal 5 percobaan" required
+                                :disabled="isSubmitting"
+                                class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium transition-all duration-200 placeholder-gray-400 focus:border-red-600 focus:bg-white focus:outline-none focus:ring-4 focus:ring-red-100 disabled:opacity-50 disabled:cursor-not-allowed" />
+                            <p class="mt-1.5 text-xs text-gray-500">
+                                <i class="fa-solid fa-info-circle mr-1"></i>
+                                Jumlah percobaan siswa untuk membuka pengumuman (1-5 kali)
+                            </p>
+                        </div>
+
                         <!-- Upload SKL -->
                         <div>
                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
@@ -318,7 +333,8 @@ const form = ref({
     nisn: '',
     nama: '',
     tanggal_lahir: '',
-    lulus: null as boolean | null
+    lulus: null as boolean | null,
+    max_attempts: 3
 })
 
 const nilaiList = ref<Array<{ mapel: string; nilai: string | number }>>([
@@ -407,7 +423,8 @@ const loadData = async () => {
             nisn: data.nisn,
             nama: data.nama,
             tanggal_lahir: data.tanggal_lahir,
-            lulus: data.lulus
+            lulus: data.lulus,
+            max_attempts: data.max_attempts !== undefined && data.max_attempts !== null ? data.max_attempts : 3
         }
 
         // Convert nilai object to array
@@ -468,7 +485,8 @@ const handleSubmit = async () => {
             tanggal_lahir: form.value.tanggal_lahir,
             nilai: nilaiObject,
             lulus: form.value.lulus,
-            delete_skl: deleteSklFlag.value
+            delete_skl: deleteSklFlag.value,
+            max_attempts: form.value.max_attempts
         }
 
         formData.append('data', JSON.stringify(data))

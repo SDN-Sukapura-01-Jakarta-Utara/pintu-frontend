@@ -10,6 +10,54 @@
       <div class="absolute -bottom-8 left-20 w-72 h-72 bg-cyan-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
     </div>
 
+    <!-- Error Prank Modal -->
+    <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-200 ease-in" 
+      leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+      <div v-if="showErrorPrankModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div @click.stop class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative overflow-hidden">
+          <!-- Decorative elements -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-red-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-yellow-100 rounded-full -ml-12 -mb-12 opacity-50"></div>
+          
+          <div class="relative z-10">
+            <!-- Icon -->
+            <div class="text-center mb-4">
+              <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-orange-500 rounded-full mb-4 animate-bounce">
+                <i class="fa-solid fa-exclamation text-3xl text-white"></i>
+              </div>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-4">
+              Waduh.....
+            </h3>
+
+            <!-- Message -->
+            <p class="text-base sm:text-lg text-gray-700 text-center mb-2 leading-relaxed">
+              Data kamu tidak ditemukan nih.
+            </p>
+            <p class="text-base sm:text-lg text-gray-700 text-center mb-6 leading-relaxed">
+              Jangan-jangan kamu tidak lu...... <br>
+              <span class="font-bold text-red-600">Ahh ga mungkin</span>, coba masukin datamu lagi 😅
+            </p>
+
+            <!-- GIF -->
+            <div class="flex justify-center mb-6">
+              <img :src="currentErrorGif" alt="Thinking" class="w-48 h-48 sm:w-64 sm:h-64 object-contain rounded-xl">
+            </div>
+
+            <!-- Button -->
+            <button @click="closeErrorPrankModal"
+              class="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-base sm:text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+              <i class="fa-solid fa-check mr-2"></i>
+              Oke, Coba Lagi!
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Welcome Modal -->
     <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0"
       enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100"
@@ -306,9 +354,9 @@
               <div class="flex justify-end mt-8">
                 <div class="text-right">
                   <p class="text-sm sm:text-base text-gray-700 mb-1">Jakarta, {{ formatAnnouncementDate() }}</p>
-                  <p class="text-sm sm:text-base font-semibold text-gray-800 mb-8">Kepala SDN Sukapura 01</p>
-                  <div class="mb-2">
-                    <img v-if="settings?.ttd_kepsek" :src="settings.ttd_kepsek" alt="Tanda Tangan" class="h-16 sm:h-20 mx-auto">
+                  <p class="text-sm sm:text-base font-semibold text-gray-800 mb-2">Kepala SDN Sukapura 01</p>
+                  <div class="mb-1">
+                    <img v-if="settings?.ttd_kepsek" :src="settings.ttd_kepsek" alt="Tanda Tangan" class="h-24 sm:h-32 mx-auto">
                   </div>
                   <p class="text-sm sm:text-base font-bold text-gray-900 border-t-2 border-gray-800 pt-2">
                     {{ settings?.nama_kepsek || 'Kepala Sekolah' }}
@@ -337,11 +385,11 @@
               <i class="fa-solid fa-chart-line"></i>
               Cek Nilai TKA
             </button>
-            <button v-if="graduationResult.lulus && graduationResult.skl" @click="downloadSKL" 
+            <!-- <button v-if="graduationResult.lulus && graduationResult.skl" @click="downloadSKL" 
               class="flex-1 px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold text-sm sm:text-base hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
               <i class="fa-solid fa-file-pdf"></i>
               Cetak SKL
-            </button>
+            </button> -->
           </div>
         </div>
 
@@ -457,6 +505,9 @@ const isLoading = ref(true)
 const isAnnouncementOpen = ref(false)
 const announcementDate = ref<string>('')
 const showWelcomeModal = ref(false)
+const showErrorPrankModal = ref(false)
+const currentErrorGif = ref('')
+const errorAttemptMessage = ref('')
 const settings = ref<any>(null)
 const tahunPelajaran = ref('')
 const countdown = ref({
@@ -473,6 +524,14 @@ const isChecking = ref(false)
 const errorMessage = ref('')
 const graduationResult = ref<any>(null)
 const confettiCanvas = ref<HTMLCanvasElement | null>(null)
+
+// GIF options for error prank
+const errorGifs = [
+  '/mikir1.gif',
+  '/mikir2.gif',
+  '/mikir3.gif',
+  '/mikir4.gif'
+]
 
 let countdownInterval: NodeJS.Timeout | null = null
 
@@ -627,6 +686,18 @@ const startCountdown = () => {
 
 const closeWelcomeModal = () => {
   showWelcomeModal.value = false
+  // Trigger confetti after modal closes
+  createConfetti()
+}
+
+const closeErrorPrankModal = () => {
+  showErrorPrankModal.value = false
+  errorAttemptMessage.value = ''
+}
+
+const getRandomGif = () => {
+  const randomIndex = Math.floor(Math.random() * errorGifs.length)
+  return errorGifs[randomIndex]
 }
 
 const handleCheckGraduation = async () => {
@@ -650,13 +721,23 @@ const handleCheckGraduation = async () => {
     if (response && response.data) {
       graduationResult.value = response.data
       
-      // Show welcome modal and confetti after successful check
+      // Show welcome modal after successful check
       showWelcomeModal.value = true
-      createConfetti()
     }
   } catch (error: any) {
     console.error('Error checking graduation:', error)
-    errorMessage.value = error?.data?.error || error?.message || 'Data tidak ditemukan. Pastikan NISN dan tanggal lahir sudah benar.'
+    const errorMsg = error?.data?.error || error?.message || 'Data tidak ditemukan. Pastikan NISN dan tanggal lahir sudah benar.'
+    
+    // Check if it's the verification error (prank error)
+    if (errorMsg.includes('sedang diverifikasi') || errorMsg.includes('percobaan tersisa')) {
+      // Show prank modal with random GIF
+      currentErrorGif.value = getRandomGif()
+      errorAttemptMessage.value = errorMsg
+      showErrorPrankModal.value = true
+    } else {
+      // Show regular error message
+      errorMessage.value = errorMsg
+    }
   } finally {
     isChecking.value = false
   }
@@ -705,14 +786,11 @@ const downloadCard = async () => {
           border: 8px double #10b981;
           border-radius: 1rem;
           position: relative;
-        }
-        
-        /* Hide background pattern for print */
-        svg, .absolute.inset-0 {
-          display: none !important;
+          overflow: hidden;
         }
         
         /* Text colors */
+        .text-white { color: #ffffff !important; }
         .text-emerald-800 { color: #065f46 !important; }
         .text-emerald-600 { color: #059669 !important; }
         .text-emerald-900 { color: #064e3b !important; }
@@ -723,6 +801,8 @@ const downloadCard = async () => {
         /* Background colors */
         .bg-white { background-color: #ffffff !important; }
         .bg-emerald-600 { background-color: #059669 !important; }
+        .bg-emerald-100 { background-color: #d1fae5 !important; }
+        .bg-green-100 { background-color: #dcfce7 !important; }
         .bg-gradient-to-br { 
           background: linear-gradient(to bottom right, #d1fae5, #ccfbf1, #cffafe) !important;
         }
@@ -820,6 +900,8 @@ const downloadCard = async () => {
         .h-1 { height: 0.2rem !important; }
         .h-16 { height: 3rem !important; }
         .h-20 { height: 4rem !important; }
+        .h-24 { height: 5rem !important; }
+        .h-32 { height: 5.5rem !important; }
         
         /* Display */
         .inline-block { display: inline-block !important; }
@@ -856,6 +938,11 @@ const downloadCard = async () => {
         }
         
         @media print {
+          * {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            color-adjust: exact !important;
+          }
           body { 
             padding: 0; 
             margin: 0;
