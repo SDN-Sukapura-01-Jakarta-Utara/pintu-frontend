@@ -58,6 +58,89 @@
       </div>
     </Transition>
 
+    <!-- Blocked Prank Modal (3x) -->
+    <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-200 ease-in" 
+      leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+      <div v-if="showBlockedPrankModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div @click.stop class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative overflow-hidden">
+          <!-- Decorative elements -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-red-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-orange-100 rounded-full -ml-12 -mb-12 opacity-50"></div>
+          
+          <div class="relative z-10">
+            <!-- Icon -->
+            <div class="text-center mb-4">
+              <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-600 to-red-500 rounded-full mb-4 animate-pulse">
+                <i class="fa-solid fa-ban text-3xl text-white"></i>
+              </div>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-2xl sm:text-3xl font-bold text-red-600 text-center mb-4">
+              Maaf...
+            </h3>
+
+            <!-- Message -->
+            <p class="text-base sm:text-lg text-gray-700 text-center mb-6 leading-relaxed">
+              Akun Anda sepertinya <span class="font-bold text-red-600">diblokir</span>.....
+            </p>
+
+            <!-- Button -->
+            <button @click="closeBlockedPrankModal"
+              class="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 text-white font-bold text-base sm:text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+              <i class="fa-solid fa-check mr-2"></i>
+              Oke
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Final Prank Modal (Reveal) -->
+    <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-200 ease-in" 
+      leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+      <div v-if="showFinalPrankModal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div @click.stop class="bg-white rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 relative overflow-hidden">
+          <!-- Decorative elements -->
+          <div class="absolute top-0 right-0 w-32 h-32 bg-purple-100 rounded-full -mr-16 -mt-16 opacity-50"></div>
+          <div class="absolute bottom-0 left-0 w-24 h-24 bg-pink-100 rounded-full -ml-12 -mb-12 opacity-50"></div>
+          
+          <div class="relative z-10">
+            <!-- Icon -->
+            <div class="text-center mb-4">
+              <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full mb-4 animate-bounce">
+                <i class="fa-solid fa-face-laugh-squint text-3xl text-white"></i>
+              </div>
+            </div>
+
+            <!-- Title -->
+            <h3 class="text-2xl sm:text-3xl font-bold text-gray-900 text-center mb-2">
+              Eitsssss, tapi bohong.......
+            </h3>
+
+            <!-- Subtitle -->
+            <h4 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 text-center mb-6">
+              Anda kena PRANK!!!!
+            </h4>
+
+            <!-- GIF -->
+            <div class="flex justify-center mb-6">
+              <img src="/gif-prank.gif" alt="Prank" class="w-48 h-48 sm:w-64 sm:h-64 object-contain rounded-xl">
+            </div>
+
+            <!-- Button -->
+            <button @click="closeFinalPrankModal"
+              class="w-full px-6 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-base sm:text-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-200 cursor-pointer">
+              <span>Ya lanjut dah</span>
+              <span class="ml-2">😤</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Welcome Modal -->
     <Transition enter-active-class="transition duration-300 ease-out" enter-from-class="opacity-0"
       enter-to-class="opacity-100" leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100"
@@ -506,6 +589,10 @@ const isAnnouncementOpen = ref(false)
 const announcementDate = ref<string>('')
 const showWelcomeModal = ref(false)
 const showErrorPrankModal = ref(false)
+const showBlockedPrankModal = ref(false)
+const showFinalPrankModal = ref(false)
+const blockedPrankCount = ref(0)
+const tempGraduationData = ref<any>(null)
 const currentErrorGif = ref('')
 const errorAttemptMessage = ref('')
 const settings = ref<any>(null)
@@ -695,6 +782,19 @@ const closeErrorPrankModal = () => {
   errorAttemptMessage.value = ''
 }
 
+const closeBlockedPrankModal = () => {
+  showBlockedPrankModal.value = false
+  // Don't set graduationResult here, keep it null so form stays visible
+  // User stays on form page
+}
+
+const closeFinalPrankModal = () => {
+  showFinalPrankModal.value = false
+  // Now set the graduation result and show welcome modal
+  graduationResult.value = tempGraduationData.value
+  showWelcomeModal.value = true
+}
+
 const getRandomGif = () => {
   const randomIndex = Math.floor(Math.random() * errorGifs.length)
   return errorGifs[randomIndex]
@@ -719,10 +819,20 @@ const handleCheckGraduation = async () => {
     )
 
     if (response && response.data) {
-      graduationResult.value = response.data
+      // Store result temporarily
+      tempGraduationData.value = response.data
       
-      // Show welcome modal after successful check
-      showWelcomeModal.value = true
+      // Check if we need to show blocked prank first (after all attempts used)
+      if (blockedPrankCount.value < 3) {
+        // Show blocked prank modal, increment counter
+        blockedPrankCount.value++
+        showBlockedPrankModal.value = true
+        // Don't set graduationResult yet, keep form visible
+      } else if (blockedPrankCount.value === 3) {
+        // After 3 blocked pranks, show final prank
+        showFinalPrankModal.value = true
+        // Still don't set graduationResult, keep form visible
+      }
     }
   } catch (error: any) {
     console.error('Error checking graduation:', error)
@@ -730,6 +840,10 @@ const handleCheckGraduation = async () => {
     
     // Check if it's the verification error (prank error)
     if (errorMsg.includes('sedang diverifikasi') || errorMsg.includes('percobaan tersisa')) {
+      // Reset blocked prank count when still in attempts
+      blockedPrankCount.value = 0
+      tempGraduationData.value = null
+      
       // Show prank modal with random GIF
       currentErrorGif.value = getRandomGif()
       errorAttemptMessage.value = errorMsg
@@ -737,6 +851,7 @@ const handleCheckGraduation = async () => {
     } else {
       // Show regular error message
       errorMessage.value = errorMsg
+      tempGraduationData.value = null
     }
   } finally {
     isChecking.value = false

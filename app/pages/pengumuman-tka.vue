@@ -158,6 +158,12 @@
               <i class="fa-solid fa-arrow-left"></i>
               Kembali
             </button>
+            <button @click="downloadReport" :disabled="isDownloading"
+              class="flex-1 px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold text-sm sm:text-base hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+              <i v-if="isDownloading" class="fa-solid fa-spinner fa-spin"></i>
+              <i v-else class="fa-solid fa-file-pdf"></i>
+              {{ isDownloading ? 'Mengunduh...' : 'Cetak Laporan Sementara TKA' }}
+            </button>
             <button @click="navigateToKelulusan" 
               class="flex-1 px-6 sm:px-8 py-3 sm:py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-sm sm:text-base hover:shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
               <i class="fa-solid fa-graduation-cap"></i>
@@ -286,6 +292,7 @@ const checkForm = ref({
   tanggal_lahir: ''
 })
 const isChecking = ref(false)
+const isDownloading = ref(false)
 const errorMessage = ref('')
 const scoreResult = ref<any>(null)
 
@@ -393,6 +400,56 @@ const resetForm = () => {
 
 const navigateToKelulusan = () => {
   navigateTo('/pengumuman-kelulusan')
+}
+
+const downloadReport = async () => {
+  if (!checkForm.value.nisn || !checkForm.value.tanggal_lahir) {
+    return
+  }
+
+  isDownloading.value = true
+
+  try {
+    const config = useRuntimeConfig()
+    const response = await fetch(
+      `${config.public.apiBase}/api/v1/public/download-laporan-nilai-kelulusan`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nisn: checkForm.value.nisn,
+          tanggal_lahir: checkForm.value.tanggal_lahir
+        }),
+        credentials: 'include',
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error('Gagal mengunduh laporan')
+    }
+
+    // Get the blob from response
+    const blob = await response.blob()
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Laporan_Sementara_TKA_${checkForm.value.nisn}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    
+    // Cleanup
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+  } catch (error: any) {
+    console.error('Error downloading report:', error)
+    alert('Gagal mengunduh laporan. Silakan coba lagi.')
+  } finally {
+    isDownloading.value = false
+  }
 }
 
 const formatDateTime = (dateString: string) => {
