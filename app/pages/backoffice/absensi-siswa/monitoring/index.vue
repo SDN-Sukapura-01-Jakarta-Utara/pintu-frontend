@@ -49,11 +49,11 @@
       <!-- Tab Content: Dashboard Umum -->
       <div v-if="activeTab === 'dashboard-umum'" class="p-4 sm:p-6 md:p-8">
         <!-- Dashboard Type Selection -->
-        <div class="mb-6 pb-6 border-b border-gray-200">
+        <div v-if="showGuruKelasTab || showGuruMapelTab" class="mb-6 pb-6 border-b border-gray-200">
           <label class="block text-sm font-semibold text-gray-900 mb-3">
             Lihat Dashboard Sebagai
           </label>
-          <div class="flex gap-3">
+          <div v-if="showGuruKelasTab && showGuruMapelTab" class="flex gap-3">
             <button
               @click="dashboardType = 'guru-kelas'"
               :class="[
@@ -78,6 +78,22 @@
               <i class="fa-solid fa-book-open mr-2"></i>
               Guru Mapel
             </button>
+          </div>
+          <div v-else class="p-4 bg-gray-50 rounded-lg border-2 border-gray-200 text-center">
+            <p class="text-sm text-gray-700 font-semibold">
+              <i :class="[showGuruKelasTab ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-book-open', 'mr-2']"></i>
+              Dashboard {{ showGuruKelasTab ? 'Guru Kelas' : 'Guru Mapel' }}
+            </p>
+          </div>
+        </div>
+        
+        <!-- No Access Message -->
+        <div v-else class="mb-6">
+          <div class="flex flex-col items-center justify-center py-8 px-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-exclamation-circle text-xl text-gray-400"></i>
+            </div>
+            <p class="text-sm text-gray-600 text-center">Anda tidak memiliki akses untuk melihat dashboard monitoring.</p>
           </div>
         </div>
 
@@ -147,7 +163,8 @@
                 @change="loadAllData"
                 class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 transition-all text-sm"
               >
-                <option :value="null">Semua Rombel</option>
+                <!-- Only show "Semua Rombel" option for superadmin -->
+                <option v-if="isSuperAdmin" :value="null">Semua Rombel</option>
                 <option v-for="rombel in activeRombelList" :key="rombel.id" :value="rombel.id">
                   {{ rombel.name }}
                 </option>
@@ -541,8 +558,8 @@
             </div>
           </div>
 
-          <!-- Perbandingan Rombel -->
-          <div class="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+          <!-- Perbandingan Rombel (Only for Superadmin) -->
+          <div v-if="isSuperAdmin" class="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
             <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b-2 border-gray-200">
               <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <i class="fa-solid fa-chart-column text-red-600"></i>
@@ -562,7 +579,7 @@
               </div>
 
               <!-- Perbandingan Content -->
-              <div v-else-if="perbandinganRombelData" class="space-y-6">
+              <div v-else-if="perbandinganRombelData && perbandinganRombelData.data && perbandinganRombelData.data.length > 0" class="space-y-6">
                 <!-- Bar Chart -->
                 <div class="h-96">
                   <Bar :data="perbandinganBarData" :options="perbandinganBarChartOptions" />
@@ -689,8 +706,8 @@
                 <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                   <i class="fa-solid fa-chart-column text-2xl text-gray-400"></i>
                 </div>
-                <h3 class="text-base font-semibold text-gray-900 mb-1">Belum ada data perbandingan</h3>
-                <p class="text-sm text-gray-600">Pilih filter untuk melihat perbandingan antar rombel</p>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Data Tidak Ditemukan</h3>
+                <p class="text-sm text-gray-600">Tidak ada data perbandingan untuk periode yang dipilih</p>
               </div>
             </div>
           </div>
@@ -849,8 +866,8 @@
                 <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
                   <i class="fa-solid fa-user-clock text-2xl text-gray-400"></i>
                 </div>
-                <h3 class="text-base font-semibold text-gray-900 mb-1">Belum ada data siswa</h3>
-                <p class="text-sm text-gray-600">Pilih filter untuk melihat siswa dengan kehadiran terendah</p>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Data Tidak Ditemukan</h3>
+                <p class="text-sm text-gray-600">Tidak ada data siswa untuk periode yang dipilih</p>
               </div>
             </div>
           </div>
@@ -1246,6 +1263,15 @@
           </div>
         </div>
 
+        <!-- Error State -->
+        <div v-else-if="dashboardSiswaError" class="flex flex-col items-center justify-center py-12">
+          <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-exclamation-circle text-2xl text-red-600"></i>
+          </div>
+          <h3 class="text-base font-semibold text-gray-900 mb-1">{{ dashboardSiswaError }}</h3>
+          <p class="text-sm text-gray-600">Silakan pilih filter yang berbeda atau hubungi administrator</p>
+        </div>
+
         <!-- Empty State -->
         <div v-else class="flex flex-col items-center justify-center py-12">
           <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
@@ -1267,6 +1293,7 @@ import { useRombelStore } from '~/stores/RombelStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
 import { usePesertaDidikStore } from '~/stores/PesertaDidikStore'
+import { useAuth } from '~/composables/useAuth'
 import { getDashboardSummary, getGrafikKehadiran, getStatistikPerHari, getPerbandinganRombel, getSiswaTerendah, getDashboardSiswa } from '~/services/absensi'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 
@@ -1289,15 +1316,39 @@ useHead({
   ]
 })
 
+const { getCurrentUser } = useAuth()
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const bidangStudiStore = useBidangStudiStore()
 const pesertaDidikStore = usePesertaDidikStore()
 
+// Get current user data
+const currentUser = getCurrentUser()
+
+// Check if user is superadmin (user ID 1)
+const isSuperAdmin = computed(() => currentUser?.id === 1)
+
+// Determine which tabs to show based on jabatan
+const showGuruKelasTab = computed(() => {
+  // Superadmin has access to all tabs
+  if (isSuperAdmin.value) return true
+  
+  const jabatan = currentUser?.jabatan
+  return jabatan === 'Guru Kelas' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+})
+
+const showGuruMapelTab = computed(() => {
+  // Superadmin has access to all tabs
+  if (isSuperAdmin.value) return true
+  
+  const jabatan = currentUser?.jabatan
+  return jabatan === 'Guru Bidang Studi' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+})
+
 // State
 const activeTab = ref('dashboard-umum')
-const dashboardType = ref<'guru-kelas' | 'guru-mapel'>('guru-kelas')
-const dashboardSiswaType = ref<'guru-kelas' | 'guru-mapel'>('guru-kelas')
+const dashboardType = ref<'guru-kelas' | 'guru-mapel'>(showGuruKelasTab.value ? 'guru-kelas' : 'guru-mapel')
+const dashboardSiswaType = ref<'guru-kelas' | 'guru-mapel'>(showGuruKelasTab.value ? 'guru-kelas' : 'guru-mapel')
 const isLoading = ref(false)
 const isLoadingChart = ref(false)
 
@@ -1311,6 +1362,7 @@ const statistikPerHariData = ref<any>(null)
 const perbandinganRombelData = ref<any>(null)
 const siswaTerendahData = ref<any>(null)
 const dashboardSiswaData = ref<any>(null)
+const dashboardSiswaError = ref<string | null>(null)
 const isLoadingStatistik = ref(false)
 const isLoadingPerbandingan = ref(false)
 const isLoadingSiswaTerendah = ref(false)
@@ -1331,8 +1383,8 @@ const lastDayOfMonth = new Date(currentYear, currentMonth, 0)
 const filters = ref({
   tahun_pelajaran_id: 0,
   semester: defaultSemester,
-  rombel_id: null as number | null,
-  bidang_studi_id: 0,
+  rombel_id: (isSuperAdmin.value ? null : (showGuruKelasTab.value ? currentUser?.rombel_guru_kelas_id : null)) as number | null,
+  bidang_studi_id: isSuperAdmin.value ? 0 : (currentUser?.bidang_studi_id || 0),
   periode: 'harian',
   tanggal_mulai: firstDayOfMonth.toISOString().split('T')[0],
   tanggal_selesai: lastDayOfMonth.toISOString().split('T')[0],
@@ -1344,17 +1396,34 @@ const filters = ref({
 const filtersSiswa = ref({
   tahun_pelajaran_id: 0,
   semester: defaultSemester,
-  rombel_id: 0,
-  bidang_studi_id: 0,
+  rombel_id: isSuperAdmin.value ? 0 : (currentUser?.rombel_guru_kelas_id || 0),
+  bidang_studi_id: isSuperAdmin.value ? 0 : (currentUser?.bidang_studi_id || 0),
   peserta_didik_id: 0,
   periode: 'harian',
   tanggal_mulai: firstDayOfMonth.toISOString().split('T')[0],
   tanggal_selesai: lastDayOfMonth.toISOString().split('T')[0]
 })
 
-// Computed
+// Computed - Filter based on user's assignment
 const activeRombelList = computed(() => {
-  return rombelList.value.filter((r: any) => r.status === 'active')
+  const filtered = rombelList.value.filter((r: any) => r.status === 'active')
+  
+  // Superadmin has access to all rombel
+  if (isSuperAdmin.value) {
+    return filtered
+  }
+  
+  // For guru kelas dashboard, only show their assigned rombel
+  if (dashboardType.value === 'guru-kelas' && currentUser?.rombel_guru_kelas_id) {
+    return filtered.filter((r: any) => r.id === currentUser.rombel_guru_kelas_id)
+  }
+  
+  // For guru mapel dashboard, only show their assigned rombels
+  if (dashboardType.value === 'guru-mapel' && currentUser?.rombel_bidang_studi && currentUser.rombel_bidang_studi.length > 0) {
+    return filtered.filter((r: any) => currentUser.rombel_bidang_studi?.includes(r.id))
+  }
+  
+  return filtered
 })
 
 const activeTahunPelajaranList = computed(() => {
@@ -1362,7 +1431,19 @@ const activeTahunPelajaranList = computed(() => {
 })
 
 const activeBidangStudiList = computed(() => {
-  return bidangStudiList.value.filter((b: any) => b.status === 'active')
+  const filtered = bidangStudiList.value.filter((b: any) => b.status === 'active')
+  
+  // Superadmin has access to all bidang studi
+  if (isSuperAdmin.value) {
+    return filtered
+  }
+  
+  // For guru mapel, only show their assigned bidang studi
+  if (currentUser?.bidang_studi_id) {
+    return filtered.filter((b: any) => b.id === currentUser.bidang_studi_id)
+  }
+  
+  return filtered
 })
 
 const activePesertaDidikList = computed(() => {
@@ -1942,7 +2023,12 @@ const loadPerbandinganRombel = async () => {
     }
 
     const response = await getPerbandinganRombel(requestData)
-    perbandinganRombelData.value = response.data || null
+    // Check if response.data.data exists and is not null
+    if (response.data && response.data.data) {
+      perbandinganRombelData.value = response.data
+    } else {
+      perbandinganRombelData.value = null
+    }
   } catch (err) {
     console.error('Error loading perbandingan rombel:', err)
     perbandinganRombelData.value = null
@@ -1982,7 +2068,12 @@ const loadSiswaTerendah = async () => {
     }
 
     const response = await getSiswaTerendah(requestData)
-    siswaTerendahData.value = response.data || null
+    // Check if response.data.data exists and is not null
+    if (response.data && response.data.data) {
+      siswaTerendahData.value = response.data
+    } else {
+      siswaTerendahData.value = null
+    }
   } catch (err) {
     console.error('Error loading siswa terendah:', err)
     siswaTerendahData.value = null
@@ -2030,15 +2121,18 @@ const loadDashboardSiswa = async () => {
   // Validate required fields
   if (!filtersSiswa.value.tahun_pelajaran_id || !filtersSiswa.value.rombel_id || !filtersSiswa.value.peserta_didik_id) {
     dashboardSiswaData.value = null
+    dashboardSiswaError.value = null
     return
   }
 
   if (dashboardSiswaType.value === 'guru-mapel' && !filtersSiswa.value.bidang_studi_id) {
     dashboardSiswaData.value = null
+    dashboardSiswaError.value = null
     return
   }
 
   isLoadingDashboardSiswa.value = true
+  dashboardSiswaError.value = null
   try {
     const requestData: any = {
       peserta_didik_id: filtersSiswa.value.peserta_didik_id,
@@ -2059,9 +2153,11 @@ const loadDashboardSiswa = async () => {
 
     const response = await getDashboardSiswa(requestData)
     dashboardSiswaData.value = response.data || null
-  } catch (err) {
+  } catch (err: any) {
     console.error('Error loading dashboard siswa:', err)
     dashboardSiswaData.value = null
+    // Capture error message from response
+    dashboardSiswaError.value = err.data?.error || err.response?.data?.error || err.message || 'Gagal memuat data dashboard siswa'
   } finally {
     isLoadingDashboardSiswa.value = false
   }
@@ -2089,6 +2185,7 @@ watch(dashboardSiswaType, () => {
 watch([() => filtersSiswa.value.tahun_pelajaran_id, () => filtersSiswa.value.rombel_id], () => {
   filtersSiswa.value.peserta_didik_id = 0
   dashboardSiswaData.value = null
+  dashboardSiswaError.value = null
   loadPesertaDidikList()
 })
 

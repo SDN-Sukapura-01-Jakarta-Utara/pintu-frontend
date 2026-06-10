@@ -18,6 +18,10 @@ export interface User {
   token: string
   created_at: string
   permissions?: string[]
+  jabatan?: string | null
+  rombel_guru_kelas_id?: number | null
+  bidang_studi_id?: number | null
+  rombel_bidang_studi?: number[] | null
 }
 
 export interface LoginResponse {

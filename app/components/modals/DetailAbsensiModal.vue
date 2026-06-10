@@ -63,7 +63,7 @@
                   </div>
                 </div>
                 <button
-                  v-if="!isEditMode"
+                  v-if="!isEditMode && hasPermission('UPDATE_ABSENSI_SISWA')"
                   @click="enableEditMode"
                   class="px-3 py-1.5 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-xs font-semibold rounded-lg transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center gap-2"
                 >
@@ -393,6 +393,7 @@
 import { ref, watch } from 'vue'
 import { updateRekapAbsensi } from '~/services/absensi'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 
 interface DetailAbsensiData {
   id?: number
@@ -422,6 +423,7 @@ const emit = defineEmits<{
 }>()
 
 const { success: showToast, error: showErrorToast } = useToast()
+const { hasPermission } = useAuth()
 
 const isEditMode = ref(false)
 const isSubmitting = ref(false)

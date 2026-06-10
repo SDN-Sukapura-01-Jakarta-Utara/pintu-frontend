@@ -268,7 +268,7 @@
                         ]">
                             Monitoring Kehadiran
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/absensi-siswa/input-kehadiran" :class="[
+                        <NuxtLink v-if="hasPermission('CREATE_ABSENSI_SISWA')" to="/backoffice/absensi-siswa/input-kehadiran" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('absensi-siswa/input-kehadiran') ? 'bg-red-700 font-semibold' : ''
                         ]">

@@ -11,10 +11,11 @@
     <!-- Main Content -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <!-- Tabs -->
-      <div class="border-b border-gray-200">
+      <div v-if="showGuruKelasTab || showGuruMapelTab" class="border-b border-gray-200">
         <div class="px-4 sm:px-6">
           <div class="flex gap-1 overflow-x-auto -mb-px" style="scrollbar-width: thin;">
             <button
+              v-if="showGuruKelasTab"
               @click="activeTab = 'guru-kelas'"
               :class="[
                 'px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0 border-b-2 relative cursor-pointer',
@@ -29,6 +30,7 @@
               </span>
             </button>
             <button
+              v-if="showGuruMapelTab"
               @click="activeTab = 'guru-mapel'"
               :class="[
                 'px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0 border-b-2 relative cursor-pointer',
@@ -45,9 +47,20 @@
           </div>
         </div>
       </div>
+      
+      <!-- No Access Message -->
+      <div v-else class="p-8 text-center">
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-exclamation-circle text-2xl text-gray-400"></i>
+          </div>
+          <h3 class="text-base font-semibold text-gray-900 mb-1">Akses Tidak Tersedia</h3>
+          <p class="text-sm text-gray-600">Anda tidak memiliki akses untuk input kehadiran. Hubungi administrator.</p>
+        </div>
+      </div>
 
       <!-- Tab Content: Guru Kelas -->
-      <div v-if="activeTab === 'guru-kelas'" class="p-4 sm:p-6 md:p-8">
+      <div v-if="showGuruKelasTab && activeTab === 'guru-kelas'" class="p-4 sm:p-6 md:p-8">
         <form @submit.prevent="handleSubmit">
           <!-- Filter Section -->
           <div class="mb-8 pb-8 border-b border-gray-200">
@@ -279,7 +292,7 @@
       </div>
 
       <!-- Tab Content: Guru Mapel -->
-      <div v-if="activeTab === 'guru-mapel'" class="p-4 sm:p-6 md:p-8">
+      <div v-if="showGuruMapelTab && activeTab === 'guru-mapel'" class="p-4 sm:p-6 md:p-8">
         <form @submit.prevent="handleSubmitMapel">
           <!-- Filter Section -->
           <div class="mb-8 pb-8 border-b border-gray-200">
@@ -553,6 +566,7 @@ import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { usePesertaDidikStore } from '~/stores/PesertaDidikStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 import { createAbsensiManual } from '~/services/absensi'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 
@@ -573,13 +587,37 @@ useHead({
 })
 
 const { success: showToast, error: showErrorToast } = useToast()
+const { getCurrentUser } = useAuth()
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const pesertaDidikStore = usePesertaDidikStore()
 const bidangStudiStore = useBidangStudiStore()
 
+// Get current user data
+const currentUser = getCurrentUser()
+
+// Check if user is superadmin (user ID 1)
+const isSuperAdmin = computed(() => currentUser?.id === 1)
+
+// Determine which tabs to show based on jabatan
+const showGuruKelasTab = computed(() => {
+  // Superadmin has access to all tabs
+  if (isSuperAdmin.value) return true
+  
+  const jabatan = currentUser?.jabatan
+  return jabatan === 'Guru Kelas' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+})
+
+const showGuruMapelTab = computed(() => {
+  // Superadmin has access to all tabs
+  if (isSuperAdmin.value) return true
+  
+  const jabatan = currentUser?.jabatan
+  return jabatan === 'Guru Bidang Studi' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+})
+
 // State
-const activeTab = ref('guru-kelas')
+const activeTab = ref(showGuruKelasTab.value ? 'guru-kelas' : 'guru-mapel')
 const isSubmitting = ref(false)
 const isLoadingStudents = ref(false)
 const submitError = ref<string | null>(null)
@@ -603,7 +641,7 @@ const currentMonth = today.getMonth() + 1 // 1-12
 const defaultSemester = currentMonth >= 7 && currentMonth <= 12 ? 1 : 2
 
 const formData = ref({
-  rombel_id: 0,
+  rombel_id: 0, // Always start with 0 (not selected) so user must choose
   tahun_pelajaran_id: 0,
   semester: defaultSemester,
   tanggal: today.toISOString().split('T')[0],
@@ -623,7 +661,7 @@ const formDataMapel = ref({
   semester: defaultSemester,
   tanggal: today.toISOString().split('T')[0],
   waktu_absen: '',
-  bidang_studi_id: 0,
+  bidang_studi_id: 0, // Always start with 0 (not selected) so user must choose
   pertemuan_ke: 1,
   absensi_list: [] as Array<{
     peserta_didik_id: number
@@ -632,17 +670,47 @@ const formDataMapel = ref({
   }>
 })
 
-// Computed
+// Computed - Filter rombel list for guru kelas (only show their assigned rombel)
 const activeRombelList = computed(() => {
-  return rombelList.value.filter((r: any) => r.status === 'active')
+  const filtered = rombelList.value.filter((r: any) => r.status === 'active')
+  
+  // Superadmin has access to all rombel
+  if (isSuperAdmin.value) {
+    return filtered
+  }
+  
+  // For guru kelas tab, only show their assigned rombel
+  if (activeTab.value === 'guru-kelas' && currentUser?.rombel_guru_kelas_id) {
+    return filtered.filter((r: any) => r.id === currentUser.rombel_guru_kelas_id)
+  }
+  
+  // For guru mapel tab, only show their assigned rombels
+  if (activeTab.value === 'guru-mapel' && currentUser?.rombel_bidang_studi && currentUser.rombel_bidang_studi.length > 0) {
+    return filtered.filter((r: any) => currentUser.rombel_bidang_studi?.includes(r.id))
+  }
+  
+  return filtered
 })
 
 const activeTahunPelajaranList = computed(() => {
   return tahunPelajaranList.value.filter((t: any) => t.status === 'active')
 })
 
+// Filter bidang studi list for guru mapel (only show their assigned bidang studi)
 const activeBidangStudiList = computed(() => {
-  return bidangStudiList.value.filter((b: any) => b.status === 'active')
+  const filtered = bidangStudiList.value.filter((b: any) => b.status === 'active')
+  
+  // Superadmin has access to all bidang studi
+  if (isSuperAdmin.value) {
+    return filtered
+  }
+  
+  // For guru mapel, only show their assigned bidang studi
+  if (currentUser?.bidang_studi_id) {
+    return filtered.filter((b: any) => b.id === currentUser.bidang_studi_id)
+  }
+  
+  return filtered
 })
 
 // Methods
