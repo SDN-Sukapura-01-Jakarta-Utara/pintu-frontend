@@ -434,19 +434,19 @@
 
         <!-- Carousel wrapper -->
         <div class="relative reveal">
-          <div class="overflow-hidden">
+          <div class="overflow-hidden -mx-3 sm:-mx-4">
             <div 
               ref="artikelTrack"
-              class="flex gap-6 sm:gap-8 transition-transform duration-500 ease-out"
-              :style="{ transform: `translateX(-${currentArtikel * (100 / 3)}%)` }"
+              class="flex transition-transform duration-500 ease-out artikel-carousel-track"
+              :style="{ transform: `translateX(-${currentArtikel * artikelSlidePercentage}%)` }"
             >
               <!-- Duplicate articles for infinite loop -->
               <div 
                 v-for="(artikel, index) in [...artikelData, ...artikelData]" 
                 :key="'artikel-' + index"
                 @click="$router.push('/media-publikasi/artikel/' + artikel.id)"
-                class="group artikel-card bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer transition-all duration-400 relative hover:-translate-y-3 border border-gray-100 hover:border-red-200 flex-shrink-0"
-                :style="{ width: 'calc((100% - 2rem) / 3)' }"
+                class="group artikel-card bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer transition-all duration-400 relative hover:-translate-y-3 border border-gray-100 hover:border-red-200 flex-shrink-0 px-3 sm:px-4"
+                :class="windowWidth < 640 ? 'w-full' : 'w-1/3'"
               >
                 <div class="artikel-accent absolute top-0 left-0 right-0 h-1 scale-x-0 origin-left transition-transform duration-400 z-10" style="background: linear-gradient(90deg, #8B0000, #DC143C, #FF6B6B);" />
                 <div class="relative h-44 sm:h-52 overflow-hidden">
@@ -880,6 +880,7 @@ const currentArtikel = ref(0)
 const artikelTrack = ref(null)
 const galeriWrapper = ref(null)
 const galeriTrack = ref(null)
+const windowWidth = ref(1024) // Default desktop width
 
 // State untuk kritik saran form
 const kritikSaranForm = reactive({
@@ -919,6 +920,13 @@ const isLoadingKontak = ref(false)
 // State untuk aplikasi jumbotron
 const aplikasiJumbotron = ref(null)
 const isLoadingAplikasiJumbotron = ref(false)
+
+// Computed property untuk responsive artikel carousel
+const artikelSlidePercentage = computed(() => {
+  // Di mobile: geser 100% (1 card penuh)
+  // Di desktop: geser 33.33% (1 dari 3 cards)
+  return windowWidth.value < 640 ? 100 : 100 / 3
+})
 
 // Fetch jumbotron data dari API
 const heroSlides = computed(() => {
@@ -1527,6 +1535,11 @@ function onScroll() { scrolled.value = window.scrollY > 80 }
 function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 function scrollToAbout() { document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' }) }
 
+// Handle window resize untuk artikel carousel
+function handleResize() {
+  windowWidth.value = window.innerWidth
+}
+
 function animateCounter(index, target) {
   const duration = 1500
   const steps = 40
@@ -1580,6 +1593,12 @@ function getJuaraTextClass(juara) {
 
 onMounted(async () => {
   window.addEventListener('scroll', onScroll)
+  
+  // Set initial window width and listen for resize
+  if (typeof window !== 'undefined') {
+    windowWidth.value = window.innerWidth
+    window.addEventListener('resize', handleResize)
+  }
   
   // Fetch jumbotron data dari API
   try {
@@ -1754,6 +1773,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
+  window.removeEventListener('resize', handleResize)
   if (slideInterval) clearInterval(slideInterval)
   if (galeriAnim) cancelAnimationFrame(galeriAnim)
 })
