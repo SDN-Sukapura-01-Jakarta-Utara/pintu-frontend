@@ -434,19 +434,21 @@
 
         <!-- Carousel wrapper -->
         <div class="relative reveal">
-          <div class="overflow-hidden -mx-3 sm:-mx-4">
+          <div class="overflow-hidden" :class="windowWidth < 640 ? '-mx-3' : ''">
             <div 
               ref="artikelTrack"
               class="flex transition-transform duration-500 ease-out artikel-carousel-track"
-              :style="{ transform: `translateX(-${currentArtikel * artikelSlidePercentage}%)` }"
+              :class="windowWidth < 640 ? '' : 'gap-6 sm:gap-8'"
+              :style="artikelTransformStyle"
             >
               <!-- Duplicate articles for infinite loop -->
               <div 
                 v-for="(artikel, index) in [...artikelData, ...artikelData]" 
                 :key="'artikel-' + index"
                 @click="$router.push('/media-publikasi/artikel/' + artikel.id)"
-                class="group artikel-card bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer transition-all duration-400 relative hover:-translate-y-3 border border-gray-100 hover:border-red-200 flex-shrink-0 px-3 sm:px-4"
-                :class="windowWidth < 640 ? 'w-full' : 'w-1/3'"
+                class="group artikel-card bg-white rounded-2xl overflow-hidden shadow-md cursor-pointer transition-all duration-400 relative hover:-translate-y-3 border border-gray-100 hover:border-red-200 flex-shrink-0"
+                :class="windowWidth < 640 ? 'w-full px-3' : ''"
+                :style="windowWidth >= 640 ? { width: 'calc((100% - 4rem) / 3)' } : {}"
               >
                 <div class="artikel-accent absolute top-0 left-0 right-0 h-1 scale-x-0 origin-left transition-transform duration-400 z-10" style="background: linear-gradient(90deg, #8B0000, #DC143C, #FF6B6B);" />
                 <div class="relative h-44 sm:h-52 overflow-hidden">
@@ -923,9 +925,43 @@ const isLoadingAplikasiJumbotron = ref(false)
 
 // Computed property untuk responsive artikel carousel
 const artikelSlidePercentage = computed(() => {
-  // Di mobile: geser 100% (1 card penuh)
-  // Di desktop: geser 33.33% (1 dari 3 cards)
-  return windowWidth.value < 640 ? 100 : 100 / 3
+  const isMobile = windowWidth.value < 640
+  
+  if (isMobile) {
+    // Di mobile: tidak ada gap, geser 100% (1 card penuh)
+    return 100
+  } else {
+    // Di desktop: ada gap 2rem (32px)
+    // Total width untuk 3 cards = 100%
+    // Setiap card = 33.33% width
+    // Gap total = 2 gaps * 2rem = 4rem
+    // Kita perlu menghitung translateX berdasarkan (card width + gap)
+    // Untuk 3 cards: 33.33% + (2rem / container width) * 100
+    // Simplified approximation: tambahkan sedikit extra untuk gap
+    // Dengan container max-width 6xl (72rem), gap 2rem ≈ 2.78%
+    // Jadi: 33.33% + 2.78% ≈ 36.11%
+    return 36.1
+  }
+})
+
+// Computed style untuk transform artikel carousel
+const artikelTransformStyle = computed(() => {
+  const isMobile = windowWidth.value < 640
+  
+  if (isMobile) {
+    // Mobile: simple percentage-based transform
+    return { transform: `translateX(-${currentArtikel.value * 100}%)` }
+  } else {
+    // Desktop: calculate transform using calc() untuk memperhitungkan gap
+    // Setiap card = calc((100% - 4rem) / 3) + gap 2rem
+    // Transform = (cardWidth + gap) * index
+    // Simplified: kita geser berdasarkan card width + gap
+    const cardWidthCalc = `((100% - 4rem) / 3 + 2rem)`
+    
+    return { 
+      transform: `translateX(calc(-${currentArtikel.value} * ${cardWidthCalc}))` 
+    }
+  }
 })
 
 // Fetch jumbotron data dari API
