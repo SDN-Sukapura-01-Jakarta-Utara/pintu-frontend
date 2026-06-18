@@ -375,6 +375,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useToast } from '~/composables/useToast'
 import { useAuth } from '~/composables/useAuth'
+import { useAuthGuard } from '~/composables/useAuthGuard'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import PengaduanDetailModal from '~/components/modals/PengaduanDetailModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
@@ -521,18 +522,13 @@ const fetchData = async () => {
             })
         })
 
-        if (response.status === 401) {
-            // Unauthorized - session expired
-            localStorage.removeItem('auth_token')
-            localStorage.removeItem('user')
-            error('Sesi Habis', 'Sesi Anda telah habis. Silakan login kembali.')
-            setTimeout(() => {
-                navigateTo('/backoffice/login')
-            }, 1500)
-            return
-        }
-
         if (!response.ok) {
+            // Handle 401 Unauthorized
+            if (response.status === 401) {
+                const { handle401 } = useAuthGuard()
+                await handle401()
+                return
+            }
             throw new Error('Failed to fetch pengaduan')
         }
 

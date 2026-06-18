@@ -44,12 +44,12 @@ export default defineNuxtPlugin(() => {
             localStorage.removeItem('auth_user')
           }
 
-          // Show session expired error
+          // Show session expired error with auto dismiss after 5 seconds
           toastStore.showToast(
             'error',
             'Sesi Anda Telah Habis',
             'Mohon login kembali untuk melanjutkan',
-            0 // Don't auto dismiss
+            5000 // Auto dismiss after 5 seconds
           )
 
           // Redirect to login after a short delay

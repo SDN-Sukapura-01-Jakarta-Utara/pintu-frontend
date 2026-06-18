@@ -323,6 +323,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useToast } from '~/composables/useToast'
 import { useAuth } from '~/composables/useAuth'
+import { useAuthGuard } from '~/composables/useAuthGuard'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import PertanyaanDetailModal from '~/components/modals/PertanyaanDetailModal.vue'
 import ConfirmationDeleteModal from '~/components/modals/ConfirmationDeleteModal.vue'
@@ -466,6 +467,12 @@ const fetchData = async () => {
         })
 
         if (!response.ok) {
+            // Handle 401 Unauthorized
+            if (response.status === 401) {
+                const { handle401 } = useAuthGuard()
+                await handle401()
+                return
+            }
             throw new Error('Failed to fetch pertanyaan')
         }
 
@@ -473,7 +480,10 @@ const fetchData = async () => {
         pertanyaanList.value = result.data || []
         totalData.value = result.pagination?.total || 0
     } catch (err: any) {
-        error('Gagal Memuat Data', err.message || 'Terjadi kesalahan saat memuat data pertanyaan')
+        // Jangan tampilkan error toast jika sudah di-handle oleh handle401
+        if (err.message !== 'Failed to fetch pertanyaan' || !err.message.includes('401')) {
+            error('Gagal Memuat Data', err.message || 'Terjadi kesalahan saat memuat data pertanyaan')
+        }
         pertanyaanList.value = []
         totalData.value = 0
     } finally {

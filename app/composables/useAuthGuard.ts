@@ -4,16 +4,21 @@
  */
 
 import { useAuthStore } from '~/stores/AuthStore'
+import { useToastStore } from '~/stores/ToastStore'
 
 export function useAuthGuard() {
   const router = useRouter()
   const authStore = useAuthStore()
+  const toastStore = useToastStore()
 
   /**
    * Handle 401 Unauthorized error
-   * Clear auth dan redirect ke login
+   * Clear auth dan redirect ke login dengan toast notification
    */
   const handle401 = async () => {
+    // Show toast error dengan auto dismiss 5 detik
+    toastStore.error('Sesi Anda telah habis', 'Silakan login kembali', 5000)
+
     // Clear auth state
     authStore.token = null
     authStore.user = null
@@ -25,8 +30,10 @@ export function useAuthGuard() {
       localStorage.removeItem('auth_user')
     }
 
-    // Redirect ke login
-    await router.replace('/backoffice/login')
+    // Redirect ke login setelah delay kecil agar toast muncul
+    setTimeout(async () => {
+      await router.replace('/backoffice/login')
+    }, 500)
   }
 
   /**

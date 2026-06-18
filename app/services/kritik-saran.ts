@@ -3,6 +3,8 @@
  * Handle API calls untuk kritik dan saran
  */
 
+import { useAuthGuard } from '~/composables/useAuthGuard'
+
 export const getKritikSaran = async (search: any, pagination: any) => {
   const config = useRuntimeConfig()
   const token = localStorage.getItem('auth_token')
@@ -21,6 +23,11 @@ export const getKritikSaran = async (search: any, pagination: any) => {
   })
 
   if (!response.ok) {
+    if (response.status === 401) {
+      const { handle401 } = useAuthGuard()
+      await handle401()
+      throw new Error('Unauthorized')
+    }
     throw new Error('Failed to fetch kritik saran')
   }
 
@@ -42,6 +49,11 @@ export const getKritikSaranById = async (id: number) => {
   })
 
   if (!response.ok) {
+    if (response.status === 401) {
+      const { handle401 } = useAuthGuard()
+      await handle401()
+      throw new Error('Unauthorized')
+    }
     throw new Error('Failed to fetch kritik saran detail')
   }
 
@@ -63,6 +75,11 @@ export const deleteKritikSaran = async (id: number) => {
   })
 
   if (!response.ok) {
+    if (response.status === 401) {
+      const { handle401 } = useAuthGuard()
+      await handle401()
+      throw new Error('Unauthorized')
+    }
     throw new Error('Failed to delete kritik saran')
   }
 
