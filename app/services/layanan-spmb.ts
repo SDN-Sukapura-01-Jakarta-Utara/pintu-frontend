@@ -166,3 +166,58 @@ export async function deleteLayananSpmb(data: { id: number }) {
 
   return response
 }
+
+/**
+ * Get monitoring pelayanan SPMB
+ */
+export async function getMonitoringPelayanan(data: { view_type: 'daily' | 'weekly' | 'monthly' | 'yearly' }) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    data: {
+      statistik: {
+        total_layanan: number
+        layanan_hari_ini: number
+        layanan_kemarin: number
+        trend_percentage: number
+        trend_direction: string
+        layanan_minggu_ini: number
+        layanan_bulan_ini: number
+        by_status: Array<{ status: string; count: number }>
+      }
+      trend: {
+        view_type: string
+        period: string
+        data: Array<{
+          label: string
+          date: string
+          year?: string
+          month?: string
+          count: number
+        }>
+      }
+      detail_layanan: Array<{
+        id: number
+        nama_orang_tua: string
+        nama_lengkap_murid: string
+        keperluan: string
+        tanggal_laporan: string
+        status: string
+      }>
+    }
+  }>(
+    `${config.public.apiBase}/api/v1/spmb/monitoring-pelayanan-spmb`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}

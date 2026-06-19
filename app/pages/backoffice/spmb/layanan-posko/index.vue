@@ -39,6 +39,20 @@
         <div class="px-4 sm:px-6">
           <div class="flex gap-1 overflow-x-auto -mb-px" style="scrollbar-width: thin;">
             <button
+              @click="activeTab = 'monitoring'"
+              :class="[
+                'px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0 border-b-2 relative cursor-pointer',
+                activeTab === 'monitoring'
+                  ? 'text-red-600 border-b-red-600'
+                  : 'text-gray-600 border-b-transparent hover:text-gray-900 hover:border-b-gray-300'
+              ]"
+            >
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-chart-line w-4 h-4"></i>
+                Monitoring Pelayanan
+              </span>
+            </button>
+            <button
               @click="activeTab = 'ajuan'"
               :class="[
                 'px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0 border-b-2 relative cursor-pointer',
@@ -68,6 +82,185 @@
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- Tab Content: Monitoring Pelayanan -->
+      <div v-if="activeTab === 'monitoring'" class="p-4 sm:p-6">
+        <!-- Filter Dropdown -->
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-gray-900 mb-2">Periode Monitoring</label>
+          <select 
+            v-model="monitoringFilter" 
+            @change="loadMonitoringData"
+            class="w-full sm:w-64 rounded-lg border-2 border-gray-300 bg-white px-4 py-2 text-sm font-medium transition-all duration-200 focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 cursor-pointer"
+          >
+            <option value="daily">Harian (30 Hari Terakhir)</option>
+            <option value="weekly">Mingguan</option>
+            <option value="monthly">Bulanan (12 Bulan Terakhir)</option>
+            <option value="yearly">Tahunan (5 Tahun Terakhir)</option>
+          </select>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="isLoadingMonitoring" class="flex items-center justify-center py-12">
+          <div class="flex flex-col items-center gap-4">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600"></div>
+            <p class="text-sm text-gray-600 font-medium">Memuat data monitoring...</p>
+          </div>
+        </div>
+
+        <template v-else>
+          <!-- Summary Cards Row 1 -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <!-- Total Layanan -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-2 border-blue-200">
+              <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 rounded-lg bg-blue-600 flex items-center justify-center">
+                  <i class="fa-solid fa-clipboard-check text-white text-xl"></i>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-blue-900 mb-1">{{ monitoringData?.statistik.total_layanan || 0 }}</div>
+              <div class="text-sm font-medium text-blue-700">Total Layanan</div>
+            </div>
+
+            <!-- Layanan Hari Ini -->
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-200">
+              <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 rounded-lg bg-green-600 flex items-center justify-center">
+                  <i class="fa-solid fa-calendar-day text-white text-xl"></i>
+                </div>
+                <div v-if="monitoringData?.statistik.trend_direction" class="flex items-center gap-1">
+                  <i :class="[
+                    'text-xs',
+                    monitoringData.statistik.trend_direction === 'up' ? 'fa-solid fa-arrow-up text-green-600' :
+                    monitoringData.statistik.trend_direction === 'down' ? 'fa-solid fa-arrow-down text-red-600' :
+                    'fa-solid fa-minus text-gray-600'
+                  ]"></i>
+                  <span class="text-xs font-semibold">{{ Math.abs(monitoringData.statistik.trend_percentage || 0) }}%</span>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-green-900 mb-1">{{ monitoringData?.statistik.layanan_hari_ini || 0 }}</div>
+              <div class="text-sm font-medium text-green-700">Hari Ini</div>
+              <div class="text-xs text-green-600 mt-1">vs kemarin: {{ monitoringData?.statistik.layanan_kemarin || 0 }}</div>
+            </div>
+
+            <!-- Layanan Minggu Ini -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6 border-2 border-purple-200">
+              <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 rounded-lg bg-purple-600 flex items-center justify-center">
+                  <i class="fa-solid fa-calendar-week text-white text-xl"></i>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-purple-900 mb-1">{{ monitoringData?.statistik.layanan_minggu_ini || 0 }}</div>
+              <div class="text-sm font-medium text-purple-700">Minggu Ini</div>
+            </div>
+
+            <!-- Layanan Bulan Ini -->
+            <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-6 border-2 border-orange-200">
+              <div class="flex items-center justify-between mb-2">
+                <div class="w-12 h-12 rounded-lg bg-orange-600 flex items-center justify-center">
+                  <i class="fa-solid fa-calendar-alt text-white text-xl"></i>
+                </div>
+              </div>
+              <div class="text-3xl font-bold text-orange-900 mb-1">{{ monitoringData?.statistik.layanan_bulan_ini || 0 }}</div>
+              <div class="text-sm font-medium text-orange-700">Bulan Ini</div>
+            </div>
+          </div>
+
+          <!-- Status Distribution & Trend Chart -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Status Distribution -->
+            <div class="bg-white rounded-xl border-2 border-gray-200 p-6">
+              <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-red-600"></i>
+                Distribusi Status
+              </h3>
+              <div class="space-y-3">
+                <div v-for="status in monitoringData?.statistik.by_status || []" :key="status.status" class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div :class="[
+                      'w-3 h-3 rounded-full',
+                      status.status === 'pending' ? 'bg-yellow-500' : 'bg-green-500'
+                    ]"></div>
+                    <span class="text-sm font-medium text-gray-700 capitalize">{{ status.status }}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg font-bold text-gray-900">{{ status.count }}</span>
+                    <span class="text-xs text-gray-500">layanan</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trend Chart (Line Chart) -->
+            <div class="lg:col-span-2 bg-white rounded-xl border-2 border-gray-200 p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <i class="fa-solid fa-chart-line text-red-600"></i>
+                  Trend Pelayanan
+                </h3>
+                <span class="text-xs text-gray-500">{{ monitoringData?.trend.period }}</span>
+              </div>
+              
+              <!-- Line Chart using Chart.js -->
+              <div v-if="trendChartData" class="h-64">
+                <Line :data="trendChartData" :options="trendChartOptions" />
+              </div>
+              
+              <!-- Empty state -->
+              <div v-else class="h-64 flex items-center justify-center text-gray-400">
+                <div class="text-center">
+                  <i class="fa-solid fa-chart-line text-4xl mb-2"></i>
+                  <p class="text-sm">Tidak ada data trend</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail Layanan Table -->
+          <div class="bg-white rounded-xl border-2 border-gray-200">
+            <div class="p-6 border-b border-gray-200">
+              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-list text-red-600"></i>
+                Detail Layanan Terbaru
+              </h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama Orang Tua</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nama Murid</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Keperluan</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tanggal</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                  <tr v-for="item in monitoringData?.detail_layanan || []" :key="item.id" class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm text-gray-900">{{ item.nama_orang_tua }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">{{ item.nama_lengkap_murid }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ truncateText(item.keperluan, 50) }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ formatDate(item.tanggal_laporan) }}</td>
+                    <td class="px-6 py-4">
+                      <span :class="[
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold',
+                        item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'
+                      ]">
+                        {{ item.status === 'pending' ? 'Pending' : 'Selesai' }}
+                      </span>
+                    </td>
+                  </tr>
+                  <tr v-if="!monitoringData?.detail_layanan || monitoringData.detail_layanan.length === 0">
+                    <td colspan="5" class="px-6 py-8 text-center text-sm text-gray-500">
+                      Tidak ada data layanan
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </template>
       </div>
 
       <!-- Tab Content: Ajuan Pelayanan -->
@@ -332,7 +525,32 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useToast } from '~/composables/useToast'
-import { getLayananSpmb, setStatusSelesai, deleteLayananSpmb, getSettingLayananSpmb, saveSettingLayananSpmb } from '~/services/layanan-spmb'
+import { Line } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js'
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+)
+
+import { getLayananSpmb, setStatusSelesai, deleteLayananSpmb, getSettingLayananSpmb, saveSettingLayananSpmb, getMonitoringPelayanan } from '~/services/layanan-spmb'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import Table from '~/components/Table.vue'
 import ViewButton from '~/components/common/ViewButton.vue'
@@ -363,7 +581,13 @@ useHead({
 const toast = useToast()
 
 // State
-const activeTab = ref('ajuan')
+const activeTab = ref('monitoring')
+
+// Monitoring State
+const monitoringFilter = ref<'daily' | 'weekly' | 'monthly' | 'yearly'>('daily')
+const isLoadingMonitoring = ref(false)
+const monitoringData = ref<any>(null)
+
 const isLoading = ref(false)
 const dataList = ref<any[]>([])
 const showDeleteConfirm = ref(false)
@@ -438,6 +662,139 @@ const formatDate = (dateString: string) => {
     minute: '2-digit'
   })
 }
+
+const formatTrendDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('id-ID', { 
+    day: '2-digit', 
+    month: 'short'
+  })
+}
+
+const getTrendPercentage = (count: number) => {
+  if (!monitoringData.value?.trend?.data) return 0
+  const maxCount = Math.max(...monitoringData.value.trend.data.map((t: any) => t.count), 1)
+  return maxCount > 0 ? (count / maxCount) * 100 : 0
+}
+
+const truncateText = (text: string, maxLength: number) => {
+  if (!text) return ''
+  return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
+}
+
+const loadMonitoringData = async () => {
+  isLoadingMonitoring.value = true
+  try {
+    const response = await getMonitoringPelayanan({
+      view_type: monitoringFilter.value
+    })
+    monitoringData.value = response.data
+  } catch (error: any) {
+    console.error('Error loading monitoring data:', error)
+    // Jangan tampilkan toast jika error 401 (sudah di-handle oleh plugin)
+    if (error?.status !== 401 && error?.response?.status !== 401) {
+      toast.error('Gagal', 'Gagal memuat data monitoring')
+    }
+  } finally {
+    isLoadingMonitoring.value = false
+  }
+}
+
+// Chart.js Data & Options
+const trendChartData = computed(() => {
+  if (!monitoringData.value?.trend?.data) return null
+  
+  return {
+    labels: monitoringData.value.trend.data.map((item: any) => item.label),
+    datasets: [
+      {
+        label: 'Jumlah Layanan',
+        data: monitoringData.value.trend.data.map((item: any) => item.count),
+        borderColor: '#dc2626',
+        backgroundColor: 'rgba(220, 38, 38, 0.1)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointBackgroundColor: '#dc2626',
+        pointBorderColor: '#fff',
+        pointBorderWidth: 2,
+      },
+    ],
+  }
+})
+
+const trendChartOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: {
+    mode: 'index' as const,
+    intersect: false,
+  },
+  plugins: {
+    legend: {
+      display: true,
+      position: 'top' as const,
+      labels: {
+        usePointStyle: true,
+        padding: 15,
+        font: {
+          size: 13,
+          weight: 600 as const,
+        },
+      },
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      padding: 12,
+      titleFont: {
+        size: 14,
+        weight: 'bold' as const,
+      },
+      bodyFont: {
+        size: 13,
+      },
+      callbacks: {
+        label: function(context: any) {
+          return `${context.dataset.label}: ${context.parsed.y} layanan`
+        }
+      }
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        display: true,
+        color: 'rgba(0, 0, 0, 0.05)',
+      },
+      ticks: {
+        font: {
+          size: 11,
+          weight: 500 as const,
+        },
+        maxRotation: 45,
+        minRotation: 0,
+      },
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        display: true,
+        color: 'rgba(0, 0, 0, 0.05)',
+      },
+      ticks: {
+        font: {
+          size: 12,
+          weight: 500 as const,
+        },
+        stepSize: 1,
+        callback: function(value: any) {
+          return value
+        }
+      },
+    },
+  },
+}))
 
 const loadData = async () => {
   isLoading.value = true
@@ -565,6 +922,7 @@ const handleDeleteConfirm = async () => {
 
 // Initialize
 onMounted(() => {
+  loadMonitoringData()
   loadData()
   loadSettingData()
 })
