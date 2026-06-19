@@ -461,8 +461,11 @@ const loadData = async () => {
     pagination.value.total_pages = response.pagination?.total_pages || 0
   } catch (error: any) {
     console.error('Error loading data:', error)
-    dataList.value = []
-    toast.error('Gagal', 'Gagal memuat data ajuan pelayanan')
+    // Jangan tampilkan toast jika error 401 (sudah di-handle oleh plugin)
+    if (error?.status !== 401 && error?.response?.status !== 401) {
+      dataList.value = []
+      toast.error('Gagal', 'Gagal memuat data ajuan pelayanan')
+    }
   } finally {
     isLoading.value = false
   }
@@ -517,8 +520,11 @@ const handleSelesaiConfirm = async () => {
     loadData()
   } catch (error: any) {
     console.error('Error updating status:', error)
-    const errorMessage = error?.data?.error || error?.message || 'Gagal mengubah status'
-    toast.error('Gagal', errorMessage)
+    // Jangan tampilkan toast jika error 401 (sudah di-handle oleh plugin)
+    if (error?.status !== 401 && error?.response?.status !== 401) {
+      const errorMessage = error?.data?.error || error?.message || 'Gagal mengubah status'
+      toast.error('Gagal', errorMessage)
+    }
   } finally {
     isUpdatingStatus.value = false
   }
@@ -547,8 +553,11 @@ const handleDeleteConfirm = async () => {
     loadData()
   } catch (error: any) {
     console.error('Error deleting data:', error)
-    const errorMessage = error?.data?.error || error?.message || 'Gagal menghapus ajuan pelayanan'
-    toast.error('Gagal', errorMessage)
+    // Jangan tampilkan toast jika error 401 (sudah di-handle oleh plugin)
+    if (error?.status !== 401 && error?.response?.status !== 401) {
+      const errorMessage = error?.data?.error || error?.message || 'Gagal menghapus ajuan pelayanan'
+      toast.error('Gagal', errorMessage)
+    }
   } finally {
     isDeleting.value = false
   }
@@ -612,8 +621,11 @@ const handleSubmitSetting = async () => {
     await loadSettingData()
   } catch (error: any) {
     console.error('Error saving setting:', error)
-    const errorMessage = error?.data?.error || error?.message || 'Gagal menyimpan konfigurasi'
-    toast.error('Gagal', errorMessage)
+    // Jangan tampilkan toast jika error 401 (sudah di-handle oleh plugin)
+    if (error?.status !== 401 && error?.response?.status !== 401) {
+      const errorMessage = error?.data?.error || error?.message || 'Gagal menyimpan konfigurasi'
+      toast.error('Gagal', errorMessage)
+    }
   } finally {
     isSubmittingConfig.value = false
   }
