@@ -175,8 +175,23 @@
                 <i class="fa-solid fa-chart-pie text-red-600"></i>
                 Distribusi Status
               </h3>
-              <div class="space-y-3">
-                <div v-for="status in monitoringData?.statistik.by_status || []" :key="status.status" class="flex items-center justify-between">
+              
+              <!-- Pie Chart -->
+              <div v-if="statusPieData" class="h-64 flex items-center justify-center">
+                <Pie :data="statusPieData" :options="statusPieOptions" />
+              </div>
+              
+              <!-- Empty state -->
+              <div v-else class="h-64 flex items-center justify-center text-gray-400">
+                <div class="text-center">
+                  <i class="fa-solid fa-chart-pie text-4xl mb-2"></i>
+                  <p class="text-sm">Tidak ada data status</p>
+                </div>
+              </div>
+              
+              <!-- Legend Info -->
+              <div class="mt-4 space-y-2">
+                <div v-for="status in monitoringData?.statistik.by_status || []" :key="status.status" class="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-lg">
                   <div class="flex items-center gap-3">
                     <div :class="[
                       'w-3 h-3 rounded-full',
@@ -184,10 +199,7 @@
                     ]"></div>
                     <span class="text-sm font-medium text-gray-700 capitalize">{{ status.status }}</span>
                   </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-lg font-bold text-gray-900">{{ status.count }}</span>
-                    <span class="text-xs text-gray-500">layanan</span>
-                  </div>
+                  <span class="text-sm font-bold text-gray-900">{{ status.count }} layanan</span>
                 </div>
               </div>
             </div>
@@ -525,7 +537,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useToast } from '~/composables/useToast'
-import { Line } from 'vue-chartjs'
+import { Line, Pie } from 'vue-chartjs'
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -535,7 +547,8 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  ArcElement
 } from 'chart.js'
 
 // Register Chart.js components
@@ -547,7 +560,8 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
+  ArcElement
 )
 
 import { getLayananSpmb, setStatusSelesai, deleteLayananSpmb, getSettingLayananSpmb, saveSettingLayananSpmb, getMonitoringPelayanan } from '~/services/layanan-spmb'
@@ -792,6 +806,57 @@ const trendChartOptions = computed(() => ({
           return value
         }
       },
+    },
+  },
+}))
+
+// Pie Chart Data & Options for Status Distribution
+const statusPieData = computed(() => {
+  if (!monitoringData.value?.statistik?.by_status) return null
+  
+  const statuses = monitoringData.value.statistik.by_status
+  
+  return {
+    labels: statuses.map((s: any) => s.status === 'pending' ? 'Pending' : 'Selesai'),
+    datasets: [
+      {
+        data: statuses.map((s: any) => s.count),
+        backgroundColor: statuses.map((s: any) => 
+          s.status === 'pending' ? 'rgba(234, 179, 8, 0.8)' : 'rgba(34, 197, 94, 0.8)'
+        ),
+        borderColor: statuses.map((s: any) => 
+          s.status === 'pending' ? '#eab308' : '#22c55e'
+        ),
+        borderWidth: 2,
+      },
+    ],
+  }
+})
+
+const statusPieOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false, // We'll use custom legend below
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      padding: 12,
+      titleFont: {
+        size: 14,
+        weight: 'bold' as const,
+      },
+      bodyFont: {
+        size: 13,
+      },
+      callbacks: {
+        label: function(context: any) {
+          const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0)
+          const percentage = ((context.parsed / total) * 100).toFixed(1)
+          return `${context.label}: ${context.parsed} layanan (${percentage}%)`
+        }
+      }
     },
   },
 }))
