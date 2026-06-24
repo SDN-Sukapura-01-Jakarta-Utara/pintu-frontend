@@ -17,7 +17,26 @@ export default defineNuxtConfig({
       apiBase: '',
     },
   },
-  modules: ['@pinia/nuxt'],
+  modules: ['@pinia/nuxt', '@nuxtjs/sitemap'],
+  site: {
+    url: 'https://sdn-sukapura01.sch.id',
+  },
+  sitemap: {
+    strictNuxtContentPaths: true,
+    urls: [
+      '/',
+      '/profil-sekolah',
+      '/media-publikasi/artikel',
+      '/media-publikasi/pengumuman',
+      '/media-publikasi/galeri-kegiatan',
+      '/media-publikasi/prestasi-siswa',
+      '/layanan-umpan-balik/pertanyaan',
+      '/layanan-umpan-balik/pengaduan',
+    ],
+    exclude: [
+      '/**', // Exclude semua route
+    ],
+  },
   ssr: false,
   app: {
     head: {
