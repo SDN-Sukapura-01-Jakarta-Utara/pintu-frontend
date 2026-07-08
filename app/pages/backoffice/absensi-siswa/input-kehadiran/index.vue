@@ -161,9 +161,9 @@
                 <tbody>
                   <tr v-for="(student, index) in studentsList" :key="student.id" class="hover:bg-gray-50">
                     <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">{{ index + 1 }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">{{ student.nama }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">{{ student.peserta_didik?.nama || student.nama }}</td>
                     <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">
-                      {{ student.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                      {{ (student.peserta_didik?.jenis_kelamin || student.jenis_kelamin) === 'L' ? 'Laki-laki' : 'Perempuan' }}
                     </td>
                     <td class="px-4 py-3 border-b border-gray-200">
                       <select
@@ -426,9 +426,9 @@
                 <tbody>
                   <tr v-for="(student, index) in studentsListMapel" :key="student.id" class="hover:bg-gray-50">
                     <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">{{ index + 1 }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">{{ student.nama }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">{{ student.peserta_didik?.nama || student.nama }}</td>
                     <td class="px-4 py-3 text-sm text-gray-900 border-b border-gray-200">
-                      {{ student.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}
+                      {{ (student.peserta_didik?.jenis_kelamin || student.jenis_kelamin) === 'L' ? 'Laki-laki' : 'Perempuan' }}
                     </td>
                     <td class="px-4 py-3 border-b border-gray-200">
                       <select
@@ -563,7 +563,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRombelStore } from '~/stores/RombelStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
-import { usePesertaDidikStore } from '~/stores/PesertaDidikStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
 import { useToast } from '~/composables/useToast'
 import { useAuth } from '~/composables/useAuth'
@@ -590,7 +589,6 @@ const { success: showToast, error: showErrorToast } = useToast()
 const { getCurrentUser } = useAuth()
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
-const pesertaDidikStore = usePesertaDidikStore()
 const bidangStudiStore = useBidangStudiStore()
 
 // Get current user data
@@ -649,7 +647,7 @@ const formData = ref({
   bidang_studi_id: null,
   pertemuan_ke: null,
   absensi_list: [] as Array<{
-    peserta_didik_id: number
+    peserta_didik_rombel_id: number
     status: string
     keterangan: string
   }>
@@ -664,7 +662,7 @@ const formDataMapel = ref({
   bidang_studi_id: 0, // Always start with 0 (not selected) so user must choose
   pertemuan_ke: 1,
   absensi_list: [] as Array<{
-    peserta_didik_id: number
+    peserta_didik_rombel_id: number
     status: string
     keterangan: string
   }>
@@ -761,27 +759,43 @@ const loadStudents = async () => {
 
   isLoadingStudents.value = true
   try {
-    const search = {
-      rombel_id: formData.value.rombel_id,
-      tahun_pelajaran_id: formData.value.tahun_pelajaran_id,
-      status: 'active'
-    }
-
-    const result = await pesertaDidikStore.fetchPesertaDidik(search, 1, 1000)
+    const config = useRuntimeConfig()
+    const response = await $fetch<any>(`${config.public.apiBase}/api/v1/peserta-didik/get-pemetaan-rombel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+      },
+      credentials: 'include',
+      body: {
+        search: {
+          rombel_id: formData.value.rombel_id,
+          tahun_pelajaran_id: formData.value.tahun_pelajaran_id,
+          status: 'active'
+        },
+        pagination: {
+          limit: 1000,
+          page: 1
+        }
+      }
+    })
     
-    if (result.success) {
-      studentsList.value = pesertaDidikStore.pesertaDidiks
-      
-      // Initialize absensi_list
-      formData.value.absensi_list = studentsList.value.map((student: any) => ({
-        peserta_didik_id: student.id,
-        status: 'hadir',
-        keterangan: ''
-      }))
-      
-      // Reset uploaded files
-      uploadedFiles.value = {}
-    }
+    // Filter only students with active status
+    const allStudents = response.data || []
+    studentsList.value = allStudents.filter((student: any) => {
+      const pesertaDidikStatus = student.peserta_didik?.status || student.status
+      return pesertaDidikStatus === 'active'
+    })
+    
+    // Initialize absensi_list - using pemetaan rombel ID
+    formData.value.absensi_list = studentsList.value.map((student: any) => ({
+      peserta_didik_rombel_id: student.id,
+      status: 'hadir',
+      keterangan: ''
+    }))
+    
+    // Reset uploaded files
+    uploadedFiles.value = {}
   } catch (err) {
     console.error('Error loading students:', err)
     studentsList.value = []
@@ -798,27 +812,43 @@ const loadStudentsMapel = async () => {
 
   isLoadingStudents.value = true
   try {
-    const search = {
-      rombel_id: formDataMapel.value.rombel_id,
-      tahun_pelajaran_id: formDataMapel.value.tahun_pelajaran_id,
-      status: 'active'
-    }
-
-    const result = await pesertaDidikStore.fetchPesertaDidik(search, 1, 1000)
+    const config = useRuntimeConfig()
+    const response = await $fetch<any>(`${config.public.apiBase}/api/v1/peserta-didik/get-pemetaan-rombel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+      },
+      credentials: 'include',
+      body: {
+        search: {
+          rombel_id: formDataMapel.value.rombel_id,
+          tahun_pelajaran_id: formDataMapel.value.tahun_pelajaran_id,
+          status: 'active'
+        },
+        pagination: {
+          limit: 1000,
+          page: 1
+        }
+      }
+    })
     
-    if (result.success) {
-      studentsListMapel.value = pesertaDidikStore.pesertaDidiks
-      
-      // Initialize absensi_list
-      formDataMapel.value.absensi_list = studentsListMapel.value.map((student: any) => ({
-        peserta_didik_id: student.id,
-        status: 'hadir',
-        keterangan: ''
-      }))
-      
-      // Reset uploaded files
-      uploadedFilesMapel.value = {}
-    }
+    // Filter only students with active status
+    const allStudents = response.data || []
+    studentsListMapel.value = allStudents.filter((student: any) => {
+      const pesertaDidikStatus = student.peserta_didik?.status || student.status
+      return pesertaDidikStatus === 'active'
+    })
+    
+    // Initialize absensi_list - using pemetaan rombel ID
+    formDataMapel.value.absensi_list = studentsListMapel.value.map((student: any) => ({
+      peserta_didik_rombel_id: student.id,
+      status: 'hadir',
+      keterangan: ''
+    }))
+    
+    // Reset uploaded files
+    uploadedFilesMapel.value = {}
   } catch (err) {
     console.error('Error loading students:', err)
     studentsListMapel.value = []
@@ -966,7 +996,7 @@ const handleSubmit = async () => {
 const resetForm = () => {
   // Reset form to initial state
   formData.value.absensi_list = studentsList.value.map((student: any) => ({
-    peserta_didik_id: student.id,
+    peserta_didik_rombel_id: student.id,
     status: 'hadir',
     keterangan: ''
   }))
@@ -983,7 +1013,7 @@ const resetForm = () => {
 const resetFormMapel = () => {
   // Reset form to initial state
   formDataMapel.value.absensi_list = studentsListMapel.value.map((student: any) => ({
-    peserta_didik_id: student.id,
+    peserta_didik_rombel_id: student.id,
     status: 'hadir',
     keterangan: ''
   }))

@@ -17,6 +17,30 @@
       @updated="handleDataUpdated"
     />
 
+    <!-- Synchronize Absensi Modal -->
+    <SynchronizeAbsensiModal
+      :is-open="isSyncModalOpen"
+      :tahun-pelajaran-id="syncConfig.tahun_pelajaran_id"
+      :rombel-id="syncConfig.rombel_id"
+      :bidang-studi-id="syncConfig.bidang_studi_id"
+      :is-guru-mapel="syncConfig.is_guru_mapel"
+      @close="closeSyncModal"
+      @synchronized="handleSynchronized"
+    />
+
+    <!-- Create/Edit Absensi Modal -->
+    <CreateEditAbsensiModal
+      :is-open="isCreateModalOpen"
+      :siswa-data="selectedSiswaData"
+      :tanggal="selectedTanggal"
+      :rombel-id="createConfig.rombel_id"
+      :tahun-pelajaran-id="createConfig.tahun_pelajaran_id"
+      :bidang-studi-id="createConfig.bidang_studi_id"
+      :pertemuan-ke="createConfig.pertemuan_ke"
+      @close="closeCreateModal"
+      @created="handleAbsensiCreated"
+    />
+
     <!-- Main Content -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <!-- Tabs -->
@@ -72,7 +96,7 @@
       <div v-if="showGuruKelasTab && activeTab === 'guru-kelas'" class="p-4 sm:p-6 md:p-8">
         <!-- Filter Section -->
         <div class="mb-6 pb-6 border-b border-gray-200">
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <!-- Tahun Pelajaran -->
             <div>
               <label class="block text-sm font-semibold text-gray-900 mb-2">
@@ -95,16 +119,45 @@
               <label class="block text-sm font-semibold text-gray-900 mb-2">
                 Rombel <span class="text-red-600">*</span>
               </label>
-              <select
-                v-model.number="filterKelas.rombel_id"
-                @change="loadRekapKelas"
-                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 transition-all text-sm"
-              >
-                <option :value="0" disabled>Pilih Rombel</option>
-                <option v-for="rombel in activeRombelList" :key="rombel.id" :value="rombel.id">
-                  {{ rombel.name }}
-                </option>
-              </select>
+              <div class="flex gap-2">
+                <select
+                  v-model.number="filterKelas.rombel_id"
+                  @change="loadRekapKelas"
+                  class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 transition-all text-sm"
+                >
+                  <option :value="0" disabled>Pilih Rombel</option>
+                  <option v-for="rombel in activeRombelList" :key="rombel.id" :value="rombel.id">
+                    {{ rombel.name }}
+                  </option>
+                </select>
+                <button
+                  @click="openSyncModal(false)"
+                  :disabled="!filterKelas.tahun_pelajaran_id || !filterKelas.rombel_id"
+                  class="px-3 py-[9px] bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg text-white font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap text-xs"
+                  title="Synchronize Data"
+                >
+                  <i class="fa-solid fa-sync text-xs"></i>
+                  <span>Sync Data</span>
+                </button>
+                <button
+                  @click="downloadExcel(false)"
+                  :disabled="!filterKelas.tahun_pelajaran_id || !filterKelas.rombel_id || isDownloading"
+                  class="px-3 py-[9px] bg-gradient-to-r from-green-600 to-green-700 hover:shadow-lg text-white font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap text-xs"
+                  title="Download Excel"
+                >
+                  <i class="fa-solid fa-download text-xs"></i>
+                  <span>{{ isDownloading ? 'Downloading...' : 'Download Excel' }}</span>
+                </button>
+                <button
+                  @click="downloadPdf(false)"
+                  :disabled="!filterKelas.tahun_pelajaran_id || !filterKelas.rombel_id || isDownloading"
+                  class="px-3 py-[9px] bg-gradient-to-r from-red-600 to-red-700 hover:shadow-lg text-white font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap text-xs"
+                  title="Download PDF"
+                >
+                  <i class="fa-solid fa-file-pdf text-xs"></i>
+                  <span>{{ isDownloading ? 'Downloading...' : 'Download PDF' }}</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -172,10 +225,10 @@
                   :class="[
                     'px-2 py-2 text-center border font-semibold', 
                     getStatusForDate(siswa, day).color,
-                    getStatusForDate(siswa, day).hasData ? 'border-gray-200 cursor-pointer hover:border-gray-900 hover:border-2 transition-all' : 'border-gray-200'
+                    (getStatusForDate(siswa, day).hasData || getStatusForDate(siswa, day).hasAnyRecords) ? 'border-gray-200 cursor-pointer hover:border-gray-900 hover:border-2 transition-all' : 'border-gray-200'
                   ]" 
                   style="min-width: 40px;"
-                  @click="getStatusForDate(siswa, day).hasData && openDetailModal(siswa, getStatusForDate(siswa, day))"
+                  @click="handleCellClick(siswa, getStatusForDate(siswa, day), day)"
                 >
                   {{ getStatusForDate(siswa, day).text }}
                 </td>
@@ -291,6 +344,37 @@
               </select>
             </div>
           </div>
+
+          <!-- Action Buttons Row -->
+          <div class="mt-4 flex gap-2">
+            <button
+              @click="openSyncModal(true)"
+              :disabled="!filterMapel.tahun_pelajaran_id || !filterMapel.rombel_id || !filterMapel.bidang_studi_id"
+              class="px-3 py-[9px] bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg text-white font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap text-xs"
+              title="Synchronize Data"
+            >
+              <i class="fa-solid fa-sync text-xs"></i>
+              <span>Sync Data</span>
+            </button>
+            <button
+              @click="downloadExcel(true)"
+              :disabled="!filterMapel.tahun_pelajaran_id || !filterMapel.rombel_id || !filterMapel.bidang_studi_id || isDownloading"
+              class="px-3 py-[9px] bg-gradient-to-r from-green-600 to-green-700 hover:shadow-lg text-white font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap text-xs"
+              title="Download Excel"
+            >
+              <i class="fa-solid fa-download text-xs"></i>
+              <span>{{ isDownloading ? 'Downloading...' : 'Download Excel' }}</span>
+            </button>
+            <button
+              @click="downloadPdf(true)"
+              :disabled="!filterMapel.tahun_pelajaran_id || !filterMapel.rombel_id || !filterMapel.bidang_studi_id || isDownloading"
+              class="px-3 py-[9px] bg-gradient-to-r from-red-600 to-red-700 hover:shadow-lg text-white font-medium rounded-lg transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap text-xs"
+              title="Download PDF"
+            >
+              <i class="fa-solid fa-file-pdf text-xs"></i>
+              <span>{{ isDownloading ? 'Downloading...' : 'Download PDF' }}</span>
+            </button>
+          </div>
         </div>
 
         <!-- Month Navigation (only for per_bulan) -->
@@ -374,10 +458,10 @@
                   :class="[
                     'px-2 py-2 text-center border font-semibold', 
                     getStatusForDateMapel(siswa, dateInfo.date).color,
-                    getStatusForDateMapel(siswa, dateInfo.date).hasData ? 'border-gray-200 cursor-pointer hover:border-gray-900 hover:border-2 transition-all' : 'border-gray-200'
+                    (getStatusForDateMapel(siswa, dateInfo.date).hasData || getStatusForDateMapel(siswa, dateInfo.date).hasAnyRecords) ? 'border-gray-200 cursor-pointer hover:border-gray-900 hover:border-2 transition-all' : 'border-gray-200'
                   ]" 
                   style="min-width: 40px;"
-                  @click="getStatusForDateMapel(siswa, dateInfo.date).hasData && openDetailModal(siswa, getStatusForDateMapel(siswa, dateInfo.date), rekapDataMapel.bidang_studi_nama)"
+                  @click="handleCellClickMapel(siswa, getStatusForDateMapel(siswa, dateInfo.date), dateInfo, rekapDataMapel.bidang_studi_nama)"
                 >
                   {{ getStatusForDateMapel(siswa, dateInfo.date).text }}
                 </td>
@@ -417,9 +501,12 @@ import { useRombelStore } from '~/stores/RombelStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
 import { useAuth } from '~/composables/useAuth'
-import { getRekapAbsensi } from '~/services/absensi'
+import { getRekapAbsensi, exportExcelAbsensi, exportPdfAbsensi } from '~/services/absensi'
+import { useToast } from '~/composables/useToast'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import DetailAbsensiModal from '~/components/modals/DetailAbsensiModal.vue'
+import SynchronizeAbsensiModal from '~/components/modals/SynchronizeAbsensiModal.vue'
+import CreateEditAbsensiModal from '~/components/modals/CreateEditAbsensiModal.vue'
 
 definePageMeta({
   layout: 'default',
@@ -469,6 +556,9 @@ const showGuruMapelTab = computed(() => {
 // State
 const activeTab = ref(showGuruKelasTab.value ? 'guru-kelas' : 'guru-mapel')
 const isLoading = ref(false)
+const isDownloading = ref(false)
+
+const { success: showToast, error: showErrorToast } = useToast()
 
 const rombelList = ref<any[]>([])
 const tahunPelajaranList = ref<any[]>([])
@@ -480,6 +570,35 @@ const rekapDataMapel = ref<any>(null)
 const isDetailModalOpen = ref(false)
 const selectedDetailData = ref<any>(null)
 const selectedBidangStudiNama = ref<string>('')
+
+const isSyncModalOpen = ref(false)
+const syncConfig = ref({
+  tahun_pelajaran_id: 0,
+  rombel_id: 0,
+  bidang_studi_id: null as number | null,
+  is_guru_mapel: false
+})
+
+const isCreateModalOpen = ref(false)
+const selectedSiswaData = ref<any>({
+  id: 0,
+  nama: '',
+  nis: '',
+  peserta_didik_rombel_id: 0
+})
+const selectedTanggal = ref('')
+const createConfig = ref({
+  rombel_id: 0,
+  tahun_pelajaran_id: 0,
+  bidang_studi_id: null as number | null,
+  pertemuan_ke: null as number | null
+})
+
+// Mapping peserta_didik_id to peserta_didik_rombel_id
+const pesertaDidikRombelMapping = ref<Map<number, number>>(new Map())
+
+// Store pemetaan rombel data for student list
+const pemetaanRombelData = ref<any[]>([])
 
 // Get current date
 const today = new Date()
@@ -613,47 +732,36 @@ const getMonthsStructureMapel = computed(() => {
   
   const firstStudent = rekapDataMapel.value.data_siswa[0]
   
-  // If detail_per_tanggal is empty, create default structure
-  if (!firstStudent.detail_per_tanggal || firstStudent.detail_per_tanggal.length === 0) {
-    const monthsArray: any[] = []
-    monthsToShow.forEach(month => {
+  // Group existing data by month from ALL students (not just first student)
+  const monthsMap = new Map<string, any[]>()
+  
+  // Iterate through all students to collect all unique dates
+  rekapDataMapel.value.data_siswa.forEach((student: any) => {
+    if (!student.detail_per_tanggal || student.detail_per_tanggal.length === 0) return
+    
+    student.detail_per_tanggal.forEach((detail: any) => {
+      const date = new Date(detail.tanggal)
+      const month = date.getMonth() + 1
+      const monthKey = `${date.getFullYear()}-${String(month).padStart(2, '0')}`
       const monthName = getMonthName(month)
-      const columns = []
-      for (let i = 1; i <= 5; i++) {
-        columns.push({
-          date: null,
-          day: null,
-          pertemuan_ke: i,
+      
+      if (!monthsMap.has(monthKey)) {
+        monthsMap.set(monthKey, [])
+      }
+      
+      const existingColumn = monthsMap.get(monthKey)!.find(col => 
+        col.date === detail.tanggal && col.pertemuan_ke === detail.pertemuan_ke
+      )
+      
+      // Only add if not already exists (avoid duplicates)
+      if (!existingColumn) {
+        monthsMap.get(monthKey)!.push({
+          date: detail.tanggal,
+          day: date.getDate(),
+          pertemuan_ke: detail.pertemuan_ke || null,
           monthName: monthName
         })
       }
-      monthsArray.push({
-        monthKey: `${filterMapel.value.tahun}-${String(month).padStart(2, '0')}`,
-        monthName: monthName,
-        columns
-      })
-    })
-    return monthsArray
-  }
-  
-  // Group existing data by month
-  const monthsMap = new Map<string, any[]>()
-  
-  firstStudent.detail_per_tanggal.forEach((detail: any) => {
-    const date = new Date(detail.tanggal)
-    const month = date.getMonth() + 1
-    const monthKey = `${date.getFullYear()}-${String(month).padStart(2, '0')}`
-    const monthName = getMonthName(month)
-    
-    if (!monthsMap.has(monthKey)) {
-      monthsMap.set(monthKey, [])
-    }
-    
-    monthsMap.get(monthKey)!.push({
-      date: detail.tanggal,
-      day: date.getDate(),
-      pertemuan_ke: detail.pertemuan_ke || null,
-      monthName: monthName
     })
   })
   
@@ -739,15 +847,40 @@ const getMonthName = (month: number | undefined) => {
   return months[month - 1] || ''
 }
 
+// Check if a specific date has any absensi records across all students (guru kelas)
+const dateHasRecords = (day: number) => {
+  if (!rekapDataKelas.value.data_siswa || rekapDataKelas.value.data_siswa.length === 0) return false
+  
+  const dateStr = `${filterKelas.value.tahun}-${String(filterKelas.value.bulan).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+  
+  return rekapDataKelas.value.data_siswa.some((siswa: any) => 
+    siswa.detail_per_tanggal?.some((d: any) => d.tanggal === dateStr)
+  )
+}
+
 const getStatusForDate = (siswa: any, day: number) => {
   const dateStr = `${filterKelas.value.tahun}-${String(filterKelas.value.bulan).padStart(2, '0')}-${String(day).padStart(2, '0')}`
   const detail = siswa.detail_per_tanggal?.find((d: any) => d.tanggal === dateStr)
   
-  if (!detail) return { text: '-', color: '', hasData: false, detail: null }
+  // Check if this date has any records across all students
+  const hasAnyRecords = dateHasRecords(day)
+  
+  if (!detail) {
+    return { 
+      text: '-', 
+      color: '', 
+      hasData: false, 
+      detail: null,
+      dateStr: dateStr,
+      hasAnyRecords: hasAnyRecords
+    }
+  }
   
   const result = {
     hasData: true,
-    detail: detail
+    detail: detail,
+    dateStr: dateStr,
+    hasAnyRecords: true
   }
   
   switch (detail.status) {
@@ -759,16 +892,39 @@ const getStatusForDate = (siswa: any, day: number) => {
   }
 }
 
+// Check if a specific date has any absensi records across all students (guru mapel)
+const dateHasRecordsMapel = (dateStr: string | null) => {
+  if (!dateStr || !rekapDataMapel.value.data_siswa || rekapDataMapel.value.data_siswa.length === 0) return false
+  
+  return rekapDataMapel.value.data_siswa.some((siswa: any) => 
+    siswa.detail_per_tanggal?.some((d: any) => d.tanggal === dateStr)
+  )
+}
+
 const getStatusForDateMapel = (siswa: any, dateStr: string | null) => {
-  if (!dateStr) return { text: '-', color: '', hasData: false, detail: null }
+  if (!dateStr) return { text: '-', color: '', hasData: false, detail: null, dateStr: null, hasAnyRecords: false }
   
   const detail = siswa.detail_per_tanggal?.find((d: any) => d.tanggal === dateStr)
   
-  if (!detail) return { text: '-', color: '', hasData: false, detail: null }
+  // Check if this date has any records across all students
+  const hasAnyRecords = dateHasRecordsMapel(dateStr)
+  
+  if (!detail) {
+    return { 
+      text: '-', 
+      color: '', 
+      hasData: false, 
+      detail: null,
+      dateStr: dateStr,
+      hasAnyRecords: hasAnyRecords
+    }
+  }
   
   const result = {
     hasData: true,
-    detail: detail
+    detail: detail,
+    dateStr: dateStr,
+    hasAnyRecords: true
   }
   
   switch (detail.status) {
@@ -809,12 +965,255 @@ const closeDetailModal = () => {
   selectedBidangStudiNama.value = ''
 }
 
+// Handle cell click for guru kelas tab
+const handleCellClick = (siswa: any, statusData: any, day: number) => {
+  if (statusData.hasData) {
+    // Cell has data, open detail modal
+    openDetailModal(siswa, statusData)
+  } else if (statusData.hasAnyRecords) {
+    // Cell is empty but date has records, open create modal
+    openCreateModal(siswa, statusData.dateStr)
+  }
+}
+
+// Handle cell click for guru mapel tab
+const handleCellClickMapel = (siswa: any, statusData: any, dateInfo: any, bidangStudiNama: string) => {
+  if (statusData.hasData) {
+    // Cell has data, open detail modal
+    openDetailModal(siswa, statusData, bidangStudiNama)
+  } else if (statusData.hasAnyRecords) {
+    // Cell is empty but date has records, open create modal
+    // Get pertemuan_ke from dateInfo
+    const pertemuanKe = dateInfo.pertemuan_ke || null
+    openCreateModal(siswa, statusData.dateStr, pertemuanKe)
+  }
+}
+
+const openSyncModal = (isGuruMapel: boolean) => {
+  if (isGuruMapel) {
+    syncConfig.value = {
+      tahun_pelajaran_id: filterMapel.value.tahun_pelajaran_id,
+      rombel_id: filterMapel.value.rombel_id,
+      bidang_studi_id: filterMapel.value.bidang_studi_id,
+      is_guru_mapel: true
+    }
+  } else {
+    syncConfig.value = {
+      tahun_pelajaran_id: filterKelas.value.tahun_pelajaran_id,
+      rombel_id: filterKelas.value.rombel_id,
+      bidang_studi_id: null,
+      is_guru_mapel: false
+    }
+  }
+  isSyncModalOpen.value = true
+}
+
+const closeSyncModal = () => {
+  isSyncModalOpen.value = false
+}
+
+const handleSynchronized = () => {
+  // Reload data based on active tab
+  if (activeTab.value === 'guru-kelas') {
+    loadRekapKelas()
+  } else {
+    loadRekapMapel()
+  }
+  
+  // Close modal after short delay
+  setTimeout(() => {
+    closeSyncModal()
+  }, 2000)
+}
+
+const openCreateModal = (siswa: any, tanggal: string, pertemuanKe: number | null = null) => {
+  console.log('Opening create modal for siswa:', siswa)
+  
+  // Get peserta_didik_rombel_id from mapping
+  const pesertaDidikRombelId = pesertaDidikRombelMapping.value.get(siswa.peserta_didik_id) || 0
+  
+  selectedSiswaData.value = {
+    id: siswa.peserta_didik_id,
+    nama: siswa.nama,
+    nis: siswa.nis,
+    peserta_didik_rombel_id: pesertaDidikRombelId
+  }
+  
+  console.log('Selected siswa data:', selectedSiswaData.value)
+  console.log('Peserta didik rombel ID from mapping:', pesertaDidikRombelId)
+  
+  selectedTanggal.value = tanggal
+  
+  if (activeTab.value === 'guru-kelas') {
+    createConfig.value = {
+      rombel_id: filterKelas.value.rombel_id,
+      tahun_pelajaran_id: filterKelas.value.tahun_pelajaran_id,
+      bidang_studi_id: null,
+      pertemuan_ke: null
+    }
+  } else {
+    createConfig.value = {
+      rombel_id: filterMapel.value.rombel_id,
+      tahun_pelajaran_id: filterMapel.value.tahun_pelajaran_id,
+      bidang_studi_id: filterMapel.value.bidang_studi_id,
+      pertemuan_ke: pertemuanKe
+    }
+  }
+  
+  isCreateModalOpen.value = true
+}
+
+const closeCreateModal = () => {
+  isCreateModalOpen.value = false
+}
+
+const handleAbsensiCreated = () => {
+  // Reload data based on active tab
+  if (activeTab.value === 'guru-kelas') {
+    loadRekapKelas()
+  } else {
+    loadRekapMapel()
+  }
+}
+
 const handleDataUpdated = () => {
   // Reload data based on active tab
   if (activeTab.value === 'guru-kelas') {
     loadRekapKelas()
   } else {
     loadRekapMapel()
+  }
+}
+
+const downloadExcel = async (isGuruMapel: boolean) => {
+  isDownloading.value = true
+  
+  try {
+    let requestData: any
+    
+    if (isGuruMapel) {
+      // Guru Mapel - check view type
+      if (filterMapel.value.view_type === 'per_bulan') {
+        requestData = {
+          tahun_pelajaran_id: filterMapel.value.tahun_pelajaran_id,
+          rombel_id: filterMapel.value.rombel_id,
+          bidang_studi_id: filterMapel.value.bidang_studi_id,
+          tipe_periode: 'bulan',
+          bulan: filterMapel.value.bulan,
+          tahun: filterMapel.value.tahun
+        }
+      } else {
+        // per_semester
+        requestData = {
+          tahun_pelajaran_id: filterMapel.value.tahun_pelajaran_id,
+          rombel_id: filterMapel.value.rombel_id,
+          bidang_studi_id: filterMapel.value.bidang_studi_id,
+          tipe_periode: 'semester',
+          semester: filterMapel.value.semester
+        }
+      }
+    } else {
+      // Guru Kelas - always per bulan
+      requestData = {
+        tahun_pelajaran_id: filterKelas.value.tahun_pelajaran_id,
+        rombel_id: filterKelas.value.rombel_id,
+        tipe_periode: 'bulan',
+        bulan: filterKelas.value.bulan,
+        tahun: filterKelas.value.tahun
+      }
+    }
+    
+    // Call API
+    const blob = await exportExcelAbsensi(requestData)
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob as Blob)
+    const link = document.createElement('a')
+    link.href = url
+    
+    // Generate filename
+    const rombelName = rombelList.value.find(r => r.id === (isGuruMapel ? filterMapel.value.rombel_id : filterKelas.value.rombel_id))?.name || 'Rombel'
+    const date = new Date().toISOString().split('T')[0]
+    link.download = `Rekap_Absensi_${rombelName}_${date}.xlsx`
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    showToast('Berhasil', 'File Excel berhasil didownload')
+  } catch (err: any) {
+    console.error('Error downloading excel:', err)
+    const errorMsg = err.data?.error || err.data?.message || 'Gagal mendownload file Excel'
+    showErrorToast('Error', errorMsg)
+  } finally {
+    isDownloading.value = false
+  }
+}
+
+const downloadPdf = async (isGuruMapel: boolean) => {
+  isDownloading.value = true
+  
+  try {
+    let requestData: any
+    
+    if (isGuruMapel) {
+      // Guru Mapel - check view type
+      if (filterMapel.value.view_type === 'per_bulan') {
+        requestData = {
+          tahun_pelajaran_id: filterMapel.value.tahun_pelajaran_id,
+          rombel_id: filterMapel.value.rombel_id,
+          bidang_studi_id: filterMapel.value.bidang_studi_id,
+          tipe_periode: 'bulan',
+          bulan: filterMapel.value.bulan,
+          tahun: filterMapel.value.tahun
+        }
+      } else {
+        // per_semester
+        requestData = {
+          tahun_pelajaran_id: filterMapel.value.tahun_pelajaran_id,
+          rombel_id: filterMapel.value.rombel_id,
+          bidang_studi_id: filterMapel.value.bidang_studi_id,
+          tipe_periode: 'semester',
+          semester: filterMapel.value.semester
+        }
+      }
+    } else {
+      // Guru Kelas - always per bulan
+      requestData = {
+        tahun_pelajaran_id: filterKelas.value.tahun_pelajaran_id,
+        rombel_id: filterKelas.value.rombel_id,
+        tipe_periode: 'bulan',
+        bulan: filterKelas.value.bulan,
+        tahun: filterKelas.value.tahun
+      }
+    }
+    
+    // Call API
+    const blob = await exportPdfAbsensi(requestData)
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob as Blob)
+    const link = document.createElement('a')
+    link.href = url
+    
+    // Generate filename
+    const rombelName = rombelList.value.find(r => r.id === (isGuruMapel ? filterMapel.value.rombel_id : filterKelas.value.rombel_id))?.name || 'Rombel'
+    const date = new Date().toISOString().split('T')[0]
+    link.download = `Rekap_Absensi_${rombelName}_${date}.pdf`
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    showToast('Berhasil', 'File PDF berhasil didownload')
+  } catch (err: any) {
+    console.error('Error downloading PDF:', err)
+    const errorMsg = err.data?.error || err.data?.message || 'Gagal mendownload file PDF'
+    showErrorToast('Error', errorMsg)
+  } finally {
+    isDownloading.value = false
   }
 }
 
@@ -857,6 +1256,56 @@ const loadBidangStudiList = async () => {
   }
 }
 
+const loadPemetaanRombelMapping = async (rombelId: number, tahunPelajaranId: number) => {
+  try {
+    const config = useRuntimeConfig()
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+    
+    const response: any = await $fetch(
+      `${config.public.apiBase}/api/v1/peserta-didik/get-pemetaan-rombel`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: {
+          search: {
+            rombel_id: rombelId,
+            tahun_pelajaran_id: tahunPelajaranId,
+            status: 'active'
+          },
+          pagination: {
+            limit: 50,
+            page: 1
+          }
+        },
+        credentials: 'include',
+      }
+    )
+    
+    // Store full pemetaan rombel data
+    pemetaanRombelData.value = response.data || []
+    
+    // Create mapping from peserta_didik_id to peserta_didik_rombel_id (pemetaan rombel ID)
+    const mapping = new Map<number, number>()
+    if (response.data && Array.isArray(response.data)) {
+      response.data.forEach((item: any) => {
+        if (item.peserta_didik_id && item.id) {
+          mapping.set(item.peserta_didik_id, item.id) // item.id is peserta_didik_rombel_id
+        }
+      })
+    }
+    
+    pesertaDidikRombelMapping.value = mapping
+    console.log('Pemetaan rombel data loaded:', response.data?.length, 'students')
+    console.log('Pemetaan rombel mapping loaded:', mapping)
+  } catch (err) {
+    console.error('Error loading pemetaan rombel:', err)
+    pemetaanRombelData.value = []
+    pesertaDidikRombelMapping.value = new Map()
+  }
+}
+
 const loadRekapKelas = async () => {
   if (!filterKelas.value.tahun_pelajaran_id || !filterKelas.value.rombel_id) {
     rekapDataKelas.value = null
@@ -865,8 +1314,42 @@ const loadRekapKelas = async () => {
 
   isLoading.value = true
   try {
+    // Load pemetaan rombel to get all students and mapping
+    await loadPemetaanRombelMapping(filterKelas.value.rombel_id, filterKelas.value.tahun_pelajaran_id)
+    
+    // Load rekap data
     const response = await getRekapAbsensi(filterKelas.value)
-    rekapDataKelas.value = response.data || { data_siswa: [] }
+    const rekapData = response.data || { data_siswa: [] }
+    
+    // Merge: Use all students from pemetaan rombel, add absensi details from rekap
+    // Filter only active students and active pemetaan rombel
+    const mergedStudents = pemetaanRombelData.value
+      .filter((pemetaanSiswa: any) => 
+        pemetaanSiswa.peserta_didik?.status === 'active' && 
+        pemetaanSiswa.status === 'active'
+      )
+      .map((pemetaanSiswa: any) => {
+        // Find matching student in rekap data
+        const rekapSiswa = rekapData.data_siswa?.find((rs: any) => rs.peserta_didik_id === pemetaanSiswa.peserta_didik_id)
+        
+        return {
+          id: pemetaanSiswa.id, // peserta_didik_rombel_id
+          peserta_didik_id: pemetaanSiswa.peserta_didik_id,
+          nama: pemetaanSiswa.peserta_didik?.nama || '',
+          nis: pemetaanSiswa.peserta_didik?.nis || '',
+          jenis_kelamin: pemetaanSiswa.peserta_didik?.jenis_kelamin || '',
+          detail_per_tanggal: rekapSiswa?.detail_per_tanggal || [],
+          total_sakit: rekapSiswa?.total_sakit || 0,
+          total_izin: rekapSiswa?.total_izin || 0,
+          total_alpa: rekapSiswa?.total_alpa || 0,
+          total_absen: rekapSiswa?.total_absen || 0
+        }
+      })
+    
+    rekapDataKelas.value = {
+      ...rekapData,
+      data_siswa: mergedStudents
+    }
   } catch (err) {
     console.error('Error loading rekap kelas:', err)
     // Set empty data instead of null to show table
@@ -884,6 +1367,9 @@ const loadRekapMapel = async () => {
 
   isLoading.value = true
   try {
+    // Load pemetaan rombel to get all students and mapping
+    await loadPemetaanRombelMapping(filterMapel.value.rombel_id, filterMapel.value.tahun_pelajaran_id)
+    
     const requestData: any = {
       tahun_pelajaran_id: filterMapel.value.tahun_pelajaran_id,
       rombel_id: filterMapel.value.rombel_id,
@@ -902,7 +1388,37 @@ const loadRekapMapel = async () => {
     }
 
     const response = await getRekapAbsensi(requestData)
-    rekapDataMapel.value = response.data || { data_siswa: [] }
+    const rekapData = response.data || { data_siswa: [] }
+    
+    // Merge: Use all students from pemetaan rombel, add absensi details from rekap
+    // Filter only active students and active pemetaan rombel
+    const mergedStudents = pemetaanRombelData.value
+      .filter((pemetaanSiswa: any) => 
+        pemetaanSiswa.peserta_didik?.status === 'active' && 
+        pemetaanSiswa.status === 'active'
+      )
+      .map((pemetaanSiswa: any) => {
+        // Find matching student in rekap data
+        const rekapSiswa = rekapData.data_siswa?.find((rs: any) => rs.peserta_didik_id === pemetaanSiswa.peserta_didik_id)
+        
+        return {
+          id: pemetaanSiswa.id, // peserta_didik_rombel_id
+          peserta_didik_id: pemetaanSiswa.peserta_didik_id,
+          nama: pemetaanSiswa.peserta_didik?.nama || '',
+          nis: pemetaanSiswa.peserta_didik?.nis || '',
+          jenis_kelamin: pemetaanSiswa.peserta_didik?.jenis_kelamin || '',
+          detail_per_tanggal: rekapSiswa?.detail_per_tanggal || [],
+          total_sakit: rekapSiswa?.total_sakit || 0,
+          total_izin: rekapSiswa?.total_izin || 0,
+          total_alpa: rekapSiswa?.total_alpa || 0,
+          total_absen: rekapSiswa?.total_absen || 0
+        }
+      })
+    
+    rekapDataMapel.value = {
+      ...rekapData,
+      data_siswa: mergedStudents
+    }
   } catch (err) {
     console.error('Error loading rekap mapel:', err)
     // Set empty data instead of null to show table

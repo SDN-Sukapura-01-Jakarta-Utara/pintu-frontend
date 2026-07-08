@@ -53,7 +53,7 @@
                 <NuxtLink v-if="hasPermission('READ_MASTER_DATA')" to="/backoffice/master-data" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
-                    route.path.includes('master-data') ? 'bg-red-700' : ''
+                    route.path === '/backoffice/master-data' ? 'bg-red-700' : ''
                 ]">
                     <i class="fa-solid fa-database w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Master Data</span>
@@ -216,14 +216,37 @@
                 </div>
 
                 <!-- Peserta Didik -->
-                <NuxtLink v-if="hasPermission('READ_PESERTA_DIDIK')" to="/backoffice/peserta-didik" :class="[
-                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
-                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
-                    route.path.includes('peserta-didik') && !route.path.includes('mutasi-siswa') ? 'bg-red-700' : ''
-                ]">
-                    <i class="fa-solid fa-users w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Peserta Didik</span>
-                </NuxtLink>
+                <div v-if="hasPermission('READ_PESERTA_DIDIK')">
+                    <button @click="toggleSubmenu('pesertaDidik')" :class="[
+                        'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                        isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
+                    ]">
+                        <i class="fa-solid fa-user-graduate w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                        <div v-if="isOpen" class="flex-1 flex items-center justify-between">
+                            <span class="text-xs sm:text-sm font-medium">Peserta Didik</span>
+                            <i :class="[
+                                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
+                                openMenus.pesertaDidik ? 'rotate-90' : ''
+                            ]"></i>
+                        </div>
+                    </button>
+
+                    <!-- Submenu -->
+                    <div v-if="isOpen && openMenus.pesertaDidik" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
+                        <NuxtLink to="/backoffice/peserta-didik/master-data-siswa" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('peserta-didik/master-data-siswa') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Data Induk Siswa
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/peserta-didik/pemetaan-rombel" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('peserta-didik/pemetaan-rombel') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Pemetaan Rombel
+                        </NuxtLink>
+                    </div>
+                </div>
 
                 <!-- SPMB -->
                 <div v-if="hasPermission('READ_MUTASI_SISWA')">
@@ -303,6 +326,12 @@
                             route.path.includes('absensi-siswa/rekap') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Rekap Kehadiran
+                        </NuxtLink>
+                        <NuxtLink v-if="hasPermission('KONFIGURASI_ABSENSI_SISWA')" to="/backoffice/absensi-siswa/konfigurasi" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('absensi-siswa/konfigurasi') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Konfigurasi Absensi
                         </NuxtLink>
                     </div>
                 </div>
@@ -498,6 +527,7 @@ const openMenus = ref({
     pertanyaan: false,
     absensi: false,
     spmb: false,
+    pesertaDidik: false,
 })
 
 // Check if submenu should be active based on current route
@@ -509,6 +539,7 @@ const isActiveSubmenu = computed(() => ({
     pertanyaan: route.path.includes('layanan-umpan-balik/pertanyaan') || route.path.includes('layanan-umpan-balik/pengaduan') || route.path.includes('kritik-saran'),
     absensi: route.path.includes('absensi-siswa'),
     spmb: route.path.includes('spmb/layanan-posko') || route.path.includes('spmb/mutasi-siswa'),
+    pesertaDidik: route.path.includes('peserta-didik/master-data-siswa') || route.path.includes('peserta-didik/pemetaan-rombel'),
 }))
 
 // Auto-open submenu if current path is in that submenu
@@ -533,6 +564,9 @@ watch(() => route.path, () => {
     }
     if (isActiveSubmenu.value.spmb && !openMenus.value.spmb) {
         openMenus.value.spmb = true
+    }
+    if (isActiveSubmenu.value.pesertaDidik && !openMenus.value.pesertaDidik) {
+        openMenus.value.pesertaDidik = true
     }
 }, { immediate: true })
 

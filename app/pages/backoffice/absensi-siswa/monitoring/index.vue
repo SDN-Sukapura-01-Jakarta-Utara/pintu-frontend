@@ -995,7 +995,7 @@
                 Peserta Didik <span class="text-red-600">*</span>
               </label>
               <select
-                v-model.number="filtersSiswa.peserta_didik_id"
+                v-model.number="filtersSiswa.peserta_didik_rombel_id"
                 @change="loadDashboardSiswa"
                 :disabled="!filtersSiswa.tahun_pelajaran_id || !filtersSiswa.rombel_id || isLoadingPesertaDidik"
                 class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 transition-all text-sm disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -1004,7 +1004,7 @@
                   {{ isLoadingPesertaDidik ? 'Memuat...' : 'Pilih Peserta Didik' }}
                 </option>
                 <option v-for="siswa in activePesertaDidikList" :key="siswa.id" :value="siswa.id">
-                  {{ siswa.nis }} - {{ siswa.nama }}
+                  {{ siswa.peserta_didik?.nis || siswa.nis }} - {{ siswa.peserta_didik?.nama || siswa.nama }}
                 </option>
               </select>
             </div>
@@ -1292,7 +1292,6 @@ import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement
 import { useRombelStore } from '~/stores/RombelStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
-import { usePesertaDidikStore } from '~/stores/PesertaDidikStore'
 import { useAuth } from '~/composables/useAuth'
 import { getDashboardSummary, getGrafikKehadiran, getStatistikPerHari, getPerbandinganRombel, getSiswaTerendah, getDashboardSiswa } from '~/services/absensi'
 import DashboardLayout from '~/components/DashboardLayout.vue'
@@ -1320,7 +1319,6 @@ const { getCurrentUser } = useAuth()
 const rombelStore = useRombelStore()
 const tahunPelajaranStore = useTahunPelajaranStore()
 const bidangStudiStore = useBidangStudiStore()
-const pesertaDidikStore = usePesertaDidikStore()
 
 // Get current user data
 const currentUser = getCurrentUser()
@@ -1398,7 +1396,7 @@ const filtersSiswa = ref({
   semester: defaultSemester,
   rombel_id: isSuperAdmin.value ? 0 : (currentUser?.rombel_guru_kelas_id || 0),
   bidang_studi_id: isSuperAdmin.value ? 0 : (currentUser?.bidang_studi_id || 0),
-  peserta_didik_id: 0,
+  peserta_didik_rombel_id: 0,
   periode: 'harian',
   tanggal_mulai: firstDayOfMonth.toISOString().split('T')[0],
   tanggal_selesai: lastDayOfMonth.toISOString().split('T')[0]
@@ -1447,7 +1445,11 @@ const activeBidangStudiList = computed(() => {
 })
 
 const activePesertaDidikList = computed(() => {
-  return pesertaDidikList.value.filter((p: any) => p.status === 'active')
+  // Already filtered in loadPesertaDidikList, but double-check for peserta_didik status
+  return pesertaDidikList.value.filter((p: any) => {
+    const pesertaDidikStatus = p.peserta_didik?.status || p.status
+    return pesertaDidikStatus === 'active'
+  })
 })
 
 // Format grafik bulanan siswa for Line chart
@@ -2098,17 +2100,33 @@ const loadPesertaDidikList = async () => {
 
   isLoadingPesertaDidik.value = true
   try {
-    const search = {
-      tahun_pelajaran_id: filtersSiswa.value.tahun_pelajaran_id,
-      rombel_id: filtersSiswa.value.rombel_id,
-      status: 'active'
-    }
+    const config = useRuntimeConfig()
+    const response = await $fetch<any>(`${config.public.apiBase}/api/v1/peserta-didik/get-pemetaan-rombel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+      },
+      credentials: 'include',
+      body: {
+        search: {
+          rombel_id: filtersSiswa.value.rombel_id,
+          tahun_pelajaran_id: filtersSiswa.value.tahun_pelajaran_id,
+          status: 'active'
+        },
+        pagination: {
+          limit: 1000,
+          page: 1
+        }
+      }
+    })
     
-    const result = await pesertaDidikStore.fetchPesertaDidik(search, 1, 1000)
-    
-    if (result.success) {
-      pesertaDidikList.value = pesertaDidikStore.pesertaDidiks
-    }
+    // Filter only students with active status
+    const allStudents = response.data || []
+    pesertaDidikList.value = allStudents.filter((student: any) => {
+      const pesertaDidikStatus = student.peserta_didik?.status || student.status
+      return pesertaDidikStatus === 'active'
+    })
   } catch (err) {
     console.error('Error loading peserta didik:', err)
     pesertaDidikList.value = []
@@ -2119,7 +2137,7 @@ const loadPesertaDidikList = async () => {
 
 const loadDashboardSiswa = async () => {
   // Validate required fields
-  if (!filtersSiswa.value.tahun_pelajaran_id || !filtersSiswa.value.rombel_id || !filtersSiswa.value.peserta_didik_id) {
+  if (!filtersSiswa.value.tahun_pelajaran_id || !filtersSiswa.value.rombel_id || !filtersSiswa.value.peserta_didik_rombel_id) {
     dashboardSiswaData.value = null
     dashboardSiswaError.value = null
     return
@@ -2135,7 +2153,7 @@ const loadDashboardSiswa = async () => {
   dashboardSiswaError.value = null
   try {
     const requestData: any = {
-      peserta_didik_id: filtersSiswa.value.peserta_didik_id,
+      peserta_didik_rombel_id: filtersSiswa.value.peserta_didik_rombel_id,
       tahun_pelajaran_id: filtersSiswa.value.tahun_pelajaran_id,
       rombel_id: filtersSiswa.value.rombel_id,
       semester: filtersSiswa.value.semester,
@@ -2183,7 +2201,7 @@ watch(dashboardSiswaType, () => {
 
 // Watch tahun pelajaran and rombel changes to load peserta didik
 watch([() => filtersSiswa.value.tahun_pelajaran_id, () => filtersSiswa.value.rombel_id], () => {
-  filtersSiswa.value.peserta_didik_id = 0
+  filtersSiswa.value.peserta_didik_rombel_id = 0
   dashboardSiswaData.value = null
   dashboardSiswaError.value = null
   loadPesertaDidikList()

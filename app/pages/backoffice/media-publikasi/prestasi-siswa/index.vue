@@ -164,7 +164,7 @@
                                 <button type="button" v-for="pd in filteredFilterPesertaDidik" :key="pd.id"
                                     @click="selectFilterPesertaDidik(pd)"
                                     class="w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors text-xs sm:text-sm cursor-pointer border-b border-gray-100 last:border-b-0">
-                                    {{ pd.nama }} - NIS: <i>{{ pd.nis }}</i> - Rombel: <i>{{ pd.rombel?.name || '-' }}</i>
+                                    {{ pd.peserta_didik?.nama }} - NIS: <i>{{ pd.peserta_didik?.nis }}</i> - Rombel: <i>{{ pd.rombel?.name || '-' }}</i>
                                 </button>
                             </div>
                             <div v-if="showFilterPesertaDidikDropdown && filteredFilterPesertaDidik.length === 0 && filterPesertaDidikSearch"
@@ -404,7 +404,7 @@
                                         <!-- Nama Siswa -->
                                         <td class="px-3 sm:px-6 py-2 sm:py-4 text-[13px] sm:text-sm md:text-[15px] text-gray-700">
                                             <template v-if="item.jenis === 'Individu'">
-                                                {{ item.peserta_didik?.nama || '-' }}
+                                                {{ item.peserta_didik_rombel?.peserta_didik?.nama || '-' }}
                                             </template>
                                             <template v-else>
                                                 -
@@ -413,7 +413,7 @@
                                         <!-- NIS -->
                                         <td class="px-3 sm:px-6 py-2 sm:py-4 text-[13px] sm:text-sm md:text-[15px] text-gray-700">
                                             <template v-if="item.jenis === 'Individu'">
-                                                {{ item.peserta_didik?.nis || '-' }}
+                                                {{ item.peserta_didik_rombel?.peserta_didik?.nis || '-' }}
                                             </template>
                                             <template v-else>
                                                 -
@@ -422,7 +422,7 @@
                                         <!-- Rombel -->
                                         <td class="px-3 sm:px-6 py-2 sm:py-4 text-[13px] sm:text-sm md:text-[15px] text-gray-700">
                                             <template v-if="item.jenis === 'Individu'">
-                                                {{ item.peserta_didik?.rombel?.name || '-' }}
+                                                {{ item.peserta_didik_rombel?.rombel?.name || '-' }}
                                             </template>
                                             <template v-else>
                                                 -
@@ -524,13 +524,13 @@
                                                                     {{ anggotaIndex + 1 }}
                                                                 </td>
                                                                 <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700">
-                                                                    {{ anggota.peserta_didik?.nama || '-' }}
+                                                                    {{ anggota.peserta_didik_rombel?.peserta_didik?.nama || '-' }}
                                                                 </td>
                                                                 <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700">
-                                                                    {{ anggota.peserta_didik?.nis || '-' }}
+                                                                    {{ anggota.peserta_didik_rombel?.peserta_didik?.nis || '-' }}
                                                                 </td>
                                                                 <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700">
-                                                                    {{ anggota.peserta_didik?.rombel?.name || '-' }}
+                                                                    {{ anggota.peserta_didik_rombel?.rombel?.name || '-' }}
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -603,7 +603,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { usePrestasiStore } from '~/stores/PrestasiStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useEkstrakurikulerStore } from '~/stores/EkstrakurikulerStore'
-import { getPesertaDidikList } from '~/services/peserta-didik'
+import { getPemetaanRombelList } from '~/services/peserta-didik'
 import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreatePrestasiModal from '~/components/modals/CreatePrestasiModal.vue'
@@ -695,16 +695,26 @@ const filteredFilterPesertaDidik = computed(() => {
     if (!filterPesertaDidikSearch.value) return pesertaDidikList.value.slice(0, 10)
     const search = filterPesertaDidikSearch.value.toLowerCase()
     return pesertaDidikList.value.filter(pd =>
-        pd.nama.toLowerCase().includes(search) ||
-        pd.nis.toLowerCase().includes(search) ||
+        pd.peserta_didik?.nama?.toLowerCase().includes(search) ||
+        pd.peserta_didik?.nis?.toLowerCase().includes(search) ||
         pd.rombel?.name?.toLowerCase().includes(search)
     ).slice(0, 10)
 })
 
 // Methods
 const loadPesertaDidikList = async () => {
+    const activeTahun = tahunPelajaranList.value.find((t: any) => t.status === 'active')
+    if (!activeTahun) return
+    
     try {
-        const response = await getPesertaDidikList({}, 1, 1000)
+        const response = await getPemetaanRombelList(
+            { 
+                tahun_pelajaran_id: activeTahun.id,
+                status: 'active' 
+            }, 
+            1, 
+            50
+        )
         pesertaDidikList.value = response.data || []
     } catch (err) {
         console.error('Error loading peserta didik:', err)
@@ -712,8 +722,8 @@ const loadPesertaDidikList = async () => {
 }
 
 const selectFilterPesertaDidik = (pd: any) => {
-    filters.value.peserta_didik_id = pd.id
-    filterPesertaDidikSearch.value = `${pd.nama} - NIS: ${pd.nis} - Rombel: ${pd.rombel?.name || '-'}`
+    filters.value.peserta_didik_id = pd.peserta_didik_id
+    filterPesertaDidikSearch.value = `${pd.peserta_didik?.nama} - NIS: ${pd.peserta_didik?.nis} - Rombel: ${pd.rombel?.name || '-'}`
     showFilterPesertaDidikDropdown.value = false
 }
 

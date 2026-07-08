@@ -340,3 +340,65 @@ export async function generateBarcodeByTahunPelajaranAndRombel(
 
     return response
 }
+
+/**
+ * Get pemetaan rombel list (peserta didik yang sudah dipetakan ke rombel)
+ */
+export async function getPemetaanRombelList(
+    filters: {
+        nama?: string
+        rombel_id?: number
+        tahun_pelajaran_id?: number
+        status?: string
+    } = {},
+    page: number = 1,
+    limit: number = 50
+) {
+    const config = useRuntimeConfig()
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    const requestBody = {
+        search: {
+            nama: filters.nama ? sanitizeInput(filters.nama) : undefined,
+            rombel_id: filters.rombel_id,
+            tahun_pelajaran_id: filters.tahun_pelajaran_id,
+            status: filters.status || 'active',
+        },
+        pagination: {
+            limit: limit,
+            page: page,
+        },
+    }
+
+    try {
+        const response = await $fetch<{
+            data: any[]
+            pagination: {
+                limit: number
+                offset: number
+                page: number
+                total: number
+                total_pages: number
+            }
+        }>(
+            `${config.public.apiBase}/api/v1/peserta-didik/get-pemetaan-rombel`,
+            {
+                method: 'POST',
+                body: requestBody,
+                headers: {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+            }
+        )
+
+        return {
+            data: response.data || [],
+            pagination: response.pagination,
+        }
+    } catch (error: any) {
+        handleApiError(error)
+        throw error
+    }
+}

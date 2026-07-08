@@ -288,19 +288,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Dicatat Oleh -->
-                <div class="bg-gradient-to-br from-amber-50 to-white rounded-xl p-4 border border-amber-200">
-                  <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-                      <i class="fa-solid fa-user-tie text-amber-600 text-base"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-xs text-amber-600 font-semibold mb-0.5">Dicatat Oleh</p>
-                      <p class="text-sm font-bold text-gray-900 leading-tight">{{ detailData.dicatat_oleh }}</p>
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <!-- Keterangan -->

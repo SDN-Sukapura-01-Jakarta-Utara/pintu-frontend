@@ -112,7 +112,7 @@
                                         <button type="button" v-for="pd in filteredPesertaDidik" :key="pd.id"
                                             @click="selectPesertaDidik(pd)"
                                             class="w-full text-left px-4 py-2.5 hover:bg-red-50 transition-colors text-xs sm:text-sm cursor-pointer border-b border-gray-100 last:border-b-0">
-                                            {{ pd.nama }} - NIS: <i>{{ pd.nis }}</i> - Rombel: <i>{{ pd.rombel?.name || '-' }}</i>
+                                            {{ pd.peserta_didik.nama }} - NIS: <i>{{ pd.peserta_didik.nis }}</i> - Rombel: <i>{{ pd.rombel?.name || '-' }}</i>
                                         </button>
                                     </div>
                                     <div v-if="showPesertaDidikDropdown && filteredPesertaDidik.length === 0 && pesertaDidikSearch"
@@ -263,7 +263,7 @@
                                             <button type="button" v-for="pd in filteredAnggotaPesertaDidik"
                                                 :key="pd.id" @click="addAnggotaTim(pd)"
                                                 class="w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors text-xs sm:text-sm cursor-pointer border-b border-gray-100 last:border-b-0">
-                                                    {{ pd.nama }} - NIS: <i>{{ pd.nis }}</i> - Rombel: <i>{{ pd.rombel?.name || '-' }}</i>
+                                                    {{ pd.peserta_didik.nama }} - NIS: <i>{{ pd.peserta_didik.nis }}</i> - Rombel: <i>{{ pd.rombel?.name || '-' }}</i>
                                             </button>
                                         </div>
                                         <div v-if="showAnggotaDropdown && filteredAnggotaPesertaDidik.length === 0 && anggotaSearch"
@@ -303,7 +303,7 @@
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-gray-200">
-                                            <tr v-for="(anggota, idx) in anggotaTimList" :key="anggota.peserta_didik_id"
+                                            <tr v-for="(anggota, idx) in anggotaTimList" :key="anggota.peserta_didik_rombel_id"
                                                 class="hover:bg-gray-50">
                                                 <td class="px-3 py-2 text-xs sm:text-sm text-gray-700">{{ idx + 1 }}
                                                 </td>
@@ -556,7 +556,7 @@ import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useEkstrakurikulerStore } from '~/stores/EkstrakurikulerStore'
 import { useToastStore } from '~/stores/ToastStore'
 import { getPrestasiById } from '~/services/prestasi'
-import { getPesertaDidikList } from '~/services/peserta-didik'
+import { getPemetaanRombelList } from '~/services/peserta-didik'
 import { compressImage } from '~/utils/imageCompressor'
 
 interface Props {
@@ -588,7 +588,7 @@ const form = ref({
     id: 0,
     tahun_pelajaran_id: 0,
     jenis: '',
-    peserta_didik_id: 0,
+    peserta_didik_rombel_id: 0,
     nama_grup: '',
     nama_prestasi: '',
     tingkat_prestasi: '',
@@ -614,6 +614,7 @@ const selectedNewPesertaDidik = ref<{ id: number; nama: string; nis: string } | 
 
 // Team members
 const anggotaTimList = ref<Array<{
+    peserta_didik_rombel_id: number
     peserta_didik_id: number
     nama: string
     nis: string
@@ -650,21 +651,21 @@ const filteredPesertaDidik = computed(() => {
     
     const search = pesertaDidikSearch.value.toLowerCase()
     return pesertaDidikList.value.filter(pd => 
-        pd.nama.toLowerCase().includes(search) ||
-        pd.nis.toLowerCase().includes(search) ||
+        pd.peserta_didik.nama.toLowerCase().includes(search) ||
+        pd.peserta_didik.nis.toLowerCase().includes(search) ||
         pd.rombel?.name?.toLowerCase().includes(search)
     ).slice(0, 10)
 })
 
 const filteredAnggotaPesertaDidik = computed(() => {
-    const usedIds = anggotaTimList.value.map(a => a.peserta_didik_id)
+    const usedIds = anggotaTimList.value.map(a => a.peserta_didik_rombel_id)
     let list = pesertaDidikList.value.filter(pd => !usedIds.includes(pd.id))
     
     if (anggotaSearch.value) {
         const search = anggotaSearch.value.toLowerCase()
         list = list.filter(pd => 
-            pd.nama.toLowerCase().includes(search) ||
-            pd.nis.toLowerCase().includes(search) ||
+            pd.peserta_didik.nama.toLowerCase().includes(search) ||
+            pd.peserta_didik.nis.toLowerCase().includes(search) ||
             pd.rombel?.name?.toLowerCase().includes(search)
         )
     }
@@ -693,7 +694,7 @@ const loadPrestasiData = async () => {
             id: prestasi.id,
             tahun_pelajaran_id: prestasi.tahun_pelajaran_id || 0,
             jenis: prestasi.jenis || '',
-            peserta_didik_id: prestasi.peserta_didik_id || 0,
+            peserta_didik_rombel_id: prestasi.peserta_didik_rombel_id || 0,
             nama_grup: prestasi.nama_grup || '',
             nama_prestasi: prestasi.nama_prestasi || '',
             tingkat_prestasi: prestasi.tingkat_prestasi || '',
@@ -706,13 +707,14 @@ const loadPrestasiData = async () => {
         }
 
         // Set peserta didik label if individu
-        if (prestasi.jenis === 'Individu' && prestasi.peserta_didik) {
-            currentPesertaDidikLabel.value = `${prestasi.peserta_didik.nama} - NIS: ${prestasi.peserta_didik.nis} - Rombel: ${prestasi.peserta_didik.rombel?.name || '-'}`
+        if (prestasi.jenis === 'Individu' && prestasi.peserta_didik_rombel) {
+            currentPesertaDidikLabel.value = `${prestasi.peserta_didik_rombel.peserta_didik?.nama} - NIS: ${prestasi.peserta_didik_rombel.peserta_didik?.nis} - Rombel: ${prestasi.peserta_didik_rombel.rombel?.name || '-'}`
         }
 
         // Set team members if tim
         if (prestasi.jenis === 'Tim' && prestasi.anggota_tim_prestasi && prestasi.anggota_tim_prestasi.length > 0) {
             anggotaTimList.value = prestasi.anggota_tim_prestasi.map((anggota: any) => ({
+                peserta_didik_rombel_id: anggota.peserta_didik_rombel_id,
                 peserta_didik_id: anggota.peserta_didik_id,
                 nama: anggota.peserta_didik?.nama || '',
                 nis: anggota.peserta_didik?.nis || '',
@@ -764,8 +766,16 @@ const loadEkstrakurikulerList = async () => {
 }
 
 const loadPesertaDidikList = async () => {
+    if (!form.value.tahun_pelajaran_id) return
     try {
-        const response = await getPesertaDidikList({}, 1, 1000)
+        const response = await getPemetaanRombelList(
+            { 
+                tahun_pelajaran_id: form.value.tahun_pelajaran_id,
+                status: 'active' 
+            }, 
+            1, 
+            50
+        )
         pesertaDidikList.value = response.data || []
     } catch (err) {
         console.error('Error loading peserta didik:', err)
@@ -773,8 +783,8 @@ const loadPesertaDidikList = async () => {
 }
 // Peserta Didik methods
 const selectPesertaDidik = (pd: any) => {
-    selectedNewPesertaDidik.value = { id: pd.id, nama: pd.nama, nis: pd.nis }
-    pesertaDidikSearch.value = `${pd.nama} - NIS: ${pd.nis} - Rombel: ${pd.rombel?.name || '-'}`
+    selectedNewPesertaDidik.value = { id: pd.id, nama: pd.peserta_didik.nama, nis: pd.peserta_didik.nis }
+    pesertaDidikSearch.value = `${pd.peserta_didik.nama} - NIS: ${pd.peserta_didik.nis} - Rombel: ${pd.rombel?.name || '-'}`
     showPesertaDidikDropdown.value = false
 }
 
@@ -786,9 +796,10 @@ const clearSelectedPesertaDidik = () => {
 // Team methods
 const addAnggotaTim = (pd: any) => {
     anggotaTimList.value.push({
-        peserta_didik_id: pd.id,
-        nama: pd.nama,
-        nis: pd.nis,
+        peserta_didik_rombel_id: pd.id,
+        peserta_didik_id: pd.peserta_didik_id,
+        nama: pd.peserta_didik.nama,
+        nis: pd.peserta_didik.nis,
         rombel_name: pd.rombel?.name || '-'
     })
     showAddAnggota.value = false
@@ -931,7 +942,7 @@ const validateForm = () => {
         formError.value = 'Jenis harus dipilih'
         return false
     }
-    if (form.value.jenis === 'Individu' && !form.value.peserta_didik_id) {
+    if (form.value.jenis === 'Individu' && !form.value.peserta_didik_rombel_id) {
         formError.value = 'Peserta didik harus dipilih untuk jenis individu'
         return false
     }
@@ -986,14 +997,15 @@ const handleSubmit = async () => {
         formData.append('tahun_pelajaran_id', form.value.tahun_pelajaran_id.toString())
 
         if (form.value.jenis === 'Individu') {
-            const pesertaDidikId = selectedNewPesertaDidik.value
+            const pesertaDidikRombelId = selectedNewPesertaDidik.value
                 ? selectedNewPesertaDidik.value.id
-                : form.value.peserta_didik_id
-            formData.append('peserta_didik_id', pesertaDidikId.toString())
+                : form.value.peserta_didik_rombel_id
+            formData.append('peserta_didik_rombel_id', pesertaDidikRombelId.toString())
         } else {
             formData.append('nama_grup', form.value.nama_grup)
             formData.append('anggota_tim', JSON.stringify(anggotaTimList.value.map(a => ({
-                peserta_didik_id: a.peserta_didik_id
+                peserta_didik_rombel_id: a.peserta_didik_rombel_id,
+                tahun_pelajaran_id: form.value.tahun_pelajaran_id
             }))))
         }
 
@@ -1082,7 +1094,7 @@ watch(() => props.modelValue, (newValue) => {
             id: 0,
             tahun_pelajaran_id: 0,
             jenis: '',
-            peserta_didik_id: 0,
+            peserta_didik_rombel_id: 0,
             nama_grup: '',
             nama_prestasi: '',
             tingkat_prestasi: '',
@@ -1090,7 +1102,8 @@ watch(() => props.modelValue, (newValue) => {
             penyelenggara: '',
             tanggal_lomba: '',
             keterangan: '',
-            ekstrakurikuler_id: 0
+            ekstrakurikuler_id: 0,
+            status: 'active'
         }
         pesertaDidikSearch.value = ''
         currentPesertaDidikLabel.value = ''
@@ -1107,12 +1120,18 @@ watch(() => props.modelValue, (newValue) => {
     }
 })
 
+// Watch for tahun pelajaran change to reload peserta didik
+watch(() => form.value.tahun_pelajaran_id, (newValue) => {
+    if (newValue) {
+        loadPesertaDidikList()
+    }
+})
+
 // Load initial data
 onMounted(async () => {
     await Promise.all([
         loadTahunPelajaranList(),
-        loadEkstrakurikulerList(),
-        loadPesertaDidikList()
+        loadEkstrakurikulerList()
     ])
     
     // Add click outside listeners

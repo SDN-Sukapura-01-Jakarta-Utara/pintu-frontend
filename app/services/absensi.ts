@@ -357,3 +357,202 @@ export async function getDashboardSiswa(data: {
 
   return response
 }
+
+/**
+ * Get konfigurasi absensi
+ */
+export async function getKonfigurasiAbsensi() {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    data: {
+      id: number
+      jam_datang_mulai: string
+      jam_max_datang: string
+      jam_datang_selesai: string
+      jam_pulang_mulai: string
+      jam_pulang_selesai: string
+      nama_kepsek: string
+      nip_kepsek: string
+      created_at: string
+      updated_at: string
+    } | null
+  }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/get-konfigurasi-absensi`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Save konfigurasi absensi
+ */
+export async function saveKonfigurasiAbsensi(data: {
+  jam_datang_mulai: string
+  jam_max_datang: string
+  jam_datang_selesai: string
+  jam_pulang_mulai: string
+  jam_pulang_selesai: string
+  nama_kepsek: string
+  nip_kepsek: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    message: string
+    data: any
+  }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/setting-konfigurasi-absensi`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Synchronize absensi siswa
+ */
+export async function synchronizeAbsensi(data: {
+  tipe_sync: string
+  tahun_pelajaran_id: number
+  rombel_id: number
+  bidang_studi_id: number | null
+  tanggal?: string
+  bulan?: number
+  tahun?: number
+  pertemuan_ke?: number
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    success: boolean
+    data: {
+      total_processed: number
+      total_inserted: number
+      total_updated: number
+      total_skipped: number
+      message: string
+      details: any[]
+    }
+  }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/synchronize-absensi-siswa`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Create absensi manual by ID (for individual student)
+ */
+export async function createAbsensiManualById(formData: FormData) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    data: any
+  }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/create-absensi-manual-by-id`,
+    {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Export Excel absensi siswa
+ */
+export async function exportExcelAbsensi(data: {
+  tahun_pelajaran_id: number
+  rombel_id: number
+  tipe_periode: 'bulan' | 'semester'
+  bulan?: number
+  tahun?: number
+  semester?: number
+  bidang_studi_id?: number
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch(
+    `${config.public.apiBase}/api/v1/absensi-siswa/export-excel-absensi-siswa`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      responseType: 'blob' as any, // Important for file download
+    }
+  )
+
+  return response
+}
+
+/**
+ * Export PDF absensi siswa
+ */
+export async function exportPdfAbsensi(data: {
+  tahun_pelajaran_id: number
+  rombel_id: number
+  tipe_periode: 'bulan' | 'semester'
+  bulan?: number
+  tahun?: number
+  semester?: number
+  bidang_studi_id?: number
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch(
+    `${config.public.apiBase}/api/v1/absensi-siswa/export-pdf-absensi-siswa`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      responseType: 'blob' as any, // Important for file download
+    }
+  )
+
+  return response
+}

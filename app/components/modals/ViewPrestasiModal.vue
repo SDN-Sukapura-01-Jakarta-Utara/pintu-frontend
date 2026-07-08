@@ -133,7 +133,7 @@
                     </div>
 
                     <!-- Peserta Didik (Individu) -->
-                    <div v-if="prestasi.jenis === 'Individu' && prestasi.peserta_didik"
+                    <div v-if="prestasi.jenis === 'Individu' && prestasi.peserta_didik_rombel"
                         class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                             <h3 class="text-sm sm:text-base font-bold text-gray-900 flex items-center gap-2">
@@ -147,17 +147,17 @@
                                 <div>
                                     <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Nama</p>
                                     <p class="text-xs sm:text-sm font-semibold text-gray-900">{{
-                                        prestasi.peserta_didik.nama }}</p>
+                                        prestasi.peserta_didik_rombel.peserta_didik?.nama }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[11px] sm:text-xs text-gray-600 font-medium">NIS</p>
                                     <p class="text-xs sm:text-sm font-semibold text-gray-900">{{
-                                        prestasi.peserta_didik.nis }}</p>
+                                        prestasi.peserta_didik_rombel.peserta_didik?.nis }}</p>
                                 </div>
                                 <div>
                                     <p class="text-[11px] sm:text-xs text-gray-600 font-medium">Rombel</p>
                                     <p class="text-xs sm:text-sm font-semibold text-gray-900">{{
-                                        prestasi.peserta_didik.rombel?.name || '-' }}</p>
+                                        prestasi.peserta_didik_rombel.rombel?.name || '-' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -201,11 +201,11 @@
                                                 idx + 1 }}</td>
                                             <td
                                                 class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 font-medium">
-                                                {{ anggota.peserta_didik?.nama || '-' }}</td>
+                                                {{ anggota.peserta_didik_rombel?.peserta_didik?.nama || '-' }}</td>
                                             <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700">{{
-                                                anggota.peserta_didik?.nis || '-' }}</td>
+                                                anggota.peserta_didik_rombel?.peserta_didik?.nis || '-' }}</td>
                                             <td class="px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700">{{
-                                                anggota.peserta_didik?.rombel?.name || '-' }}</td>
+                                                anggota.peserta_didik_rombel?.rombel?.name || '-' }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
