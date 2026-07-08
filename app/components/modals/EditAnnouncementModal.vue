@@ -488,50 +488,6 @@ const formatFileSize = (bytes: number): string => {
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
 }
 
-const compressImage = async (file: File): Promise<Blob> => {
-    return new Promise((resolve) => {
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onload = (event) => {
-            const img = new Image()
-            img.src = event.target?.result as string
-            img.onload = () => {
-                const canvas = document.createElement('canvas')
-                let width = img.width
-                let height = img.height
-
-                // Resize if needed
-                const maxWidth = 800
-                const maxHeight = 600
-                if (width > height) {
-                    if (width > maxWidth) {
-                        height *= maxWidth / width
-                        width = maxWidth
-                    }
-                } else {
-                    if (height > maxHeight) {
-                        width *= maxHeight / height
-                        height = maxHeight
-                    }
-                }
-
-                canvas.width = width
-                canvas.height = height
-                const ctx = canvas.getContext('2d')
-                ctx?.drawImage(img, 0, 0, width, height)
-
-                canvas.toBlob(
-                    (blob) => {
-                        resolve(blob || file)
-                    },
-                    'image/jpeg',
-                    0.75 // 75% quality
-                )
-            }
-        }
-    })
-}
-
 const closeModal = () => {
     emit('update:modelValue', false)
 }
@@ -579,8 +535,7 @@ const handleSubmit = async () => {
 
         // Add new image if changed
         if (imageFile.value) {
-            const compressedImage = await compressImage(imageFile.value)
-            data.append('gambar', compressedImage, imageFile.value.name)
+            data.append('gambar', imageFile.value)
         }
 
         // Add new files
