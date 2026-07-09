@@ -614,6 +614,11 @@ const loadData = async () => {
     if (response.data) {
       const data = response.data
       
+      // Check if status_anak is one of the predefined options
+      const validStatusOptions = ['ANAK KANDUNG', 'ANAK ANGKAT']
+      const statusAnak = data.status_anak || ''
+      const isValidStatus = validStatusOptions.includes(statusAnak)
+      
       // Map data to form
       form.value = {
         nama_lengkap: data.nama_lengkap || '',
@@ -626,8 +631,8 @@ const loadData = async () => {
         golongan_darah: data.golongan_darah || '',
         anak_ke: data.anak_ke || null,
         jumlah_saudara: data.jumlah_saudara || null,
-        status_anak: data.status_anak || '',
-        status_anak_custom: '',
+        status_anak: isValidStatus ? statusAnak : 'LAINNYA',
+        status_anak_custom: isValidStatus ? '' : statusAnak,
         alamat: data.alamat || '',
         rt: data.rt || '',
         rw: data.rw || '',
@@ -796,8 +801,8 @@ const handleSubmit = async () => {
     if (newFiles.value.sptjm) formData.append('sptjm', newFiles.value.sptjm)
     
     await updateMutasiSiswa(props.mutasiId, formData)
-    emit('success')
     closeModal()
+    emit('success')
   } catch (error: any) {
     console.error('Error updating mutasi siswa:', error)
     alert(error?.message || 'Gagal menyimpan perubahan')

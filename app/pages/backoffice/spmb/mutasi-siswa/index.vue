@@ -185,6 +185,20 @@
               <i class="fa-solid fa-redo w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
               <span>Reset</span>
             </button>
+            <button
+              @click="handleDownloadExcel"
+              class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 transition-colors duration-200 cursor-pointer"
+            >
+              <i class="fa-solid fa-file-excel w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              <span>Download Excel</span>
+            </button>
+            <button
+              @click="handleDownloadPdf"
+              class="flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 transition-colors duration-200 cursor-pointer"
+            >
+              <i class="fa-solid fa-file-pdf w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+              <span>Download PDF</span>
+            </button>
           </div>
         </div>
 
@@ -521,7 +535,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useToast } from '~/composables/useToast'
 import { useAuth } from '~/composables/useAuth'
-import { getMutasiSiswa, deleteMutasiSiswa, getKonfigurasiMutasiSiswa, saveKonfigurasiMutasiSiswa, downloadPdfMutasiSiswa } from '~/services/mutasi-siswa'
+import { getMutasiSiswa, deleteMutasiSiswa, getKonfigurasiMutasiSiswa, saveKonfigurasiMutasiSiswa, downloadPdfMutasiSiswa, exportExcelMutasiSiswa, exportPdfMutasiSiswa } from '~/services/mutasi-siswa'
 import { getTahunPelajaranList } from '~/services/tahun-pelajaran'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import Table from '~/components/Table.vue'
@@ -746,6 +760,7 @@ const editItem = (item: any) => {
 }
 
 const handleEditSuccess = () => {
+  showEditModal.value = false
   toast.success('Sukses', 'Data CMB berhasil diperbarui')
   loadData()
 }
@@ -792,6 +807,88 @@ const handleDeleteConfirm = async () => {
     toast.error('Gagal', error?.message || 'Gagal menghapus data CMB')
   } finally {
     isDeleting.value = false
+  }
+}
+
+// Download Excel handler
+const handleDownloadExcel = async () => {
+  try {
+    if (!filters.value.tahun_pelajaran_id) {
+      toast.error('Gagal', 'Tahun pelajaran harus dipilih')
+      return
+    }
+
+    if (!filters.value.semester) {
+      toast.error('Gagal', 'Semester harus dipilih')
+      return
+    }
+
+    const blob = await exportExcelMutasiSiswa({
+      tahun_pelajaran_id: filters.value.tahun_pelajaran_id,
+      semester: filters.value.semester
+    })
+    
+    // Get tahun pelajaran label for filename
+    const tahunPelajaran = tahunPelajaranList.value.find(
+      (t: any) => t.id === filters.value.tahun_pelajaran_id
+    )
+    const tahunLabel = tahunPelajaran?.tahun_pelajaran || 'Data'
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Data-Mutasi-Siswa-${tahunLabel}-Semester-${filters.value.semester}.xlsx`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    toast.success('Sukses', 'Excel berhasil didownload')
+  } catch (error: any) {
+    console.error('Error downloading Excel:', error)
+    toast.error('Gagal', error?.message || 'Gagal mendownload Excel')
+  }
+}
+
+// Download PDF handler
+const handleDownloadPdf = async () => {
+  try {
+    if (!filters.value.tahun_pelajaran_id) {
+      toast.error('Gagal', 'Tahun pelajaran harus dipilih')
+      return
+    }
+
+    if (!filters.value.semester) {
+      toast.error('Gagal', 'Semester harus dipilih')
+      return
+    }
+
+    const blob = await exportPdfMutasiSiswa({
+      tahun_pelajaran_id: filters.value.tahun_pelajaran_id,
+      semester: filters.value.semester
+    })
+    
+    // Get tahun pelajaran label for filename
+    const tahunPelajaran = tahunPelajaranList.value.find(
+      (t: any) => t.id === filters.value.tahun_pelajaran_id
+    )
+    const tahunLabel = tahunPelajaran?.tahun_pelajaran || 'Data'
+    
+    // Create download link
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `Data-Mutasi-Siswa-${tahunLabel}-Semester-${filters.value.semester}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    
+    toast.success('Sukses', 'PDF berhasil didownload')
+  } catch (error: any) {
+    console.error('Error downloading PDF:', error)
+    toast.error('Gagal', error?.message || 'Gagal mendownload PDF')
   }
 }
 

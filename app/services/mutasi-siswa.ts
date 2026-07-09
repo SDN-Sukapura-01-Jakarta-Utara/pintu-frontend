@@ -187,3 +187,57 @@ export async function downloadPdfMutasiSiswa(id: number) {
 
   return response as Blob
 }
+
+/**
+ * Export Excel mutasi siswa
+ */
+export async function exportExcelMutasiSiswa(data: {
+  tahun_pelajaran_id: number
+  semester: number
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch(
+    `${config.public.apiBase}/api/v1/spmb-mutasi/export-excel-mutasi-siswa`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      body: data,
+      credentials: 'include',
+      responseType: 'blob'
+    }
+  )
+
+  return response as Blob
+}
+
+/**
+ * Export PDF mutasi siswa
+ */
+export async function exportPdfMutasiSiswa(data: {
+  tahun_pelajaran_id: number
+  semester: number
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch(
+    `${config.public.apiBase}/api/v1/spmb-mutasi/export-pdf-mutasi-siswa`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      body: data,
+      credentials: 'include',
+      responseType: 'blob'
+    }
+  )
+
+  return response as Blob
+}
