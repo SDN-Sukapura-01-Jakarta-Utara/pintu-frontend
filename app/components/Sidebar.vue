@@ -249,7 +249,7 @@
                 </div>
 
                 <!-- SPMB -->
-                <div v-if="hasPermission('READ_MUTASI_SISWA')">
+                <div v-if="hasPermission('READ_SPMB')">
                     <button @click="toggleSubmenu('spmb')" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'

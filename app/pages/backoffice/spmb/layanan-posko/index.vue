@@ -392,7 +392,7 @@
             <template #actions="{ item }">
               <div class="flex items-center justify-center gap-2">
                 <button
-                  v-if="item.status === 'pending'"
+                  v-if="item.status === 'pending' && hasPermission('UPDATE_SPMB')"
                   @click="markAsSelesai(item)"
                   title="Tandai Selesai"
                   class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-2.5 py-2 sm:pt-2.5 sm:pb-1.5 rounded-lg bg-gradient-to-br from-green-50 to-emerald-100 text-green-700 font-semibold text-xs border border-green-200 shadow-sm hover:shadow-md hover:from-green-100 hover:to-emerald-200 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
@@ -400,7 +400,7 @@
                   <i class="fa-solid fa-check w-3.5 h-3.5 sm:w-5 sm:h-5"></i>
                 </button>
                 <ViewButton @click="viewDetail(item)" />
-                <DeleteButton @click="confirmDelete(item)" />
+                <DeleteButton v-if="hasPermission('DELETE_SPMB')" @click="confirmDelete(item)" />
               </div>
             </template>
           </Table>
@@ -537,6 +537,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useToast } from '~/composables/useToast'
+import { useAuth } from '~/composables/useAuth'
 import { Line, Pie } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -593,6 +594,7 @@ useHead({
 })
 
 const toast = useToast()
+const { hasPermission } = useAuth()
 
 // State
 const activeTab = ref('monitoring')
