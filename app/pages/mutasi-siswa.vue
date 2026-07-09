@@ -67,8 +67,8 @@
               Berkas Fisik yang Dibawa ke Sekolah:
             </p>
             <ol class="text-sm text-gray-700 space-y-1">
-              <li>1. Fotokopi Akta Kelahiran</li>
-              <li>2. Fotokopi Kartu Keluarga</li>
+              <li>1. Formulir Pendaftaran Mutasi Siswa</li>
+              <li>2. Fotokopi Kartu Keluarga dan Akta Kelahiran</li>
               <li>3. Fotokopi Rapor Terakhir (sudah dilegalisir)</li>
               <li>4. SPTJM sudah TTD di atas materai</li>
             </ol>
