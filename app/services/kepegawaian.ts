@@ -165,6 +165,9 @@ export async function updateKepegawaian(id: number, kepegawaianData: any) {
             if (value === null) {
                 // Kirim null sebagai string kosong atau 'null' tergantung backend
                 formData.append(key, '')
+            } else if (value instanceof File) {
+                // Handle File objects (for foto and document uploads)
+                formData.append(key, value)
             } else if (Array.isArray(value)) {
                 // Append all arrays as JSON string to preserve array format
                 formData.append(key, JSON.stringify(value))

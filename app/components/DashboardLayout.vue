@@ -43,6 +43,9 @@ const pageTitle = computed(() => {
         const path = route?.path || ''
 
         if (path === '/backoffice') return 'Dashboard'
+        if (path.includes('profil-saya')) return 'Profil Saya'
+        if (path.includes('data-siswa')) return 'Data Siswa'
+        if (path.includes('absensi-siswa')) return 'Absensi Siswa'
         if (path.includes('jumbotron')) return 'Jumbotron'
         if (path.includes('visi-misi')) return 'Visi Misi'
         if (path.includes('kutipan')) return 'Kutipan Kepala Sekolah'

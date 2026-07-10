@@ -4,11 +4,11 @@ export function useToast() {
   const toastStore = useToastStore()
 
   const success = (title: string, message?: string) => {
-    return toastStore.success(title, message, 5000)
+    return toastStore.success(title, message)
   }
 
   const error = (title: string, message?: string) => {
-    return toastStore.error(title, message, 5000)
+    return toastStore.error(title, message)
   }
 
   return {
