@@ -41,25 +41,25 @@
                     </p>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3">
-                    <button @click="openSettingSiswaLulusModal"
+                    <button v-if="hasPermission('CREATE_PESERTA_DIDIK')" @click="openSettingSiswaLulusModal"
                         class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-purple-600 text-white font-semibold text-xs sm:text-sm hover:bg-purple-700 transition-colors duration-200 cursor-pointer">
                         <i class="fa-solid fa-user-graduate"></i>
                         <span class="hidden sm:inline">Setting Siswa Lulus</span>
                         <span class="sm:hidden">Lulus</span>
                     </button>
-                    <button @click="openGenerateBarcodeModal"
+                    <button v-if="hasPermission('CREATE_PESERTA_DIDIK')" @click="openGenerateBarcodeModal"
                         class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 transition-colors duration-200 cursor-pointer">
                         <i class="fa-solid fa-qrcode"></i>
                         <span class="hidden sm:inline">Generate Barcode</span>
                         <span class="sm:hidden">Barcode</span>
                     </button>
-                    <button @click="openImportModal"
+                    <button v-if="hasPermission('CREATE_PESERTA_DIDIK')" @click="openImportModal"
                         class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 transition-colors duration-200 cursor-pointer">
                         <i class="fa-solid fa-file-import"></i>
                         <span class="hidden sm:inline">Import Data</span>
                         <span class="sm:hidden">Import</span>
                     </button>
-                    <AddButton label="Tambah Data Siswa" iconClass="fa-solid fa-plus" @click="openCreateModal" />
+                    <AddButton v-if="hasPermission('CREATE_PESERTA_DIDIK')" label="Tambah Data Siswa" iconClass="fa-solid fa-plus" @click="openCreateModal" />
                 </div>
             </div>
         </div>
@@ -332,17 +332,17 @@
                                 <ViewButton title="Lihat Detail" label="Lihat" @click="viewDetail(item)" />
 
                                 <!-- Edit Button -->
-                                <EditButton title="Edit" label="Edit" @click="editSiswa(item)" />
+                                <EditButton v-if="hasPermission('UPDATE_PESERTA_DIDIK')" title="Edit" label="Edit" @click="editSiswa(item)" />
 
                                 <!-- Barcode Button -->
-                                <button @click="generateBarcodeById(item)" :disabled="isGeneratingBarcode"
+                                <button v-if="hasPermission('UPDATE_PESERTA_DIDIK')" @click="generateBarcodeById(item)" :disabled="isGeneratingBarcode"
                                     :title="item.barcode ? 'Generate Ulang Barcode' : 'Generate Barcode'"
                                     class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-2.5 py-2 sm:pt-2.5 sm:pb-1.5 rounded-lg bg-gradient-to-br from-cyan-50 to-teal-100 text-cyan-700 font-semibold text-xs border border-cyan-200 shadow-sm hover:shadow-md hover:from-cyan-100 hover:to-teal-200 hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-sm cursor-pointer">
                                     <i class="fa-solid fa-qrcode w-3.5 h-3.5 sm:w-5 sm:h-5 text-sm sm:text-base"></i>
                                 </button>
 
                                 <!-- Delete Button -->
-                                <DeleteButton title="Hapus" label="Hapus" @click="deleteSiswa(item)" />
+                                <DeleteButton v-if="hasPermission('DELETE_PESERTA_DIDIK')" title="Hapus" label="Hapus" @click="deleteSiswa(item)" />
                             </div>
                         </template>
                     </Table>
@@ -373,6 +373,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useToastStore } from '~/stores/ToastStore'
 import { useAuthGuard } from '~/composables/useAuthGuard'
+import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import CreateMasterDataSiswaModal from '~/components/modals/CreateMasterDataSiswaModal.vue'
 import ImportMasterDataSiswaModal from '~/components/modals/ImportMasterDataSiswaModal.vue'
@@ -404,6 +405,7 @@ useHead({
 const toastStore = useToastStore()
 const config = useRuntimeConfig()
 const { handle401 } = useAuthGuard()
+const { hasPermission } = useAuth()
 
 const isLoading = ref(false)
 const error = ref('')

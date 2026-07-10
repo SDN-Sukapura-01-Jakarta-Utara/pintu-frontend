@@ -1,56 +1,21 @@
 <template>
     <DashboardLayout>
-        <!-- Create Pemetaan Rombel Modal -->
-        <CreatePemetaanRombelModal v-model="showCreateModal" @success="handleCreateSuccess" />
+        <!-- View Data Siswa Modal -->
+        <ViewDataSiswaModal v-model="showViewModal" :siswaId="selectedSiswaId" />
         
-        <!-- Import Pemetaan Rombel Modal -->
-        <ImportPemetaanRombelModal v-model="showImportModal" @success="handleImportSuccess" />
+        <!-- Upload Foto Siswa Modal -->
+        <UploadFotoSiswaModal v-model="showUploadFotoModal" :pemetaanId="selectedPemetaanId" @success="handleUploadSuccess" />
         
-        <!-- Reset Pemetaan Rombel Modal -->
-        <ResetPemetaanRombelModal v-model="showResetModal" @success="handleResetSuccess" />
-        
-        <!-- Search Pemetaan Rombel Modal -->
-        <SearchPemetaanRombelModal v-model="showSearchModal" @edit="handleEdit" @delete="handleDelete" />
-        
-        <!-- View Pemetaan Rombel Modal -->
-        <ViewPemetaanRombelModal v-model="showViewModal" :pemetaanId="selectedPemetaanId" />
-
         <!-- Header Section -->
         <div class="mb-6 sm:mb-8">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap">
                 <div>
                     <h1 class="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
-                        Pemetaan Rombel
+                        Data Siswa
                     </h1>
                     <p class="text-[13px] sm:text-sm md:text-[15px] text-gray-600 mt-1 sm:mt-2">
-                        Data pemetaan siswa per rombongan belajar
+                        Data siswa per rombongan belajar
                     </p>
-                </div>
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <button v-if="hasPermission('UPDATE_PESERTA_DIDIK')" @click="openSearchModal"
-                        class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-blue-600 text-white font-semibold text-xs sm:text-sm hover:bg-blue-700 transition-colors duration-200 cursor-pointer">
-                        <i class="fa-solid fa-search"></i>
-                        <span class="hidden sm:inline">Cari Pemetaan Rombel</span>
-                        <span class="sm:hidden">Cari</span>
-                    </button>
-                    <button v-if="hasPermission('DELETE_PESERTA_DIDIK')" @click="openResetModal"
-                        class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-orange-600 text-white font-semibold text-xs sm:text-sm hover:bg-orange-700 transition-colors duration-200 cursor-pointer">
-                        <i class="fa-solid fa-rotate-left"></i>
-                        <span class="hidden sm:inline">Reset Data</span>
-                        <span class="sm:hidden">Reset</span>
-                    </button>
-                    <button v-if="hasPermission('CREATE_PESERTA_DIDIK')" @click="openImportModal"
-                        class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-green-600 text-white font-semibold text-xs sm:text-sm hover:bg-green-700 transition-colors duration-200 cursor-pointer">
-                        <i class="fa-solid fa-file-import"></i>
-                        <span class="hidden sm:inline">Import Data</span>
-                        <span class="sm:hidden">Import</span>
-                    </button>
-                    <button v-if="hasPermission('CREATE_PESERTA_DIDIK')" @click="openCreateModal"
-                        class="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-[#2e45a7] text-white font-semibold text-xs sm:text-sm hover:bg-[#002d89] transition-all duration-300 shadow-md hover:shadow-lg cursor-pointer">
-                        <i class="fa-solid fa-plus"></i>
-                        <span class="hidden sm:inline">Tambah Pemetaan Rombel</span>
-                        <span class="sm:hidden">Tambah</span>
-                    </button>
                 </div>
             </div>
         </div>
@@ -71,7 +36,7 @@
             <div class="border-b border-gray-200">
                 <nav class="flex overflow-x-auto" aria-label="Tabs">
                     <button
-                        v-for="rombel in rombelList"
+                        v-for="rombel in userRombelList"
                         :key="rombel.id"
                         @click="activeTab = rombel.id"
                         :class="[
@@ -168,7 +133,7 @@
                     <div class="flex-1">
                         <h3 class="text-base sm:text-lg font-semibold text-red-900">Gagal memuat data</h3>
                         <p class="mt-1 text-sm sm:text-base text-red-800">{{ error }}</p>
-                        <button @click="fetchPemetaanRombel"
+                        <button @click="fetchDataSiswa"
                             class="mt-3 sm:mt-4 inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg bg-red-600 text-white font-semibold text-xs sm:text-sm hover:bg-red-700 transition-colors">
                             <i class="fa-solid fa-rotate-right w-3 h-3 sm:w-4 sm:h-4"></i>
                             Coba Lagi
@@ -240,62 +205,6 @@
                             </span>
                         </template>
 
-                        <!-- Custom cell for Alamat -->
-                        <template #cell-alamat="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.alamat || '-' }}
-                            </span>
-                        </template>
-
-                        <!-- Custom cell for RT -->
-                        <template #cell-rt="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.rt || '-' }}
-                            </span>
-                        </template>
-
-                        <!-- Custom cell for RW -->
-                        <template #cell-rw="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.rw || '-' }}
-                            </span>
-                        </template>
-
-                        <!-- Custom cell for Kelurahan -->
-                        <template #cell-kelurahan="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.kelurahan || '-' }}
-                            </span>
-                        </template>
-
-                        <!-- Custom cell for Kecamatan -->
-                        <template #cell-kecamatan="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.kecamatan || '-' }}
-                            </span>
-                        </template>
-
-                        <!-- Custom cell for Kode Pos -->
-                        <template #cell-kode_pos="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.kode_pos || '-' }}
-                            </span>
-                        </template>
-
-                        <!-- Custom cell for Nama Ayah -->
-                        <template #cell-nama_ayah="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.nama_ayah || '-' }}
-                            </span>
-                        </template>
-
-                        <!-- Custom cell for Nama Ibu -->
-                        <template #cell-nama_ibu="{ item }">
-                            <span class="text-xs sm:text-sm font-medium text-gray-700">
-                                {{ item.peserta_didik?.nama_ibu || '-' }}
-                            </span>
-                        </template>
-
                         <!-- Custom cell for Status -->
                         <template #cell-status="{ item }">
                             <span :class="[
@@ -306,10 +215,30 @@
                             </span>
                         </template>
 
+                        <!-- Custom cell for Photo -->
+                        <template #cell-photo="{ item }">
+                            <div v-if="item.peserta_didik?.photo" class="flex justify-center">
+                                <img :src="item.peserta_didik.photo" alt="Foto Siswa" class="w-16 h-20 object-cover rounded border-2 border-gray-300 shadow-sm" />
+                            </div>
+                            <span v-else class="text-xs text-gray-500 italic">Belum ada foto</span>
+                        </template>
+
+                        <!-- Custom cell for Barcode -->
+                        <template #cell-barcode="{ item }">
+                            <BarcodeDisplay :value="item.peserta_didik?.barcode" :size="80" />
+                        </template>
+
                         <!-- Custom actions slot -->
                         <template #actions="{ item }">
                             <div class="flex items-center justify-center gap-1.5 sm:gap-2">
                                 <ViewButton title="Lihat Detail" label="Lihat" @click="viewDetail(item)" />
+                                <button 
+                                    v-if="hasPermission('UPDATE_DATA_SISWA')"
+                                    @click="uploadFoto(item)" 
+                                    title="Upload Foto"
+                                    class="inline-flex items-center justify-center gap-1.5 px-3 sm:px-2.5 py-2 sm:pt-2.5 sm:pb-1.5 rounded-lg bg-gradient-to-br from-green-50 to-emerald-100 text-green-700 font-semibold text-xs border border-green-200 shadow-sm hover:shadow-md hover:from-green-100 hover:to-emerald-200 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+                                    <i class="fa-solid fa-camera w-3.5 h-3.5 sm:w-5 sm:h-5 text-sm sm:text-base"></i>
+                                </button>
                             </div>
                         </template>
                     </Table>
@@ -338,16 +267,14 @@ import { useToastStore } from '~/stores/ToastStore'
 import { useAuthGuard } from '~/composables/useAuthGuard'
 import { useAuth } from '~/composables/useAuth'
 import DashboardLayout from '~/components/DashboardLayout.vue'
-import CreatePemetaanRombelModal from '~/components/modals/CreatePemetaanRombelModal.vue'
-import ImportPemetaanRombelModal from '~/components/modals/ImportPemetaanRombelModal.vue'
-import ResetPemetaanRombelModal from '~/components/modals/ResetPemetaanRombelModal.vue'
-import SearchPemetaanRombelModal from '~/components/modals/SearchPemetaanRombelModal.vue'
-import ViewPemetaanRombelModal from '~/components/modals/ViewPemetaanRombelModal.vue'
+import ViewDataSiswaModal from '~/components/modals/ViewDataSiswaModal.vue'
+import UploadFotoSiswaModal from '~/components/modals/UploadFotoSiswaModal.vue'
 import Table from '~/components/Table.vue'
 import ViewButton from '~/components/common/ViewButton.vue'
+import BarcodeDisplay from '~/components/common/BarcodeDisplay.vue'
 
 useHead({
-    title: 'Pemetaan Rombel | PINTU SDN Sukapura 01',
+    title: 'Data Siswa | PINTU SDN Sukapura 01',
     link: [
         {
             rel: 'icon',
@@ -360,7 +287,9 @@ useHead({
 const toastStore = useToastStore()
 const config = useRuntimeConfig()
 const { handle401 } = useAuthGuard()
-const { hasPermission } = useAuth()
+const { getCurrentUser, hasPermission } = useAuth()
+
+const currentUser = getCurrentUser()
 
 const isLoadingRombel = ref(false)
 const isLoading = ref(false)
@@ -370,11 +299,9 @@ const tahunPelajaranList = ref<any[]>([])
 const siswaList = ref<any[]>([])
 const totalData = ref(0)
 const activeTab = ref(0)
-const showCreateModal = ref(false)
-const showImportModal = ref(false)
-const showResetModal = ref(false)
-const showSearchModal = ref(false)
 const showViewModal = ref(false)
+const showUploadFotoModal = ref(false)
+const selectedSiswaId = ref(0)
 const selectedPemetaanId = ref(0)
 const isExportingExcel = ref(false)
 const isExportingPdf = ref(false)
@@ -399,16 +326,35 @@ const tableColumns = [
     { key: 'tempat_lahir', label: 'Tempat Lahir' },
     { key: 'tanggal_lahir', label: 'Tanggal Lahir' },
     { key: 'agama', label: 'Agama' },
-    { key: 'alamat', label: 'Alamat' },
-    { key: 'rt', label: 'RT' },
-    { key: 'rw', label: 'RW' },
-    { key: 'kelurahan', label: 'Kelurahan' },
-    { key: 'kecamatan', label: 'Kecamatan' },
-    { key: 'kode_pos', label: 'Kode Pos' },
-    { key: 'nama_ayah', label: 'Nama Ayah' },
-    { key: 'nama_ibu', label: 'Nama Ibu' },
-    { key: 'status', label: 'Status' }
+    { key: 'status', label: 'Status' },
+    { key: 'photo', label: 'Foto' },
+    { key: 'barcode', label: 'Barcode' }
 ]
+
+// Get unique rombel IDs from user data
+const userRombelIds = computed(() => {
+    const ids = new Set<number>()
+    
+    // Add rombel guru kelas if exists
+    if (currentUser?.rombel_guru_kelas_id) {
+        ids.add(currentUser.rombel_guru_kelas_id)
+    }
+    
+    // Add rombel bidang studi if exists
+    if (currentUser?.rombel_bidang_studi && Array.isArray(currentUser.rombel_bidang_studi)) {
+        currentUser.rombel_bidang_studi.forEach((id: number) => ids.add(id))
+    }
+    
+    return Array.from(ids)
+})
+
+// Filter rombel list based on user's assigned rombels
+const userRombelList = computed(() => {
+    if (userRombelIds.value.length === 0) {
+        return rombelList.value
+    }
+    return rombelList.value.filter((rombel: any) => userRombelIds.value.includes(rombel.id))
+})
 
 // Fetch Rombel
 const fetchRombel = async () => {
@@ -429,8 +375,8 @@ const fetchRombel = async () => {
         })
 
         rombelList.value = response.data || []
-        if (rombelList.value.length > 0) {
-            activeTab.value = rombelList.value[0].id
+        if (userRombelList.value.length > 0) {
+            activeTab.value = userRombelList.value[0].id
         }
     } catch (err: any) {
         console.error('Error fetching rombel:', err)
@@ -453,7 +399,7 @@ const fetchTahunPelajaran = async () => {
             },
             credentials: 'include',
             body: {
-                search: {},
+                search: { status: 'active' },
                 pagination: { limit: 100, page: 1 }
             }
         })
@@ -473,8 +419,8 @@ const fetchTahunPelajaran = async () => {
     }
 }
 
-// Fetch Pemetaan Rombel
-const fetchPemetaanRombel = async () => {
+// Fetch Data Siswa
+const fetchDataSiswa = async () => {
     if (!activeTab.value || !filters.value.tahun_pelajaran_id) return
 
     isLoading.value = true
@@ -513,7 +459,7 @@ const fetchPemetaanRombel = async () => {
         siswaList.value = response.data || []
         totalData.value = response.pagination?.total || 0
     } catch (err: any) {
-        console.error('Error fetching pemetaan rombel:', err)
+        console.error('Error fetching data siswa:', err)
         
         if (err.status === 401 || err.statusCode === 401) {
             await handle401()
@@ -529,96 +475,32 @@ const fetchPemetaanRombel = async () => {
 
 const applyFilter = async () => {
     pagination.value.page = 1
-    await fetchPemetaanRombel()
+    await fetchDataSiswa()
 }
 
 const onPageChange = (page: number) => {
     pagination.value.page = page
-    fetchPemetaanRombel()
+    fetchDataSiswa()
 }
 
 const onLimitChange = (limit: number) => {
     pagination.value.limit = limit
     pagination.value.page = 1
-    fetchPemetaanRombel()
-}
-
-const openCreateModal = () => {
-    showCreateModal.value = true
-}
-
-const openImportModal = () => {
-    showImportModal.value = true
-}
-
-const openResetModal = () => {
-    showResetModal.value = true
-}
-
-const openSearchModal = () => {
-    showSearchModal.value = true
-}
-
-const handleCreateSuccess = () => {
-    fetchPemetaanRombel()
-}
-
-const handleImportSuccess = () => {
-    fetchPemetaanRombel()
-}
-
-const handleResetSuccess = () => {
-    fetchPemetaanRombel()
-}
-
-const handleEdit = (item: any) => {
-    // Close search modal
-    showSearchModal.value = false
-    
-    // Open view modal to show details (since we don't have edit functionality yet)
-    selectedPemetaanId.value = item.id
-    showViewModal.value = true
-    
-    toastStore.success('Info', 'Fitur edit akan segera tersedia')
-}
-
-const handleDelete = async (item: any) => {
-    // Close search modal
-    showSearchModal.value = false
-    
-    if (!confirm(`Apakah Anda yakin ingin menghapus pemetaan rombel untuk ${item.peserta_didik?.nama}?`)) {
-        return
-    }
-
-    try {
-        await $fetch(`${config.public.apiBase}/api/v1/peserta-didik/delete-pemetaan-rombel`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
-            },
-            credentials: 'include',
-            body: {
-                id: item.id
-            }
-        })
-
-        toastStore.success('Berhasil', 'Pemetaan rombel berhasil dihapus')
-        await fetchPemetaanRombel()
-    } catch (err: any) {
-        if (err.status === 401 || err.statusCode === 401) {
-            await handle401()
-            return
-        }
-        
-        const errorMessage = err.data?.message || 'Gagal menghapus pemetaan rombel'
-        toastStore.error('Gagal', errorMessage)
-    }
+    fetchDataSiswa()
 }
 
 const viewDetail = (item: any) => {
-    selectedPemetaanId.value = item.id
+    selectedSiswaId.value = item.id
     showViewModal.value = true
+}
+
+const uploadFoto = (item: any) => {
+    selectedPemetaanId.value = item.id
+    showUploadFotoModal.value = true
+}
+
+const handleUploadSuccess = () => {
+    fetchDataSiswa()
 }
 
 const exportExcel = async () => {
@@ -636,7 +518,7 @@ const exportExcel = async () => {
 
     try {
         // Get current rombel name
-        const currentRombel = rombelList.value.find(r => r.id === activeTab.value)
+        const currentRombel = userRombelList.value.find(r => r.id === activeTab.value)
         const rombelName = currentRombel ? currentRombel.name : 'rombel'
         
         const response = await fetch(`${config.public.apiBase}/api/v1/peserta-didik/export-pemetaan-rombel-excel`, {
@@ -664,7 +546,7 @@ const exportExcel = async () => {
         }
 
         const contentDisposition = response.headers.get('Content-Disposition')
-        let filename = `daftar-siswa-${rombelName}.xlsx`
+        let filename = `data-siswa-${rombelName}.xlsx`
         if (contentDisposition) {
             const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition)
             if (matches != null && matches[1]) {
@@ -706,7 +588,7 @@ const exportPdf = async () => {
 
     try {
         // Get current rombel name
-        const currentRombel = rombelList.value.find(r => r.id === activeTab.value)
+        const currentRombel = userRombelList.value.find(r => r.id === activeTab.value)
         const rombelName = currentRombel ? currentRombel.name : 'rombel'
         
         const response = await fetch(`${config.public.apiBase}/api/v1/peserta-didik/export-pemetaan-rombel-pdf`, {
@@ -734,7 +616,7 @@ const exportPdf = async () => {
         }
 
         const contentDisposition = response.headers.get('Content-Disposition')
-        let filename = `daftar-siswa-${rombelName}.pdf`
+        let filename = `data-siswa-${rombelName}.pdf`
         if (contentDisposition) {
             const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition)
             if (matches != null && matches[1]) {
@@ -764,7 +646,7 @@ const exportPdf = async () => {
 // Watch active tab changes
 watch(activeTab, () => {
     pagination.value.page = 1
-    fetchPemetaanRombel()
+    fetchDataSiswa()
 })
 
 // Load initial data
@@ -772,7 +654,7 @@ onMounted(async () => {
     await fetchTahunPelajaran()
     await fetchRombel()
     if (activeTab.value && filters.value.tahun_pelajaran_id) {
-        await fetchPemetaanRombel()
+        await fetchDataSiswa()
     }
 })
 </script>
