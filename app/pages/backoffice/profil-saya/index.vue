@@ -180,6 +180,21 @@
                             <p class="text-gray-900 font-semibold">{{ profileData.rombel_guru_kelas?.name || '-' }}</p>
                         </div>
                         
+                        <!-- Rombel Bidang Studi -->
+                        <div v-if="profileData.rombel_bidang_studi && profileData.rombel_bidang_studi.length > 0" class="bg-gray-50 rounded-lg p-4 border border-gray-200 md:col-span-2">
+                            <label class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase mb-3">
+                                <i class="fa-solid fa-users-class text-red-600"></i>
+                                Rombel yang Diampu (Guru Bidang Studi)
+                            </label>
+                            <div class="flex flex-wrap gap-2">
+                                <span v-for="rombel in profileData.rombel_bidang_studi" :key="rombel.id" 
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded-lg text-xs font-semibold">
+                                    <i class="fa-solid fa-users"></i>
+                                    {{ rombel.name }}
+                                </span>
+                            </div>
+                        </div>
+                        
                         <!-- Role -->
                         <div v-if="profileData.roles && profileData.roles.length > 0" class="bg-gray-50 rounded-lg p-4 border border-gray-200 md:col-span-2">
                             <label class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase mb-3">
