@@ -886,11 +886,11 @@
       <!-- Tab Content: Dashboard Siswa -->
       <div v-if="activeTab === 'dashboard-siswa'" class="p-4 sm:p-6 md:p-8">
         <!-- Dashboard Type Selection -->
-        <div class="mb-6 pb-6 border-b border-gray-200">
+        <div v-if="showGuruKelasTab || showGuruMapelTab" class="mb-6 pb-6 border-b border-gray-200">
           <label class="block text-sm font-semibold text-gray-900 mb-3">
             Lihat Dashboard Sebagai
           </label>
-          <div class="flex gap-3">
+          <div v-if="showGuruKelasTab && showGuruMapelTab" class="flex gap-3">
             <button
               @click="dashboardSiswaType = 'guru-kelas'"
               :class="[
@@ -915,6 +915,22 @@
               <i class="fa-solid fa-book-open mr-2"></i>
               Guru Mapel
             </button>
+          </div>
+          <div v-else class="p-4 bg-gray-50 rounded-lg border-2 border-gray-200 text-center">
+            <p class="text-sm text-gray-700 font-semibold">
+              <i :class="[showGuruKelasTab ? 'fa-solid fa-chalkboard-user' : 'fa-solid fa-book-open', 'mr-2']"></i>
+              Dashboard {{ showGuruKelasTab ? 'Guru Kelas' : 'Guru Mapel' }}
+            </p>
+          </div>
+        </div>
+        
+        <!-- No Access Message -->
+        <div v-else class="mb-6">
+          <div class="flex flex-col items-center justify-center py-8 px-4 bg-gray-50 rounded-lg border-2 border-gray-200">
+            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+              <i class="fa-solid fa-exclamation-circle text-xl text-gray-400"></i>
+            </div>
+            <p class="text-sm text-gray-600 text-center">Anda tidak memiliki akses untuk melihat dashboard monitoring.</p>
           </div>
         </div>
 

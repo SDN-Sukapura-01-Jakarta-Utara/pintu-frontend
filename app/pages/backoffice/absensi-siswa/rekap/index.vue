@@ -542,7 +542,8 @@ const showGuruKelasTab = computed(() => {
   if (isSuperAdmin.value) return true
   
   const jabatan = currentUser?.jabatan
-  return jabatan === 'Guru Kelas' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+  // Show guru kelas tab for: Guru Kelas, Guru Bidang Studi, or Guru Kelas dan Guru Bidang Studi
+  return jabatan === 'Guru Kelas' || jabatan === 'Guru Bidang Studi' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
 })
 
 const showGuruMapelTab = computed(() => {
@@ -554,7 +555,7 @@ const showGuruMapelTab = computed(() => {
 })
 
 // State
-const activeTab = ref(showGuruKelasTab.value ? 'guru-kelas' : 'guru-mapel')
+const activeTab = ref(showGuruMapelTab.value ? 'guru-mapel' : 'guru-kelas')
 const isLoading = ref(false)
 const isDownloading = ref(false)
 
@@ -638,9 +639,40 @@ const activeRombelList = computed(() => {
     return filtered
   }
   
-  // For guru kelas tab, only show their assigned rombel
-  if (activeTab.value === 'guru-kelas' && currentUser?.rombel_guru_kelas_id) {
-    return filtered.filter((r: any) => r.id === currentUser.rombel_guru_kelas_id)
+  const jabatan = currentUser?.jabatan
+  
+  // For guru kelas tab
+  if (activeTab.value === 'guru-kelas') {
+    // Case: Guru Bidang Studi
+    if (jabatan === 'Guru Bidang Studi') {
+      // Show rombel bidang studi only
+      if (currentUser?.rombel_bidang_studi && currentUser.rombel_bidang_studi.length > 0) {
+        return filtered.filter((r: any) => currentUser.rombel_bidang_studi?.includes(r.id))
+      }
+    }
+    
+    // Case: Guru Kelas dan Guru Bidang Studi
+    if (jabatan === 'Guru Kelas dan Guru Bidang Studi') {
+      // Show both rombel guru kelas and rombel bidang studi (remove duplicates)
+      const rombelIds = new Set<number>()
+      
+      // Add guru kelas rombel
+      if (currentUser?.rombel_guru_kelas_id) {
+        rombelIds.add(currentUser.rombel_guru_kelas_id)
+      }
+      
+      // Add guru bidang studi rombels
+      if (currentUser?.rombel_bidang_studi && currentUser.rombel_bidang_studi.length > 0) {
+        currentUser.rombel_bidang_studi.forEach((id: number) => rombelIds.add(id))
+      }
+      
+      return filtered.filter((r: any) => rombelIds.has(r.id))
+    }
+    
+    // Case: Regular Guru Kelas
+    if (jabatan === 'Guru Kelas' && currentUser?.rombel_guru_kelas_id) {
+      return filtered.filter((r: any) => r.id === currentUser.rombel_guru_kelas_id)
+    }
   }
   
   // For guru mapel tab, only show their assigned rombels
