@@ -1446,6 +1446,11 @@ const initializeForm = async () => {
         const nkkiEmpty = !props.pendidik.nkki || props.pendidik.nkki.trim() === ''
         const autoCheckHonorer = nipEmpty && nkkiEmpty
 
+        // Extract rombel bidang studi IDs from array of objects
+        const rombelBidangStudiIds = Array.isArray(props.pendidik.rombel_bidang_studi) 
+            ? props.pendidik.rombel_bidang_studi.map((r: any) => r.id) 
+            : []
+
         form.value = {
             nama: props.pendidik.nama || '',
             nip: props.pendidik.nip || '',
@@ -1455,7 +1460,7 @@ const initializeForm = async () => {
             kategori: props.pendidik.kategori || 'Pendidik',
             jabatan: props.pendidik.jabatan || '',
             rombelGuruKelasId: props.pendidik.rombel_guru_kelas_id || null,
-            rombelBidangStudi: props.pendidik.rombel_bidang_studi || [],
+            rombelBidangStudi: rombelBidangStudiIds,
             bidangStudiId: props.pendidik.bidang_studi_id || null,
             roleIds: roleIdsBySystem,
             passwordType: '',

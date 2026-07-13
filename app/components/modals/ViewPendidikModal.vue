@@ -283,7 +283,7 @@
                     </div>
 
                     <!-- Bidang Studi Section -->
-                    <div v-if="pendidik.bidang_studi_id"
+                    <div v-if="(pendidik.jabatan === 'Guru Bidang Studi' || pendidik.jabatan === 'Guru Kelas dan Guru Bidang Studi') && pendidik.bidang_studi_id"
                         class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                             <h3
@@ -302,7 +302,7 @@
                     </div>
 
                     <!-- Rombel Section -->
-                    <div v-if="rombelInfo.length > 0"
+                    <div v-if="(pendidik.jabatan === 'Guru Kelas' || pendidik.jabatan === 'Guru Bidang Studi' || pendidik.jabatan === 'Guru Kelas dan Guru Bidang Studi') && rombelInfo.length > 0"
                         class="bg-white rounded-lg sm:rounded-xl border-2 border-gray-200">
                         <div class="border-b border-gray-200 px-3 sm:px-4 md:px-6 py-2 sm:py-3">
                             <h3
@@ -313,11 +313,11 @@
                             </h3>
                         </div>
                         <div class="p-3 sm:p-4 md:p-6">
-                            <div class="flex flex-wrap gap-2">
-                                <span v-for="rombel in rombelInfo" :key="rombel"
-                                    class="inline-flex items-center px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold bg-indigo-100 text-indigo-800">
-                                    {{ rombel }}
-                                </span>
+                            <div class="space-y-2">
+                                <div v-for="(rombel, idx) in rombelInfo" :key="idx"
+                                    class="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                                    <span class="text-xs sm:text-sm text-gray-900">{{ rombel }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -428,8 +428,8 @@ const fetchPendidikDetail = async () => {
 
 const bidangStudiName = computed(() => {
     if (!pendidik.value) return ''
-    // Use nested object if available, otherwise fallback
-    return pendidik.value.bidang_studi?.name || 'Bidang Studi'
+    // Use nested object if available (bidang_studi has 'nama' field, not 'name')
+    return pendidik.value.bidang_studi?.nama || pendidik.value.bidang_studi?.name || 'Bidang Studi'
 })
 
 const rombelInfo = computed(() => {
@@ -441,13 +441,13 @@ const rombelInfo = computed(() => {
         rombelsInfo.push(`Wali Kelas: ${pendidik.value.rombel_guru_kelas.name}`)
     }
 
-    // Guru bidang studi rombel - resolve IDs from rombel list and group by bidang studi
+    // Guru bidang studi rombel - API returns array of objects [{id, name, status}]
     if (pendidik.value.rombel_bidang_studi && Array.isArray(pendidik.value.rombel_bidang_studi) && pendidik.value.rombel_bidang_studi.length > 0) {
         const bidangStudiRombels: string[] = []
-        pendidik.value.rombel_bidang_studi.forEach((rombelId: number) => {
-            const rombelBidangStudi = rombels.value.find(r => r.id === rombelId)
-            if (rombelBidangStudi) {
-                bidangStudiRombels.push(rombelBidangStudi.name)
+        pendidik.value.rombel_bidang_studi.forEach((rombel: any) => {
+            // rombel is already an object with {id, name, status}
+            if (rombel && rombel.name) {
+                bidangStudiRombels.push(rombel.name)
             }
         })
         if (bidangStudiRombels.length > 0) {
