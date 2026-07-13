@@ -331,18 +331,36 @@ const tableColumns = [
     { key: 'barcode', label: 'Barcode' }
 ]
 
-// Get unique rombel IDs from user data
+// Get unique rombel IDs from user data based on current jabatan
 const userRombelIds = computed(() => {
     const ids = new Set<number>()
+    const jabatan = currentUser?.jabatan
     
-    // Add rombel guru kelas if exists
-    if (currentUser?.rombel_guru_kelas_id) {
-        ids.add(currentUser.rombel_guru_kelas_id)
+    // Guru Kelas: only show rombel guru kelas
+    if (jabatan === 'Guru Kelas') {
+        if (currentUser?.rombel_guru_kelas_id) {
+            ids.add(currentUser.rombel_guru_kelas_id)
+        }
     }
-    
-    // Add rombel bidang studi if exists
-    if (currentUser?.rombel_bidang_studi && Array.isArray(currentUser.rombel_bidang_studi)) {
-        currentUser.rombel_bidang_studi.forEach((id: number) => ids.add(id))
+    // Guru Bidang Studi: only show rombel bidang studi
+    else if (jabatan === 'Guru Bidang Studi') {
+        if (currentUser?.rombel_bidang_studi && Array.isArray(currentUser.rombel_bidang_studi)) {
+            currentUser.rombel_bidang_studi.forEach((id: number) => ids.add(id))
+        }
+    }
+    // Guru Kelas dan Guru Bidang Studi: show both (no duplicates)
+    else if (jabatan === 'Guru Kelas dan Guru Bidang Studi') {
+        if (currentUser?.rombel_guru_kelas_id) {
+            ids.add(currentUser.rombel_guru_kelas_id)
+        }
+        if (currentUser?.rombel_bidang_studi && Array.isArray(currentUser.rombel_bidang_studi)) {
+            currentUser.rombel_bidang_studi.forEach((id: number) => ids.add(id))
+        }
+    }
+    // Superadmin or other roles: show all
+    else {
+        // Return empty set to show all rombel
+        return []
     }
     
     return Array.from(ids)

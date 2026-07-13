@@ -163,31 +163,31 @@
                         </div>
                         
                         <!-- Bidang Studi -->
-                        <div v-if="profileData.bidang_studi" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div v-if="displayBidangStudi" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
                             <label class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase mb-2">
                                 <i class="fa-solid fa-book text-red-600"></i>
                                 Bidang Studi
                             </label>
-                            <p class="text-gray-900 font-semibold">{{ profileData.bidang_studi?.nama || profileData.bidang_studi?.name || '-' }}</p>
+                            <p class="text-gray-900 font-semibold">{{ displayBidangStudi?.nama || displayBidangStudi?.name || '-' }}</p>
                         </div>
                         
                         <!-- Rombel Wali Kelas -->
-                        <div v-if="profileData.rombel_guru_kelas" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div v-if="displayRombelGuruKelas" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
                             <label class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase mb-2">
                                 <i class="fa-solid fa-chalkboard-user text-red-600"></i>
                                 Rombel Wali Kelas
                             </label>
-                            <p class="text-gray-900 font-semibold">{{ profileData.rombel_guru_kelas?.name || '-' }}</p>
+                            <p class="text-gray-900 font-semibold">{{ displayRombelGuruKelas?.name || '-' }}</p>
                         </div>
                         
                         <!-- Rombel Bidang Studi -->
-                        <div v-if="profileData.rombel_bidang_studi && profileData.rombel_bidang_studi.length > 0" class="bg-gray-50 rounded-lg p-4 border border-gray-200 md:col-span-2">
+                        <div v-if="displayRombelBidangStudi.length > 0" class="bg-gray-50 rounded-lg p-4 border border-gray-200 md:col-span-2">
                             <label class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase mb-3">
                                 <i class="fa-solid fa-users-class text-red-600"></i>
                                 Rombel yang Diampu (Guru Bidang Studi)
                             </label>
                             <div class="flex flex-wrap gap-2">
-                                <span v-for="rombel in profileData.rombel_bidang_studi" :key="rombel.id" 
+                                <span v-for="rombel in displayRombelBidangStudi" :key="rombel.id" 
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded-lg text-xs font-semibold">
                                     <i class="fa-solid fa-users"></i>
                                     {{ rombel.name }}
@@ -848,6 +848,52 @@ const startEdit = () => {
     isEditMode.value = true
     editForm.value = { nama: profileData.value.nama, username: profileData.value.username }
 }
+
+// Computed properties to display rombel based on current jabatan
+const shouldShowRombelGuruKelas = computed(() => {
+    if (!profileData.value) return false
+    const jabatan = profileData.value.jabatan
+    
+    // Show rombel guru kelas only for:
+    // - Guru Kelas
+    // - Guru Kelas dan Guru Bidang Studi
+    return jabatan === 'Guru Kelas' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+})
+
+const shouldShowRombelBidangStudi = computed(() => {
+    if (!profileData.value) return false
+    const jabatan = profileData.value.jabatan
+    
+    // Show rombel bidang studi only for:
+    // - Guru Bidang Studi
+    // - Guru Kelas dan Guru Bidang Studi
+    return jabatan === 'Guru Bidang Studi' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+})
+
+const shouldShowBidangStudi = computed(() => {
+    if (!profileData.value) return false
+    const jabatan = profileData.value.jabatan
+    
+    // Show bidang studi only for:
+    // - Guru Bidang Studi
+    // - Guru Kelas dan Guru Bidang Studi
+    return jabatan === 'Guru Bidang Studi' || jabatan === 'Guru Kelas dan Guru Bidang Studi'
+})
+
+const displayRombelGuruKelas = computed(() => {
+    if (!profileData.value || !shouldShowRombelGuruKelas.value) return null
+    return profileData.value.rombel_guru_kelas
+})
+
+const displayRombelBidangStudi = computed(() => {
+    if (!profileData.value || !shouldShowRombelBidangStudi.value) return []
+    return profileData.value.rombel_bidang_studi || []
+})
+
+const displayBidangStudi = computed(() => {
+    if (!profileData.value || !shouldShowBidangStudi.value) return null
+    return profileData.value.bidang_studi
+})
 
 const cancelEdit = () => {
     isEditMode.value = false
