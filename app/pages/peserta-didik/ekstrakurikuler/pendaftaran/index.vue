@@ -310,17 +310,22 @@ const loadData = async () => {
     // Get ekstrakurikuler yang sudah didaftarkan
     try {
       const registeredResponse = await getEkskulPesertaDidik(activeRombel.id)
-      registeredEkskulList.value = registeredResponse.ekstrakurikuler
-      const registeredIds = registeredResponse.ekstrakurikuler.map((e: any) => e.ekstrakurikuler_id)
+      // Handle null ekstrakurikuler data
+      registeredEkskulList.value = registeredResponse.ekstrakurikuler || []
       
-      // Set selected ekskul (hanya yang tidak wajib, wajib sudah otomatis)
-      selectedEkskul.value = registeredIds.filter((id: number) => {
-        const ekskul = allEkskul.value.find(e => e.id === id)
-        return ekskul && ekskul.kategori === 'tidak wajib'
-      })
+      if (registeredResponse.ekstrakurikuler && Array.isArray(registeredResponse.ekstrakurikuler)) {
+        const registeredIds = registeredResponse.ekstrakurikuler.map((e: any) => e.ekstrakurikuler_id)
+        
+        // Set selected ekskul (hanya yang tidak wajib, wajib sudah otomatis)
+        selectedEkskul.value = registeredIds.filter((id: number) => {
+          const ekskul = allEkskul.value.find(e => e.id === id)
+          return ekskul && ekskul.kategori === 'tidak wajib'
+        })
+      }
     } catch (err) {
       // Jika belum pernah daftar, biarkan kosong
       console.log('Belum ada pendaftaran ekstrakurikuler')
+      registeredEkskulList.value = []
     }
   } catch (err: any) {
     console.error('Error loading data:', err)
