@@ -59,6 +59,7 @@ const pageTitle = computed(() => {
         if (path.includes('pendidik')) return 'Pendidik'
         if (path.includes('peserta-didik')) return 'Peserta Didik'
         if (path.includes('mutasi-siswa')) return 'Mutasi Siswa'
+        if (path.includes('formulir-survei')) return 'Formulir & Survei'
         if (path.includes('kritik-saran')) return 'Kritik & Saran'
         if (path.includes('pertanyaan')) return 'Pertanyaan'
         if (path.includes('pengaduan')) return 'Pengaduan'

@@ -132,10 +132,43 @@
       </svg>
     </button>
 
+    <!-- Login sebagai Peserta Didik Link -->
+    <div class="mt-6 text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors duration-300 group">
+        <svg class="h-4 w-4 text-blue-600 group-hover:text-blue-700 transition-colors" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <polyline points="17 11 19 13 23 9"></polyline>
+        </svg>
+        <NuxtLink
+          to="/peserta-didik/login"
+          class="text-sm font-semibold text-blue-600 group-hover:text-blue-700 transition-colors duration-300"
+        >
+          Login sebagai Peserta Didik
+        </NuxtLink>
+      </div>
+    </div>
+
       <!-- Footer -->
-      <p class="mt-4 sm:mt-6 text-center text-xs text-gray-500">
-        Sistem Informasi Terintegrasi SDN Sukapura 01
-      </p>
+      <div class="mt-8 sm:mt-10 text-center space-y-3">
+        <p class="text-xs font-medium text-gray-600">
+          © SDN Sukapura 01
+        </p>
+        <div class="flex items-center justify-center gap-3">
+          <div class="h-px w-12 bg-gradient-to-r from-transparent to-gray-300"></div>
+          <svg class="h-1 w-1 text-gray-300" fill="currentColor" viewBox="0 0 8 8">
+            <circle cx="4" cy="4" r="3" />
+          </svg>
+          <div class="h-px w-12 bg-gradient-to-l from-transparent to-gray-300"></div>
+        </div>
+        <p class="text-xs text-gray-400 flex items-center justify-center gap-1">
+          Hand-crafted and made with 
+          <svg class="h-3 w-3 text-red-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd" />
+          </svg>
+          by Syahira Isnaeni Dewi
+        </p>
+      </div>
     </form>
   </div>
 </template>

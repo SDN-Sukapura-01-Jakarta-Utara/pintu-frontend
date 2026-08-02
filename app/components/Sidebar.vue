@@ -358,15 +358,56 @@
                     </div>
                 </div>
 
-                <!-- Monitoring PDBK -->
-                <NuxtLink v-if="hasPermission('READ_MONITORING_PDBK')" to="/backoffice/monitoring-pdbk" :class="[
+                <!-- Monitoring Inklusi -->
+                <NuxtLink v-if="hasPermission('READ_MONITORING_INKLUSI')" to="/backoffice/monitoring-inklusi" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
-                    route.path.includes('monitoring-pdbk') ? 'bg-red-700' : ''
+                    route.path.includes('monitoring-inklusi') ? 'bg-red-700' : ''
                 ]">
                     <i class="fa-solid fa-chart-line w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
-                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring PDBK</span>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring Inklusi</span>
                 </NuxtLink>
+
+                <!-- Formulir & Survei -->
+                <NuxtLink v-if="hasPermission('READ_FORMULIR_SURVEI')" to="/backoffice/formulir-survei" :class="[
+                    'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path.includes('formulir-survei') && !route.path.includes('formulir-survei-guru') ? 'bg-red-700' : ''
+                ]">
+                    <i class="fa-solid fa-file-lines w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                    <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Formulir & Survei</span>
+                </NuxtLink>
+
+                <!-- Formulir & Survei Guru -->
+                <div v-if="hasPermission('READ_FORMULIR_SURVEI_GURU')">
+                    <button @click="toggleSubmenu('formulirGuru')" :class="[
+                        'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                        isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
+                    ]">
+                        <i class="fa-solid fa-file-lines w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                        <span v-if="isOpen" class="flex-1 text-xs sm:text-sm font-medium text-left">Formulir & Survei Guru</span>
+                        <i v-if="isOpen" :class="[
+                            'fa-solid fa-chevron-down w-3 h-3 transition-transform duration-200',
+                            openMenus.formulirGuru ? 'rotate-180' : ''
+                        ]"></i>
+                    </button>
+
+                    <!-- Submenu -->
+                    <div v-if="isOpen && openMenus.formulirGuru" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
+                        <NuxtLink to="/backoffice/formulir-survei-guru/form-saya" :class="[
+                            'block px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-red-700',
+                            route.path === '/backoffice/formulir-survei-guru/form-saya' || route.path === '/backoffice/formulir-survei-guru/create-formulir' ? 'bg-red-700' : ''
+                        ]">
+                            Form & Survei Saya
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/formulir-survei-guru/sekolah" :class="[
+                            'block px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-red-700',
+                            route.path === '/backoffice/formulir-survei-guru/sekolah' ? 'bg-red-700' : ''
+                        ]">
+                            Form & Survei Sekolah
+                        </NuxtLink>
+                    </div>
+                </div>
 
                 <!-- Arsip Rapat & Kegiatan -->
                 <NuxtLink v-if="hasPermission('READ_ARSIP_RAPAT_KEGIATAN')" to="/backoffice/arsip-kegiatan" :class="[
@@ -550,6 +591,7 @@ const openMenus = ref({
     absensi: false,
     spmb: false,
     pesertaDidik: false,
+    formulirGuru: false,
 })
 
 // Check if submenu should be active based on current route
@@ -562,6 +604,7 @@ const isActiveSubmenu = computed(() => ({
     absensi: route.path.includes('absensi-siswa'),
     spmb: route.path.includes('spmb/layanan-posko') || route.path.includes('spmb/mutasi-siswa'),
     pesertaDidik: route.path.includes('peserta-didik/master-data-siswa') || route.path.includes('peserta-didik/pemetaan-rombel'),
+    formulirGuru: route.path.includes('formulir-survei-guru'),
 }))
 
 // Auto-open submenu if current path is in that submenu
@@ -589,6 +632,9 @@ watch(() => route.path, () => {
     }
     if (isActiveSubmenu.value.pesertaDidik && !openMenus.value.pesertaDidik) {
         openMenus.value.pesertaDidik = true
+    }
+    if (isActiveSubmenu.value.formulirGuru && !openMenus.value.formulirGuru) {
+        openMenus.value.formulirGuru = true
     }
 }, { immediate: true })
 

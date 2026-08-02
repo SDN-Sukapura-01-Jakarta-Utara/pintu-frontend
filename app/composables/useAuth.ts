@@ -84,24 +84,63 @@ export function useAuth() {
 
   /**
    * Check if user has a specific permission
+   * Supports both backoffice users (from authStore) and student users (from localStorage)
    */
   const hasPermission = (permission: string): boolean => {
+    // Check if it's a student context (student_permissions in localStorage)
+    const studentPermissions = localStorage.getItem('student_permissions')
+    if (studentPermissions) {
+      try {
+        const permissions = JSON.parse(studentPermissions)
+        return Array.isArray(permissions) && permissions.includes(permission)
+      } catch {
+        // If parse fails, fall through to backoffice check
+      }
+    }
+    
+    // Fall back to backoffice user permissions
     const permissions = authStore.user?.permissions || []
     return permissions.includes(permission)
   }
 
   /**
    * Check if user has any of the specified permissions
+   * Supports both backoffice users (from authStore) and student users (from localStorage)
    */
   const hasAnyPermission = (permissions: string[]): boolean => {
+    // Check if it's a student context (student_permissions in localStorage)
+    const studentPermissions = localStorage.getItem('student_permissions')
+    if (studentPermissions) {
+      try {
+        const userPermissions = JSON.parse(studentPermissions)
+        return Array.isArray(userPermissions) && permissions.some(p => userPermissions.includes(p))
+      } catch {
+        // If parse fails, fall through to backoffice check
+      }
+    }
+    
+    // Fall back to backoffice user permissions
     const userPermissions = authStore.user?.permissions || []
     return permissions.some(p => userPermissions.includes(p))
   }
 
   /**
    * Check if user has all of the specified permissions
+   * Supports both backoffice users (from authStore) and student users (from localStorage)
    */
   const hasAllPermissions = (permissions: string[]): boolean => {
+    // Check if it's a student context (student_permissions in localStorage)
+    const studentPermissions = localStorage.getItem('student_permissions')
+    if (studentPermissions) {
+      try {
+        const userPermissions = JSON.parse(studentPermissions)
+        return Array.isArray(userPermissions) && permissions.every(p => userPermissions.includes(p))
+      } catch {
+        // If parse fails, fall through to backoffice check
+      }
+    }
+    
+    // Fall back to backoffice user permissions
     const userPermissions = authStore.user?.permissions || []
     return permissions.every(p => userPermissions.includes(p))
   }
