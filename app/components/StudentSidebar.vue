@@ -88,7 +88,7 @@
 
         <!-- Absensi Peserta Didik (dengan submenu) -->
         <div v-if="hasPermission('READ_ABSENSI_PESERTA_DIDIK')">
-          <button @click="toggleSubmenu('absensi')" :class="[
+          <button type="button" @click.stop="toggleSubmenu('absensi')" :class="[
             'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
           ]">
@@ -121,7 +121,7 @@
 
         <!-- Nilai Peserta Didik (dengan submenu) -->
         <div v-if="hasPermission('READ_NILAI_PESERTA_DIDIK')">
-          <button @click="toggleSubmenu('nilai')" :class="[
+          <button type="button" @click.stop="toggleSubmenu('nilai')" :class="[
             'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
           ]">
@@ -178,19 +178,38 @@
           <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Perkembangan Inklusi</span>
         </NuxtLink>
 
-        <!-- Ekstrakurikuler -->
-        <NuxtLink
-          v-if="hasPermission('READ_EKSTRAKURIKULER_PESERTA_DIDIK')"
-          to="/peserta-didik/ekstrakurikuler" @click="handleLinkClick"
-          :class="[
-            'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
-            isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
-            route.path === '/peserta-didik/ekstrakurikuler' ? 'bg-red-700' : ''
-          ]"
-        >
-          <i class="fa-solid fa-futbol w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
-          <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Ekstrakurikuler</span>
-        </NuxtLink>
+        <!-- Ekstrakurikuler (dengan submenu) -->
+        <div v-if="hasPermission('READ_EKSTRAKURIKULER_PESERTA_DIDIK')">
+          <button type="button" @click.stop="toggleSubmenu('ekstrakurikuler')" :class="[
+            'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+            isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
+          ]">
+            <i class="fa-solid fa-futbol w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+            <div v-if="isOpen" class="flex-1 flex items-center justify-between">
+              <span class="text-xs sm:text-sm font-medium">Ekstrakurikuler</span>
+              <i :class="[
+                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
+                openMenus.ekstrakurikuler ? 'rotate-90' : ''
+              ]"></i>
+            </div>
+          </button>
+
+          <!-- Submenu Ekstrakurikuler -->
+          <div v-if="isOpen && openMenus.ekstrakurikuler" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
+            <NuxtLink to="/peserta-didik/ekstrakurikuler/pendaftaran" @click="handleLinkClick" :class="[
+              'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+              route.path.includes('ekstrakurikuler/pendaftaran') ? 'bg-red-700 font-semibold' : ''
+            ]">
+              Pendaftaran Ekstrakurikuler
+            </NuxtLink>
+            <NuxtLink to="/peserta-didik/ekstrakurikuler/kehadiran" @click="handleLinkClick" :class="[
+              'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+              route.path.includes('ekstrakurikuler/kehadiran') ? 'bg-red-700 font-semibold' : ''
+            ]">
+              Kehadiran Ekstrakurikuler
+            </NuxtLink>
+          </div>
+        </div>
 
         <!-- Formulir & Survei -->
         <NuxtLink
@@ -238,7 +257,7 @@
 
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 
 const route = useRoute()
@@ -259,12 +278,14 @@ const isMd = useMediaQuery('(min-width: 768px)')
 const openMenus = ref({
   nilai: false,
   absensi: false,
+  ekstrakurikuler: false,
 })
 
 // Check if submenu should be active based on current route
 const isActiveSubmenu = computed(() => ({
   nilai: route.path.includes('nilai/'),
   absensi: route.path.includes('absensi/'),
+  ekstrakurikuler: route.path.includes('ekstrakurikuler/'),
 }))
 
 // Auto-open submenu if current path is in that submenu
@@ -274,6 +295,9 @@ watch(() => route.path, () => {
   }
   if (isActiveSubmenu.value.absensi && !openMenus.value.absensi) {
     openMenus.value.absensi = true
+  }
+  if (isActiveSubmenu.value.ekstrakurikuler && !openMenus.value.ekstrakurikuler) {
+    openMenus.value.ekstrakurikuler = true
   }
 }, { immediate: true })
 
