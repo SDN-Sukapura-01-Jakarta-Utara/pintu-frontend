@@ -300,6 +300,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
 import { useToast } from '~/composables/useToast'
 import { useAuth } from '~/composables/useAuth'
 
@@ -321,7 +322,11 @@ useHead({
 const router = useRouter()
 const { success, error } = useToast()
 const { hasPermission } = useAuth()
-const isSidebarOpen = ref(true)
+// Check if screen is md or larger
+const isMd = useMediaQuery('(min-width: 768px)')
+
+// Sidebar closed on mobile by default, open on desktop
+const isSidebarOpen = ref(isMd.value)
 const isLoggingOut = ref(false)
 const isLoading = ref(true)
 const isEditMode = ref(false)

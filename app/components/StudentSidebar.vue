@@ -61,7 +61,7 @@
       <nav class="flex-1 w-full" :class="[isOpen ? 'py-4 px-4 space-y-2' : 'py-4 px-2 space-y-2']">
         <!-- Dashboard -->
         <NuxtLink
-          to="/peserta-didik"
+          to="/peserta-didik" @click="handleLinkClick"
           :class="[
             'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
@@ -75,7 +75,7 @@
         <!-- Profil Saya -->
         <NuxtLink
           v-if="hasPermission('READ_PROFILE_PESERTA_DIDIK')"
-          to="/peserta-didik/profil-saya"
+          to="/peserta-didik/profil-saya" @click="handleLinkClick"
           :class="[
             'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
@@ -104,13 +104,13 @@
 
           <!-- Submenu Absensi -->
           <div v-if="isOpen && openMenus.absensi" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-            <NuxtLink to="/peserta-didik/absensi/dashboard-kehadiran" :class="[
+            <NuxtLink to="/peserta-didik/absensi/dashboard-kehadiran" @click="handleLinkClick" :class="[
               'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
               route.path.includes('absensi/dashboard-kehadiran') ? 'bg-red-700 font-semibold' : ''
             ]">
               Dashboard Kehadiran
             </NuxtLink>
-            <NuxtLink to="/peserta-didik/absensi/rekapitulasi-kehadiran" :class="[
+            <NuxtLink to="/peserta-didik/absensi/rekapitulasi-kehadiran" @click="handleLinkClick" :class="[
               'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
               route.path.includes('absensi/rekapitulasi-kehadiran') ? 'bg-red-700 font-semibold' : ''
             ]">
@@ -137,25 +137,25 @@
 
           <!-- Submenu Nilai -->
           <div v-if="isOpen && openMenus.nilai" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-            <NuxtLink to="/peserta-didik/nilai/monitoring" :class="[
+            <NuxtLink to="/peserta-didik/nilai/monitoring" @click="handleLinkClick" :class="[
               'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
               route.path.includes('nilai/monitoring') ? 'bg-red-700 font-semibold' : ''
             ]">
               Monitoring Nilai
             </NuxtLink>
-            <NuxtLink to="/peserta-didik/nilai/formatif" :class="[
+            <NuxtLink to="/peserta-didik/nilai/formatif" @click="handleLinkClick" :class="[
               'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
               route.path.includes('nilai/formatif') ? 'bg-red-700 font-semibold' : ''
             ]">
               Nilai Formatif
             </NuxtLink>
-            <NuxtLink to="/peserta-didik/nilai/sumatif-harian" :class="[
+            <NuxtLink to="/peserta-didik/nilai/sumatif-harian" @click="handleLinkClick" :class="[
               'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
               route.path.includes('nilai/sumatif-harian') ? 'bg-red-700 font-semibold' : ''
             ]">
               Nilai Sumatif Harian
             </NuxtLink>
-            <NuxtLink to="/peserta-didik/nilai/sumatif-akhir" :class="[
+            <NuxtLink to="/peserta-didik/nilai/sumatif-akhir" @click="handleLinkClick" :class="[
               'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
               route.path.includes('nilai/sumatif-akhir') ? 'bg-red-700 font-semibold' : ''
             ]">
@@ -167,7 +167,7 @@
         <!-- Perkembangan Inklusi -->
         <NuxtLink
           v-if="hasPermission('READ_PERKEMBANGAN_INKLUSI')"
-          to="/peserta-didik/perkembangan-inklusi"
+          to="/peserta-didik/perkembangan-inklusi" @click="handleLinkClick"
           :class="[
             'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
@@ -181,7 +181,7 @@
         <!-- Ekstrakurikuler -->
         <NuxtLink
           v-if="hasPermission('READ_EKSTRAKURIKULER_PESERTA_DIDIK')"
-          to="/peserta-didik/ekstrakurikuler"
+          to="/peserta-didik/ekstrakurikuler" @click="handleLinkClick"
           :class="[
             'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
@@ -195,7 +195,7 @@
         <!-- Formulir & Survei -->
         <NuxtLink
           v-if="hasPermission('READ_FORMULIR_SURVEI_PESERTA_DIDIK')"
-          to="/peserta-didik/formulir"
+          to="/peserta-didik/formulir" @click="handleLinkClick"
           :class="[
             'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
@@ -208,7 +208,7 @@
 
         <!-- Buku Panduan -->
         <NuxtLink
-          to="/peserta-didik/buku-panduan"
+          to="/peserta-didik/buku-panduan" @click="handleLinkClick"
           :class="[
             'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
             isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
@@ -238,18 +238,18 @@
 
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 
 const route = useRoute()
 const { hasPermission } = useAuth()
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean
   isLoading: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   close: []
   logout: []
 }>()
@@ -280,4 +280,12 @@ watch(() => route.path, () => {
 const toggleSubmenu = (menu: keyof typeof openMenus.value) => {
   openMenus.value[menu] = !openMenus.value[menu]
 }
+
+const handleLinkClick = () => {
+  // Close sidebar on mobile when link is clicked
+  if (!isMd.value) {
+    emit('close')
+  }
+}
 </script>
+

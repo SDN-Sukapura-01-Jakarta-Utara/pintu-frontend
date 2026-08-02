@@ -28,13 +28,18 @@
 import { ref, computed } from 'vue'
 import { useAuth } from '~/composables/useAuth'
 import { useRoute } from 'vue-router'
+import { useMediaQuery } from '@vueuse/core'
 import Sidebar from './Sidebar.vue'
 import Navbar from './Navbar.vue'
 
 const { getCurrentUser, performLogout, isLoading } = useAuth()
 const route = useRoute()
 
-const isSidebarOpen = ref(true)
+// Check if screen is md or larger
+const isMd = useMediaQuery('(min-width: 768px)')
+
+// Sidebar closed on mobile by default, open on desktop
+const isSidebarOpen = ref(isMd.value)
 const user = computed(() => getCurrentUser())
 
 // Get page title from route path

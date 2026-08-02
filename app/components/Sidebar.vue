@@ -41,16 +41,17 @@
                 isOpen ? 'py-4 px-4 space-y-2' : 'py-4 px-2 space-y-2'
             ]">
                 <!-- Dashboard -->
-                <NuxtLink to="/backoffice" :class="[
+                <NuxtLink to="/backoffice" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700 active:bg-red-700',
-                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
+                    isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
+                    route.path === '/backoffice' ? 'bg-red-700' : ''
                 ]">
                     <i class="fa-solid fa-house w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Dashboard</span>
                 </NuxtLink>
 
                 <!-- Profil Saya -->
-                <NuxtLink v-if="hasPermission('READ_PROFILE_USER')" to="/backoffice/profil-saya" :class="[
+                <NuxtLink v-if="hasPermission('READ_PROFILE_USER')" to="/backoffice/profil-saya" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path === '/backoffice/profil-saya' ? 'bg-red-700' : ''
@@ -60,7 +61,7 @@
                 </NuxtLink>
 
                 <!-- Master Data -->
-                <NuxtLink v-if="hasPermission('READ_MASTER_DATA')" to="/backoffice/master-data" :class="[
+                <NuxtLink v-if="hasPermission('READ_MASTER_DATA')" to="/backoffice/master-data" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path === '/backoffice/master-data' ? 'bg-red-700' : ''
@@ -87,43 +88,43 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.sekolah" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/informasi-sekolah/jumbotron" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/jumbotron" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('jumbotron') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Jumbotron
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/informasi-sekolah/kutipan-kepsek" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/kutipan-kepsek" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('kutipan-kepsek') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Kutipan Kepala Sekolah
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/informasi-sekolah/visi-misi" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/visi-misi" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('visi-misi') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Visi Misi
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/informasi-sekolah/sarana-prasarana" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/sarana-prasarana" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('sarana-prasarana') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Sarana & Prasarana
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/informasi-sekolah/struktur-organisasi" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/struktur-organisasi" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('struktur-organisasi') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Struktur Organisasi
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/informasi-sekolah/aplikasi-sekolah" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/aplikasi-sekolah" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('aplikasi-sekolah') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Aplikasi Sekolah
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/informasi-sekolah/kontak-sekolah" :class="[
+                        <NuxtLink to="/backoffice/informasi-sekolah/kontak-sekolah" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('kontak-sekolah') ? 'bg-red-700 font-semibold' : ''
                         ]">
@@ -150,28 +151,28 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.media" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/media-publikasi/prestasi-siswa"
+                        <NuxtLink to="/backoffice/media-publikasi/prestasi-siswa" @click="handleLinkClick"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('/prestasi-siswa') ? 'bg-red-700 font-semibold' : ''
                             ]">
                             Prestasi Siswa
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/media-publikasi/artikel"
+                        <NuxtLink to="/backoffice/media-publikasi/artikel" @click="handleLinkClick"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('/artikel') ? 'bg-red-700 font-semibold' : ''
                             ]">
                             Artikel
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/media-publikasi/pengumuman"
+                        <NuxtLink to="/backoffice/media-publikasi/pengumuman" @click="handleLinkClick"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('/pengumuman') ? 'bg-red-700 font-semibold' : ''
                             ]">
                             Pengumuman
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/media-publikasi/galeri-kegiatan"
+                        <NuxtLink to="/backoffice/media-publikasi/galeri-kegiatan" @click="handleLinkClick"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('/galeri-kegiatan') ? 'bg-red-700 font-semibold' : ''
@@ -182,7 +183,7 @@
                 </div>
 
                 <!-- Penilaian & Kelulusan -->
-                <NuxtLink v-if="hasPermission('READ_PENILAIAN_KELULUSAN')" to="/backoffice/penilaian-kelulusan" :class="[
+                <NuxtLink v-if="hasPermission('READ_PENILAIAN_KELULUSAN')" to="/backoffice/penilaian-kelulusan" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('penilaian-kelulusan') ? 'bg-red-700' : ''
@@ -210,13 +211,13 @@
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.kepegawaian"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/kepegawaian/pendidik" :class="[
+                        <NuxtLink to="/backoffice/kepegawaian/pendidik" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.startsWith('/backoffice/kepegawaian/pendidik') && !route.path.includes('tenaga-kependidikan') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Pendidik
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/kepegawaian/tenaga-kependidikan" :class="[
+                        <NuxtLink to="/backoffice/kepegawaian/tenaga-kependidikan" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.startsWith('/backoffice/kepegawaian/tenaga-kependidikan') ? 'bg-red-700 font-semibold' : ''
                         ]">
@@ -243,13 +244,13 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.pesertaDidik" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/peserta-didik/master-data-siswa" :class="[
+                        <NuxtLink to="/backoffice/peserta-didik/master-data-siswa" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('peserta-didik/master-data-siswa') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Data Induk Siswa
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/peserta-didik/pemetaan-rombel" :class="[
+                        <NuxtLink to="/backoffice/peserta-didik/pemetaan-rombel" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('peserta-didik/pemetaan-rombel') ? 'bg-red-700 font-semibold' : ''
                         ]">
@@ -260,7 +261,7 @@
 
                 <!-- Data Siswa -->
                 <div v-if="hasPermission('READ_DATA_SISWA')">
-                    <NuxtLink to="/backoffice/data-siswa" :class="[
+                    <NuxtLink to="/backoffice/data-siswa" @click="handleLinkClick" :class="[
                         'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                         isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                         route.path === '/backoffice/data-siswa' ? 'bg-red-700' : ''
@@ -288,13 +289,13 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.spmb" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/spmb/layanan-posko" :class="[
+                        <NuxtLink to="/backoffice/spmb/layanan-posko" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('spmb/layanan-posko') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Layanan Posko SPMB
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/spmb/mutasi-siswa" :class="[
+                        <NuxtLink to="/backoffice/spmb/mutasi-siswa" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('spmb/mutasi-siswa') ? 'bg-red-700 font-semibold' : ''
                         ]">
@@ -304,7 +305,7 @@
                 </div>
 
                 <!-- Administrasi Guru -->
-                <NuxtLink v-if="hasPermission('READ_ADMINISTRASI_GURU')" to="/backoffice/administrasi-guru" :class="[
+                <NuxtLink v-if="hasPermission('READ_ADMINISTRASI_GURU')" to="/backoffice/administrasi-guru" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('administrasi-guru') ? 'bg-red-700' : ''
@@ -331,25 +332,25 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.absensi" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/absensi-siswa/monitoring" :class="[
+                        <NuxtLink to="/backoffice/absensi-siswa/monitoring" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('absensi-siswa/monitoring') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Monitoring Kehadiran
                         </NuxtLink>
-                        <NuxtLink v-if="hasPermission('CREATE_ABSENSI_SISWA')" to="/backoffice/absensi-siswa/input-kehadiran" :class="[
+                        <NuxtLink v-if="hasPermission('CREATE_ABSENSI_SISWA')" to="/backoffice/absensi-siswa/input-kehadiran" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('absensi-siswa/input-kehadiran') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Input Kehadiran
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/absensi-siswa/rekap" :class="[
+                        <NuxtLink to="/backoffice/absensi-siswa/rekap" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('absensi-siswa/rekap') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Rekap Kehadiran
                         </NuxtLink>
-                        <NuxtLink v-if="hasPermission('KONFIGURASI_ABSENSI_SISWA')" to="/backoffice/absensi-siswa/konfigurasi" :class="[
+                        <NuxtLink v-if="hasPermission('KONFIGURASI_ABSENSI_SISWA')" to="/backoffice/absensi-siswa/konfigurasi" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('absensi-siswa/konfigurasi') ? 'bg-red-700 font-semibold' : ''
                         ]">
@@ -359,7 +360,7 @@
                 </div>
 
                 <!-- Monitoring Inklusi -->
-                <NuxtLink v-if="hasPermission('READ_MONITORING_INKLUSI')" to="/backoffice/monitoring-inklusi" :class="[
+                <NuxtLink v-if="hasPermission('READ_MONITORING_INKLUSI')" to="/backoffice/monitoring-inklusi" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('monitoring-inklusi') ? 'bg-red-700' : ''
@@ -369,7 +370,7 @@
                 </NuxtLink>
 
                 <!-- Formulir & Survei -->
-                <NuxtLink v-if="hasPermission('READ_FORMULIR_SURVEI')" to="/backoffice/formulir-survei" :class="[
+                <NuxtLink v-if="hasPermission('READ_FORMULIR_SURVEI')" to="/backoffice/formulir-survei" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('formulir-survei') && !route.path.includes('formulir-survei-guru') ? 'bg-red-700' : ''
@@ -394,13 +395,13 @@
 
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.formulirGuru" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/formulir-survei-guru/form-saya" :class="[
+                        <NuxtLink to="/backoffice/formulir-survei-guru/form-saya" @click="handleLinkClick" :class="[
                             'block px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-red-700',
                             route.path === '/backoffice/formulir-survei-guru/form-saya' || route.path === '/backoffice/formulir-survei-guru/create-formulir' ? 'bg-red-700' : ''
                         ]">
                             Form & Survei Saya
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/formulir-survei-guru/sekolah" :class="[
+                        <NuxtLink to="/backoffice/formulir-survei-guru/sekolah" @click="handleLinkClick" :class="[
                             'block px-3 py-2 text-xs sm:text-sm font-medium rounded-lg transition-all duration-200 hover:bg-red-700',
                             route.path === '/backoffice/formulir-survei-guru/sekolah' ? 'bg-red-700' : ''
                         ]">
@@ -410,7 +411,7 @@
                 </div>
 
                 <!-- Arsip Rapat & Kegiatan -->
-                <NuxtLink v-if="hasPermission('READ_ARSIP_RAPAT_KEGIATAN')" to="/backoffice/arsip-kegiatan" :class="[
+                <NuxtLink v-if="hasPermission('READ_ARSIP_RAPAT_KEGIATAN')" to="/backoffice/arsip-kegiatan" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('arsip-kegiatan') ? 'bg-red-700' : ''
@@ -438,13 +439,13 @@
                     <!-- Submenu -->
                     <div v-if="isOpen && openMenus.surat"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/surat-menyurat/surat-masuk" :class="[
+                        <NuxtLink to="/backoffice/surat-menyurat/surat-masuk" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('surat-masuk') ? 'bg-red-700 font-semibold' : ''
                         ]">
                             Surat Masuk
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/surat-menyurat/surat-keluar" :class="[
+                        <NuxtLink to="/backoffice/surat-menyurat/surat-keluar" @click="handleLinkClick" :class="[
                             'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                             route.path.includes('surat-keluar') ? 'bg-red-700 font-semibold' : ''
                         ]">
@@ -454,7 +455,7 @@
                 </div>
 
                 <!-- Monitoring Adiwiyata -->
-                <NuxtLink v-if="hasPermission('READ_MONITORING_ADIWIYATA')" to="/backoffice/monitoring-adiwiyata" :class="[
+                <NuxtLink v-if="hasPermission('READ_MONITORING_ADIWIYATA')" to="/backoffice/monitoring-adiwiyata" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('monitoring-adiwiyata') ? 'bg-red-700' : ''
@@ -481,21 +482,21 @@
 
                     <div v-if="isOpen && openMenus.pertanyaan"
                         class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
-                        <NuxtLink to="/backoffice/layanan-umpan-balik/pertanyaan"
+                        <NuxtLink to="/backoffice/layanan-umpan-balik/pertanyaan" @click="handleLinkClick"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('layanan-umpan-balik/pertanyaan') ? 'bg-red-700 font-semibold' : ''
                             ]">
                             Layanan Pertanyaan
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/layanan-umpan-balik/pengaduan"
+                        <NuxtLink to="/backoffice/layanan-umpan-balik/pengaduan" @click="handleLinkClick"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('layanan-umpan-balik/pengaduan') ? 'bg-red-700 font-semibold' : ''
                             ]">
                             Layanan Pengaduan
                         </NuxtLink>
-                        <NuxtLink to="/backoffice/layanan-umpan-balik/kritik-saran"
+                        <NuxtLink to="/backoffice/layanan-umpan-balik/kritik-saran" @click="handleLinkClick"
                             :class="[
                                 'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
                                 route.path.includes('kritik-saran') ? 'bg-red-700 font-semibold' : ''
@@ -506,7 +507,7 @@
                 </div>
 
                 <!-- Buku Panduan -->
-                <NuxtLink to="/backoffice/buku-panduan" :class="[
+                <NuxtLink to="/backoffice/buku-panduan" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
                     isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3',
                     route.path.includes('buku-panduan') ? 'bg-red-700' : ''
@@ -544,43 +545,26 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useMediaQuery } from '@vueuse/core'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useAuth } from '~/composables/useAuth'
-
-import type { User } from '~/types/AuthType'
 
 const route = useRoute()
 const { hasPermission } = useAuth()
 
-defineProps<{
+const props = defineProps<{
     isOpen: boolean
     user: User | null
     isLoading: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
     'close': []
     'logout': []
 }>()
 
 // Check if screen is md or larger
-const isMd = ref(true)
-
-if (process.client) {
-    const updateMdState = () => {
-        isMd.value = window.innerWidth >= 768
-    }
-
-    onMounted(() => {
-        updateMdState()
-        window.addEventListener('resize', updateMdState)
-    })
-
-    onUnmounted(() => {
-        window.removeEventListener('resize', updateMdState)
-    })
-}
+const isMd = useMediaQuery('(min-width: 768px)')
 
 const openMenus = ref({
     sekolah: false,
@@ -641,6 +625,13 @@ watch(() => route.path, () => {
 const toggleSubmenu = (menu: keyof typeof openMenus.value) => {
     openMenus.value[menu] = !openMenus.value[menu]
 }
+
+const handleLinkClick = () => {
+    // Close sidebar on mobile when link is clicked
+    if (!isMd.value) {
+        emit('close')
+    }
+}
 </script>
 
 <style scoped>
@@ -669,3 +660,4 @@ i.fa-solid {
     justify-content: center;
 }
 </style>
+
