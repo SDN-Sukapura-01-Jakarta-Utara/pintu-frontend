@@ -238,25 +238,12 @@ const filteredRombelList = computed(() => {
     return filtered
   }
   
-  // Collect all rombel IDs that user has access to
-  const rombelIds = new Set<number>()
-  
-  // Add rombel guru kelas if exists
+  // Priority: Show only rombel_guru_kelas_id if exists
   if (currentUser?.rombel_guru_kelas_id) {
-    rombelIds.add(currentUser.rombel_guru_kelas_id)
+    return filtered.filter((r: any) => r.id === currentUser.rombel_guru_kelas_id)
   }
   
-  // Add rombel bidang studi if exists
-  if (currentUser?.rombel_bidang_studi && Array.isArray(currentUser.rombel_bidang_studi) && currentUser.rombel_bidang_studi.length > 0) {
-    currentUser.rombel_bidang_studi.forEach((id: number) => rombelIds.add(id))
-  }
-  
-  // If user has specific rombel assignments, filter by those
-  if (rombelIds.size > 0) {
-    return filtered.filter((r: any) => rombelIds.has(r.id))
-  }
-  
-  // Default: show all active rombel (for users without specific rombel assignments)
+  // If no rombel_guru_kelas_id, show all active rombel
   return filtered
 })
 
@@ -265,9 +252,8 @@ onMounted(async () => {
   await loadRombel()
   await loadTahunPelajaran()
   
-  // Auto-select rombel if user has only one assigned rombel
-  if (!isSuperAdmin.value && currentUser?.rombel_guru_kelas_id && !currentUser?.rombel_bidang_studi) {
-    // User only has rombel_guru_kelas_id (no rombel_bidang_studi)
+  // Auto-select rombel if user has rombel_guru_kelas_id
+  if (!isSuperAdmin.value && currentUser?.rombel_guru_kelas_id) {
     selectedRombelId.value = currentUser.rombel_guru_kelas_id
     // Auto-load data if both rombel and tahun pelajaran are selected
     if (selectedTahunPelajaranId.value !== 0) {

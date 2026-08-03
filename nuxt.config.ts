@@ -11,6 +11,21 @@ export default defineNuxtConfig({
     plugins: [
       tailwindcss(),
     ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            if (id.includes('node_modules')) {
+              if (id.includes('chart.js')) return 'vendor-chart';
+              if (id.includes('@vueuse')) return 'vendor-vueuse';
+              if (id.includes('pinia')) return 'vendor-pinia';
+              return 'vendor';
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 1000,
+    },
   },
   runtimeConfig: {
     public: {
