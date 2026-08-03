@@ -233,3 +233,177 @@ export async function registerEkskulPesertaDidik(
 
   return response
 }
+
+/**
+ * Get all ekstrakurikuler siswa (untuk backoffice)
+ */
+export async function getAllEkstrakurikulerSiswa(
+  rombel_id: number,
+  tahun_pelajaran_id: number
+) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    data: {
+      rombel_id: number
+      tahun_pelajaran_id: number
+      siswa: Array<{
+        peserta_didik_rombel_id: number
+        peserta_didik_id: number
+        nama_lengkap: string
+        nisn: string
+        ekstrakurikuler: Array<{
+          id: number
+          peserta_didik_rombel_id: number
+          ekstrakurikuler_id: number
+          ekstrakurikuler: {
+            id: number
+            name: string
+            kategori: string
+            status: string
+          }
+          created_at: string
+          updated_at: string
+        }>
+        total_ekskul: number
+      }>
+      total_siswa: number
+    }
+  }>(
+    `${config.public.apiBase}/api/v1/ekstrakurikuler/get-all-ekstrakurikuler-siswa`,
+    {
+      method: 'POST',
+      body: {
+        rombel_id,
+        tahun_pelajaran_id
+      },
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response.data
+}
+
+/**
+ * Register all ekstrakurikuler siswa (bulk register untuk backoffice)
+ */
+export async function registerAllEkstrakurikulerSiswa(siswaData: Array<{
+  peserta_didik_rombel_id: number
+  ekstrakurikuler_ids: number[]
+}>) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    message: string
+    summary: {
+      total_siswa: number
+      total_added: number
+      total_removed: number
+      total_kept: number
+      success_count: number
+      failed_count: number
+    }
+    details: Array<{
+      peserta_didik_rombel_id: number
+      status: string
+      added: number
+      removed: number
+      kept: number
+    }>
+  }>(
+    `${config.public.apiBase}/api/v1/ekstrakurikuler/register-all-ekstrakurikuler-siswa`,
+    {
+      method: 'POST',
+      body: {
+        siswa: siswaData
+      },
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Get all statistic ekstrakurikuler siswa (untuk monitoring)
+ */
+export async function getAllStatisticEkstrakurikulerSiswa(
+  tahun_pelajaran_id: number,
+  rombel_id: number | null = null
+) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{
+    data: {
+      tahun_pelajaran_id: number
+      rombel_id: number | null
+      summary: {
+        total_siswa: number
+        total_siswa_ikut_ekskul: number
+        total_siswa_tidak_ikut_ekskul: number
+        persentase_ikut_ekskul: number
+        total_ekstrakurikuler: number
+        total_rombel: number
+      }
+      statistik_per_ekskul: Array<{
+        ekstrakurikuler_id: number
+        nama_ekstrakurikuler: string
+        kategori: string
+        total_siswa: number
+        rombel: Array<{
+          rombel_id: number
+          nama_rombel: string
+          jumlah_siswa: number
+        }>
+      }>
+      statistik_per_rombel: Array<{
+        rombel_id: number
+        nama_rombel: string
+        total_siswa: number
+        siswa_ikut_ekskul: number
+        siswa_tidak_ikut_ekskul: number
+        persentase_ikut_ekskul: number
+        ekstrakurikuler: Array<{
+          ekstrakurikuler_id: number
+          nama_ekstrakurikuler: string
+          jumlah_siswa: number
+        }>
+      }>
+      siswa_tidak_ikut_ekskul: Array<{
+        peserta_didik_rombel_id: number
+        peserta_didik_id: number
+        nama_lengkap: string
+        nisn: string
+        rombel_id: number
+        nama_rombel: string
+      }>
+    }
+  }>(
+    `${config.public.apiBase}/api/v1/ekstrakurikuler/get-all-statistic-ekstrakurikuler-siswa`,
+    {
+      method: 'POST',
+      body: {
+        tahun_pelajaran_id,
+        rombel_id
+      },
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response.data
+}

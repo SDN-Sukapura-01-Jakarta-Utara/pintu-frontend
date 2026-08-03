@@ -369,6 +369,63 @@
                     <span v-if="isOpen" class="text-xs sm:text-sm font-medium">Monitoring Inklusi</span>
                 </NuxtLink>
 
+                <!-- Ekstrakurikuler -->
+                <div v-if="hasPermission('READ_EKSTRAKURIKULER')">
+                    <button @click="toggleSubmenu('ekstrakurikuler')" :class="[
+                        'w-full flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
+                        isOpen ? 'gap-4 px-4 py-3' : 'gap-0 justify-center px-2 py-3'
+                    ]">
+                        <i class="fa-solid fa-futbol w-4 h-4 sm:w-5 sm:h-5 text-base"></i>
+                        <div v-if="isOpen" class="flex-1 flex items-center justify-between">
+                            <span class="text-xs sm:text-sm font-medium">Ekstrakurikuler</span>
+                            <i :class="[
+                                'fa-solid fa-chevron-right w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 flex-shrink-0',
+                                openMenus.ekstrakurikuler ? 'rotate-90' : ''
+                            ]"></i>
+                        </div>
+                    </button>
+
+                    <!-- Submenu -->
+                    <div v-if="isOpen && openMenus.ekstrakurikuler" class="ml-12 mt-2 space-y-2 border-l border-red-500 pl-4">
+                        <NuxtLink v-if="hasPermission('MONITORING_EKSTRAKURIKULER')" to="/backoffice/ekstrakurikuler/monitoring" @click="handleLinkClick" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('ekstrakurikuler/monitoring') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Monitoring Ekstrakurikuler
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/ekstrakurikuler/pendaftaran" @click="handleLinkClick" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('ekstrakurikuler/pendaftaran') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Pendaftaran Ekstrakurikuler
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/ekstrakurikuler/rekapitulasi" @click="handleLinkClick" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('ekstrakurikuler/rekapitulasi') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Rekapitulasi Data Ekskul
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/ekstrakurikuler/absensi" @click="handleLinkClick" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('ekstrakurikuler/absensi') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Absensi Ekstrakurikuler
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/ekstrakurikuler/kegiatan" @click="handleLinkClick" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('ekstrakurikuler/kegiatan') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Kegiatan Ekstrakurikuler
+                        </NuxtLink>
+                        <NuxtLink to="/backoffice/ekstrakurikuler/penilaian" @click="handleLinkClick" :class="[
+                            'block text-xs sm:text-sm py-2 px-2 rounded transition-all duration-200 hover:bg-red-700',
+                            route.path.includes('ekstrakurikuler/penilaian') ? 'bg-red-700 font-semibold' : ''
+                        ]">
+                            Penilaian Ekstrakurikuler
+                        </NuxtLink>
+                    </div>
+                </div>
+
                 <!-- Formulir & Survei -->
                 <NuxtLink v-if="hasPermission('READ_FORMULIR_SURVEI')" to="/backoffice/formulir-survei" @click="handleLinkClick" :class="[
                     'flex items-center rounded-lg transition-all duration-200 hover:bg-red-700',
@@ -576,6 +633,7 @@ const openMenus = ref({
     spmb: false,
     pesertaDidik: false,
     formulirGuru: false,
+    ekstrakurikuler: false,
 })
 
 // Check if submenu should be active based on current route
@@ -589,6 +647,7 @@ const isActiveSubmenu = computed(() => ({
     spmb: route.path.includes('spmb/layanan-posko') || route.path.includes('spmb/mutasi-siswa'),
     pesertaDidik: route.path.includes('peserta-didik/master-data-siswa') || route.path.includes('peserta-didik/pemetaan-rombel'),
     formulirGuru: route.path.includes('formulir-survei-guru'),
+    ekstrakurikuler: route.path.includes('ekstrakurikuler'),
 }))
 
 // Auto-open submenu if current path is in that submenu
@@ -619,6 +678,9 @@ watch(() => route.path, () => {
     }
     if (isActiveSubmenu.value.formulirGuru && !openMenus.value.formulirGuru) {
         openMenus.value.formulirGuru = true
+    }
+    if (isActiveSubmenu.value.ekstrakurikuler && !openMenus.value.ekstrakurikuler) {
+        openMenus.value.ekstrakurikuler = true
     }
 }, { immediate: true })
 
