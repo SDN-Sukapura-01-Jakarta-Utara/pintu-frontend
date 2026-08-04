@@ -1,0 +1,1 @@
+import{_ as t,v as e,x as s}from"./B4GJ_Uf6.js";import"./kUdMvccu.js";import"./BwFADttu.js";const o={},c={class:"bg-blue-500 text-white p-4"};function r(n,_){return s(),e("div",c," Test Tailwind Works ")}const p=t(o,[["render",r]]);export{p as default};
