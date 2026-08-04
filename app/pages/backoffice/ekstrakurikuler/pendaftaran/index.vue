@@ -182,6 +182,7 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useToast } from '~/composables/useToast'
 import { useAuth } from '~/composables/useAuth'
+import { useAuthGuard } from '~/composables/useAuthGuard'
 import { getPemetaanRombelList } from '~/services/peserta-didik'
 import { getEkstrakurikulerList, getAllEkstrakurikulerSiswa, registerAllEkstrakurikulerSiswa } from '~/services/ekstrakurikuler'
 import DashboardLayout from '~/components/DashboardLayout.vue'
@@ -204,6 +205,7 @@ useHead({
 
 const { success: showToast, error: showErrorToast } = useToast()
 const { getCurrentUser } = useAuth()
+const { handle401 } = useAuthGuard()
 
 // Get current user data
 const currentUser = getCurrentUser()
@@ -294,6 +296,14 @@ async function loadRombel() {
     rombelList.value = response.data || []
   } catch (error: any) {
     console.error('Error loading rombel:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Memuat Data', 'Gagal memuat data rombel. Silakan coba lagi.')
   }
 }
@@ -335,6 +345,14 @@ async function loadTahunPelajaran() {
     }
   } catch (error: any) {
     console.error('Error loading tahun pelajaran:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Memuat Data', 'Gagal memuat data tahun pelajaran. Silakan coba lagi.')
   }
 }
@@ -360,6 +378,14 @@ async function loadData() {
     await loadExistingRegistrations()
   } catch (error: any) {
     console.error('Error loading data:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     const errorMessage = error?.data?.message || error?.message || 'Terjadi kesalahan saat memuat data'
     showErrorToast('Gagal Memuat Data', errorMessage)
   } finally {
@@ -479,6 +505,14 @@ async function handleSubmit() {
     await loadExistingRegistrations()
   } catch (error: any) {
     console.error('Error saving registration:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     const errorMessage = error?.data?.message || error?.message || 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.'
     showErrorToast('Gagal Menyimpan', errorMessage)
   } finally {

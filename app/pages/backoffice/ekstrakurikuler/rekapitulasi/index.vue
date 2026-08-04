@@ -482,6 +482,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useToast } from '~/composables/useToast'
+import { useAuthGuard } from '~/composables/useAuthGuard'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 
 definePageMeta({
@@ -505,6 +506,7 @@ useHead({
 })
 
 const { success: showToast, error: showErrorToast } = useToast()
+const { handle401 } = useAuthGuard()
 
 // State
 const mainTab = ref('per-ekskul')
@@ -594,6 +596,14 @@ async function loadTahunPelajaran() {
     }
   } catch (error: any) {
     console.error('Error loading tahun pelajaran:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Memuat Data', 'Gagal memuat data tahun pelajaran.')
   }
 }
@@ -628,6 +638,14 @@ async function loadEkstrakurikuler() {
     }
   } catch (error: any) {
     console.error('Error loading ekstrakurikuler:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Memuat Data', 'Gagal memuat data ekstrakurikuler.')
   } finally {
     isLoadingEkskul.value = false
@@ -666,6 +684,14 @@ async function loadRombel() {
     }
   } catch (error: any) {
     console.error('Error loading rombel:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Memuat Data', 'Gagal memuat data rombel.')
   } finally {
     isLoadingRombel.value = false
@@ -708,6 +734,14 @@ async function loadDataPerEkskul() {
     dataPerEkskul.value = response.data
   } catch (error: any) {
     console.error('Error loading data per ekskul:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     const errorMessage = error?.data?.message || error?.message || 'Terjadi kesalahan saat memuat data'
     showErrorToast('Gagal Memuat Data', errorMessage)
   } finally {
@@ -750,6 +784,14 @@ async function loadDataPerRombel() {
     dataPerRombel.value = response.data
   } catch (error: any) {
     console.error('Error loading data per rombel:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     const errorMessage = error?.data?.message || error?.message || 'Terjadi kesalahan saat memuat data'
     showErrorToast('Gagal Memuat Data', errorMessage)
   } finally {
@@ -841,6 +883,14 @@ async function downloadExcelPerEkskul() {
     showToast('Berhasil', 'File Excel berhasil diunduh')
   } catch (error: any) {
     console.error('Error downloading excel per ekskul:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Mengunduh', 'Terjadi kesalahan saat mengunduh file Excel')
   } finally {
     isDownloadingEkskul.value = false
@@ -894,6 +944,14 @@ async function downloadExcelPerRombel() {
     showToast('Berhasil', 'File Excel berhasil diunduh')
   } catch (error: any) {
     console.error('Error downloading excel per rombel:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Mengunduh', 'Terjadi kesalahan saat mengunduh file Excel')
   } finally {
     isDownloadingRombel.value = false

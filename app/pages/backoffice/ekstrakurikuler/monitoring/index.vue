@@ -392,6 +392,7 @@
 import { ref, computed, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import { useToast } from '~/composables/useToast'
 import { useAuth } from '~/composables/useAuth'
+import { useAuthGuard } from '~/composables/useAuthGuard'
 import { getAllStatisticEkstrakurikulerSiswa } from '~/services/ekstrakurikuler'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 import { Chart, registerables } from 'chart.js'
@@ -420,6 +421,7 @@ useHead({
 
 const { success: showToast, error: showErrorToast } = useToast()
 const { getCurrentUser } = useAuth()
+const { handle401 } = useAuthGuard()
 
 const currentUser = getCurrentUser()
 const isSuperAdmin = computed(() => currentUser?.id === 1)
@@ -509,6 +511,14 @@ async function loadRombel() {
     rombelList.value = response.data || []
   } catch (error: any) {
     console.error('Error loading rombel:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Memuat Data', 'Gagal memuat data rombel.')
   }
 }
@@ -543,6 +553,14 @@ async function loadTahunPelajaran() {
     }
   } catch (error: any) {
     console.error('Error loading tahun pelajaran:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     showErrorToast('Gagal Memuat Data', 'Gagal memuat data tahun pelajaran.')
   }
 }
@@ -564,6 +582,14 @@ async function loadStatistics() {
     statisticsData.value = result
   } catch (error: any) {
     console.error('Error loading statistics:', error)
+    
+    // Check if it's a 401 error (invalid or expired token)
+    if (error.status === 401 || error.statusCode === 401 || 
+        (error.data && error.data.error && error.data.error.includes('token'))) {
+      await handle401()
+      return
+    }
+    
     const errorMessage = error?.data?.message || error?.message || 'Terjadi kesalahan saat memuat statistik'
     showErrorToast('Gagal Memuat Data', errorMessage)
   } finally {
