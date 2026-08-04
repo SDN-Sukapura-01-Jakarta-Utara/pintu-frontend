@@ -1,1 +1,0 @@
-import{ax as r,Z as e}from"./B4GJ_Uf6.js";import"./kUdMvccu.js";import"./BwFADttu.js";const u=r((t,i)=>{{const a=localStorage.getItem("auth_token"),o=localStorage.getItem("auth_user");if(!a||!o)return t.path==="/backoffice/login"||t.path==="/"?void 0:e("/backoffice/login");if(t.path==="/backoffice/login")return e("/backoffice")}});export{u as default};
