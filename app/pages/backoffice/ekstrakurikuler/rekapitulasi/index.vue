@@ -156,6 +156,14 @@
                   <i class="fas fa-redo"></i>
                   Reset
                 </button>
+                <button
+                  @click="downloadExcelPerEkskul"
+                  :disabled="isDownloadingEkskul"
+                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-semibold flex items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <i :class="isDownloadingEkskul ? 'fas fa-spinner fa-spin' : 'fas fa-file-excel'"></i>
+                  {{ isDownloadingEkskul ? 'Downloading...' : 'Excel' }}
+                </button>
               </div>
             </div>
 
@@ -350,6 +358,14 @@
                   <i class="fas fa-redo"></i>
                   Reset
                 </button>
+                <button
+                  @click="downloadExcelPerRombel"
+                  :disabled="isDownloadingRombel"
+                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-semibold flex items-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  <i :class="isDownloadingRombel ? 'fas fa-spinner fa-spin' : 'fas fa-file-excel'"></i>
+                  {{ isDownloadingRombel ? 'Downloading...' : 'Excel' }}
+                </button>
               </div>
             </div>
 
@@ -496,6 +512,8 @@ const isLoadingEkskul = ref(false)
 const isLoadingRombel = ref(false)
 const isLoadingDataEkskul = ref(false)
 const isLoadingDataRombel = ref(false)
+const isDownloadingEkskul = ref(false)
+const isDownloadingRombel = ref(false)
 
 const ekskulList = ref<any[]>([])
 const rombelList = ref<any[]>([])
@@ -774,5 +792,111 @@ function formatDate(dateString: string) {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+async function downloadExcelPerEkskul() {
+  if (!selectedEkskulId.value || filtersEkskul.value.tahun_pelajaran_id === 0) {
+    showErrorToast('Error', 'Pilih ekstrakurikuler dan tahun pelajaran terlebih dahulu')
+    return
+  }
+
+  isDownloadingEkskul.value = true
+  try {
+    const config = useRuntimeConfig()
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    const response = await fetch(
+      `${config.public.apiBase}/api/v1/ekstrakurikuler/download-excel-data-per-ekskul`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          tahun_pelajaran_id: filtersEkskul.value.tahun_pelajaran_id,
+          ekstrakurikuler_id: selectedEkskulId.value
+        })
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error('Gagal mengunduh file')
+    }
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    
+    const ekskulName = ekskulList.value.find(e => e.id === selectedEkskulId.value)?.name || 'ekstrakurikuler'
+    a.download = `Data_Per_Ekstrakurikuler_${ekskulName}_${new Date().getTime()}.xlsx`
+    
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    showToast('Berhasil', 'File Excel berhasil diunduh')
+  } catch (error: any) {
+    console.error('Error downloading excel per ekskul:', error)
+    showErrorToast('Gagal Mengunduh', 'Terjadi kesalahan saat mengunduh file Excel')
+  } finally {
+    isDownloadingEkskul.value = false
+  }
+}
+
+async function downloadExcelPerRombel() {
+  if (!selectedRombelId.value || filtersRombel.value.tahun_pelajaran_id === 0) {
+    showErrorToast('Error', 'Pilih rombel dan tahun pelajaran terlebih dahulu')
+    return
+  }
+
+  isDownloadingRombel.value = true
+  try {
+    const config = useRuntimeConfig()
+    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+    const response = await fetch(
+      `${config.public.apiBase}/api/v1/ekstrakurikuler/download-excel-data-per-rombel`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          rombel_id: selectedRombelId.value,
+          tahun_pelajaran_id: filtersRombel.value.tahun_pelajaran_id
+        })
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error('Gagal mengunduh file')
+    }
+
+    const blob = await response.blob()
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    
+    const rombelName = rombelList.value.find(r => r.id === selectedRombelId.value)?.name || 'rombel'
+    a.download = `Data_Per_Rombel_${rombelName}_${new Date().getTime()}.xlsx`
+    
+    document.body.appendChild(a)
+    a.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+
+    showToast('Berhasil', 'File Excel berhasil diunduh')
+  } catch (error: any) {
+    console.error('Error downloading excel per rombel:', error)
+    showErrorToast('Gagal Mengunduh', 'Terjadi kesalahan saat mengunduh file Excel')
+  } finally {
+    isDownloadingRombel.value = false
+  }
 }
 </script>

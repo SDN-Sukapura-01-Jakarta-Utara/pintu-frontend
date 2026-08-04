@@ -189,7 +189,7 @@
           </div>
 
           <!-- Charts Section -->
-          <div class="mb-8">
+          <div v-if="statisticsData.statistik_per_ekskul && statisticsData.statistik_per_ekskul.length > 0" class="mb-8">
             <h2 class="text-lg font-bold text-gray-900 mb-4">Statistik Per Ekstrakurikuler</h2>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -233,9 +233,18 @@
               </div>
             </div>
           </div>
+          
+          <!-- Empty State: No Ekstrakurikuler Data -->
+          <div v-else class="mb-8 flex flex-col items-center justify-center py-12 px-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <i class="fas fa-futbol text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-base font-semibold text-gray-900 mb-1">Belum Ada Data Ekstrakurikuler</h3>
+            <p class="text-sm text-gray-600 text-center">Tidak ada siswa yang terdaftar di ekstrakurikuler pada periode ini</p>
+          </div>
 
           <!-- Statistik Per Rombel -->
-          <div class="mb-8">
+          <div v-if="statisticsData.statistik_per_rombel && statisticsData.statistik_per_rombel.length > 0" class="mb-8">
             <h2 class="text-lg font-bold text-gray-900 mb-4">Statistik Per Rombel</h2>
             
             <div class="space-y-4">
@@ -292,9 +301,18 @@
               </div>
             </div>
           </div>
+          
+          <!-- Empty State: No Rombel Data -->
+          <div v-else class="mb-8 flex flex-col items-center justify-center py-12 px-4 bg-gray-50 border-2 border-gray-200 rounded-lg">
+            <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+              <i class="fas fa-users-rectangle text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-base font-semibold text-gray-900 mb-1">Belum Ada Data Rombel</h3>
+            <p class="text-sm text-gray-600 text-center">Tidak ada data statistik per rombel pada periode ini</p>
+          </div>
 
           <!-- Siswa Tidak Ikut Ekskul -->
-          <div v-if="statisticsData.siswa_tidak_ikut_ekskul.length > 0" class="mb-8">
+          <div v-if="statisticsData.siswa_tidak_ikut_ekskul && statisticsData.siswa_tidak_ikut_ekskul.length > 0" class="mb-8">
             <h2 class="text-lg font-bold text-gray-900 mb-4">Siswa Belum Daftar Ekstrakurikuler</h2>
             
             <div class="overflow-x-auto bg-white border-2 border-gray-200 rounded-lg">
@@ -557,7 +575,7 @@ function drawPieChart() {
   if (!pieChartCanvas.value || !statisticsData.value) return
 
   const data = statisticsData.value.statistik_per_ekskul
-  if (!data || data.length === 0) return
+  if (!data || !Array.isArray(data) || data.length === 0) return
 
   // Destroy existing chart instance
   if (chartInstance) {
