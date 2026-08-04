@@ -25,4 +25,4 @@ jobs:
           rm -rf node_modules .nuxt .output
           npm install
           npm run build
-          pm2 reload ecosystem.config.js --env production
+          pm2 reload ecosystem.config.cjs --env production
