@@ -14,17 +14,16 @@ export default defineNuxtConfig({
     build: {
       rollupOptions: {
         output: {
-          manualChunks: (id) => {
-            if (id.includes('node_modules')) {
-              if (id.includes('chart.js')) return 'vendor-chart';
-              if (id.includes('@vueuse')) return 'vendor-vueuse';
-              if (id.includes('pinia')) return 'vendor-pinia';
-              return 'vendor';
-            }
-          },
+          manualChunks: undefined, // Disable manual chunks untuk menghindari circular dependency
         },
       },
       chunkSizeWarningLimit: 1000,
+      minify: 'terser', // Gunakan terser untuk minifikasi yang lebih stabil
+      terserOptions: {
+        compress: {
+          drop_console: process.env.NODE_ENV === 'production',
+        },
+      },
     },
   },
   runtimeConfig: {
