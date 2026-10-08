@@ -270,7 +270,7 @@
                         <div>
                             <label class="block text-[13px] sm:text-[15px] font-semibold text-gray-900 mb-2 sm:mb-3">
                                 Foto Siswa (3x4)
-                                <span class="text-xs text-gray-500 font-normal ml-2">Maksimal 1 MB</span>
+                                <span class="text-xs text-gray-500 font-normal ml-2">Maksimal 2 MB</span>
                             </label>
                             
                             <!-- Current Photo Display -->
@@ -695,8 +695,8 @@ const handlePhotoSelect = async (event: Event) => {
         return;
     }
     
-    if (file.size > 1024 * 1024) {
-        toastStore.error('Gagal', 'Ukuran file maksimal 1 MB');
+    if (file.size > 2 * 1024 * 1024) {
+        toastStore.error('Gagal', 'Ukuran file maksimal 2 MB');
         return;
     }
     
