@@ -37,6 +37,48 @@
 
                 <!-- Body -->
                 <div class="p-4 sm:p-8 relative z-10 overflow-y-auto flex-1">
+                    <!-- Layout Selection -->
+                    <div class="space-y-4 mb-6">
+                        <label class="block text-sm sm:text-base font-semibold text-gray-900">
+                            Pilih Tampilan Kartu
+                        </label>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <!-- Depan dan Belakang -->
+                            <label class="flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all"
+                                :class="layoutOption === 'keduanya' ? 'border-amber-600 bg-amber-50' : 'border-gray-300 hover:border-amber-400'">
+                                <input type="radio" v-model="layoutOption" value="keduanya" :disabled="isDownloading"
+                                    class="w-4 h-4 text-amber-600 cursor-pointer" />
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">Depan & Belakang</p>
+                                    <p class="text-xs text-gray-600">Tampilkan kedua sisi</p>
+                                </div>
+                            </label>
+
+                            <!-- Depan Saja -->
+                            <label class="flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all"
+                                :class="layoutOption === 'depan' ? 'border-amber-600 bg-amber-50' : 'border-gray-300 hover:border-amber-400'">
+                                <input type="radio" v-model="layoutOption" value="depan" :disabled="isDownloading"
+                                    class="w-4 h-4 text-amber-600 cursor-pointer" />
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">Depan Saja</p>
+                                    <p class="text-xs text-gray-600">Tampilkan sisi depan</p>
+                                </div>
+                            </label>
+
+                            <!-- Belakang Saja -->
+                            <label class="flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all"
+                                :class="layoutOption === 'belakang' ? 'border-amber-600 bg-amber-50' : 'border-gray-300 hover:border-amber-400'">
+                                <input type="radio" v-model="layoutOption" value="belakang" :disabled="isDownloading"
+                                    class="w-4 h-4 text-amber-600 cursor-pointer" />
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900">Belakang Saja</p>
+                                    <p class="text-xs text-gray-600">Tampilkan sisi belakang</p>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Option Selection -->
                     <div class="space-y-4 mb-6">
                         <label class="block text-sm sm:text-base font-semibold text-gray-900">
@@ -195,6 +237,7 @@ const config = useRuntimeConfig()
 const { handle401 } = useAuthGuard()
 
 const downloadOption = ref<'all' | 'specific'>('all')
+const layoutOption = ref<'keduanya' | 'depan' | 'belakang'>('keduanya')
 const searchQuery = ref('')
 const isSearching = ref(false)
 const isDownloading = ref(false)
@@ -209,6 +252,7 @@ const canDownload = computed(() => {
 watch(() => props.modelValue, (newVal) => {
     if (!newVal) {
         downloadOption.value = 'all'
+        layoutOption.value = 'keduanya'
         searchQuery.value = ''
         searchResults.value = []
         selectedStudents.value = []
@@ -276,12 +320,12 @@ const downloadKartu = async () => {
     isDownloading.value = true
 
     try {
-        let requestBody = {}
+        let requestBody: any = {
+            layout: layoutOption.value
+        }
 
         if (downloadOption.value === 'specific') {
-            requestBody = {
-                peserta_didik_ids: selectedStudents.value.map(s => s.id)
-            }
+            requestBody.peserta_didik_ids = selectedStudents.value.map(s => s.id)
         }
 
         const response = await fetch(`${config.public.apiBase}/api/v1/peserta-didik/download-kartu-pelajar`, {
