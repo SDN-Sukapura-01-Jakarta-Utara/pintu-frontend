@@ -107,6 +107,48 @@
                                 <p class="text-xs text-gray-600">Pilih siswa tertentu untuk di-download kartu pelajarnya</p>
                             </div>
                         </label>
+
+                        <!-- Rombel Tertentu Option -->
+                        <label class="flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all"
+                            :class="downloadOption === 'rombel' ? 'border-amber-600 bg-amber-50' : 'border-gray-300 hover:border-amber-400'">
+                            <input type="radio" v-model="downloadOption" value="rombel" :disabled="isDownloading"
+                                class="w-4 h-4 text-amber-600 cursor-pointer" />
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">Rombel Tertentu</p>
+                                <p class="text-xs text-gray-600">Download kartu pelajar berdasarkan rombongan belajar</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Rombel Selection -->
+                    <div v-if="downloadOption === 'rombel'" class="space-y-4 mb-6">
+                        <!-- Tahun Pelajaran Dropdown -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">
+                                Tahun Pelajaran <span class="text-red-600">*</span>
+                            </label>
+                            <select v-model="selectedTahunPelajaranId" @change="loadRombel" :disabled="isDownloading || isLoadingTahunPelajaran"
+                                class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <option value="">-- Pilih Tahun Pelajaran --</option>
+                                <option v-for="tp in tahunPelajaranList" :key="tp.id" :value="tp.id">
+                                    {{ tp.tahun_pelajaran }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <!-- Rombel Dropdown -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-900 mb-2">
+                                Rombongan Belajar <span class="text-red-600">*</span>
+                            </label>
+                            <select v-model="selectedRombelId" :disabled="isDownloading || isLoadingRombel || !selectedTahunPelajaranId"
+                                class="w-full rounded-lg border-2 border-gray-300 bg-white px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:border-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-100 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <option value="">-- Pilih Rombel --</option>
+                                <option v-for="rombel in rombelList" :key="rombel.id" :value="rombel.id">
+                                    {{ rombel.name }}
+                                </option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Specific Student Selection -->
@@ -236,7 +278,7 @@ const toastStore = useToastStore()
 const config = useRuntimeConfig()
 const { handle401 } = useAuthGuard()
 
-const downloadOption = ref<'all' | 'specific'>('all')
+const downloadOption = ref<'all' | 'specific' | 'rombel'>('all')
 const layoutOption = ref<'keduanya' | 'depan' | 'belakang'>('keduanya')
 const searchQuery = ref('')
 const isSearching = ref(false)
@@ -244,18 +286,34 @@ const isDownloading = ref(false)
 const searchResults = ref<any[]>([])
 const selectedStudents = ref<any[]>([])
 
+// Rombel related
+const tahunPelajaranList = ref<any[]>([])
+const rombelList = ref<any[]>([])
+const selectedTahunPelajaranId = ref<number | ''>('')
+const selectedRombelId = ref<number | ''>('')
+const isLoadingTahunPelajaran = ref(false)
+const isLoadingRombel = ref(false)
+
 const canDownload = computed(() => {
     if (downloadOption.value === 'all') return true
-    return selectedStudents.value.length > 0
+    if (downloadOption.value === 'specific') return selectedStudents.value.length > 0
+    if (downloadOption.value === 'rombel') return selectedTahunPelajaranId.value !== '' && selectedRombelId.value !== ''
+    return false
 })
 
 watch(() => props.modelValue, (newVal) => {
-    if (!newVal) {
+    if (newVal) {
+        loadTahunPelajaran()
+    } else {
         downloadOption.value = 'all'
         layoutOption.value = 'keduanya'
         searchQuery.value = ''
         searchResults.value = []
         selectedStudents.value = []
+        tahunPelajaranList.value = []
+        rombelList.value = []
+        selectedTahunPelajaranId.value = ''
+        selectedRombelId.value = ''
     }
 })
 
@@ -298,6 +356,82 @@ const searchStudents = async () => {
     }
 }
 
+const loadTahunPelajaran = async () => {
+    isLoadingTahunPelajaran.value = true
+    try {
+        const response = await $fetch<any>(`${config.public.apiBase}/api/v1/tahun-pelajaran/get-tahun-pelajaran`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            },
+            credentials: 'include',
+            body: {
+                pagination: {
+                    limit: 100,
+                    page: 1
+                }
+            }
+        })
+
+        tahunPelajaranList.value = response.data || []
+    } catch (err: any) {
+        console.error('Error loading tahun pelajaran:', err)
+        
+        if (err.status === 401 || err.statusCode === 401) {
+            await handle401()
+            return
+        }
+        
+        toastStore.error('Gagal', 'Gagal memuat tahun pelajaran')
+    } finally {
+        isLoadingTahunPelajaran.value = false
+    }
+}
+
+const loadRombel = async () => {
+    if (!selectedTahunPelajaranId.value) {
+        rombelList.value = []
+        selectedRombelId.value = ''
+        return
+    }
+
+    isLoadingRombel.value = true
+    try {
+        const response = await $fetch<any>(`${config.public.apiBase}/api/v1/rombel/get-rombel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+            },
+            credentials: 'include',
+            body: {
+                search: {
+                    tahun_pelajaran_id: selectedTahunPelajaranId.value
+                },
+                pagination: {
+                    limit: 100,
+                    page: 1
+                }
+            }
+        })
+
+        rombelList.value = response.data || []
+        selectedRombelId.value = ''
+    } catch (err: any) {
+        console.error('Error loading rombel:', err)
+        
+        if (err.status === 401 || err.statusCode === 401) {
+            await handle401()
+            return
+        }
+        
+        toastStore.error('Gagal', 'Gagal memuat rombel')
+    } finally {
+        isLoadingRombel.value = false
+    }
+}
+
 const isStudentSelected = (studentId: number): boolean => {
     return selectedStudents.value.some(s => s.id === studentId)
 }
@@ -326,6 +460,10 @@ const downloadKartu = async () => {
 
         if (downloadOption.value === 'specific') {
             requestBody.peserta_didik_ids = selectedStudents.value.map(s => s.id)
+        } else if (downloadOption.value === 'rombel') {
+            requestBody.peserta_didik_ids = []
+            requestBody.tahun_pelajaran_id = selectedTahunPelajaranId.value
+            requestBody.rombel_id = selectedRombelId.value
         }
 
         const response = await fetch(`${config.public.apiBase}/api/v1/peserta-didik/download-kartu-pelajar`, {
