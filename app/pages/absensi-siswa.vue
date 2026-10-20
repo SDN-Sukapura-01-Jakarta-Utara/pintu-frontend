@@ -98,12 +98,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Absensi Result Modal -->
+    <ModalsAbsensiResultModal
+      :is-open="modalState.isOpen"
+      :type="modalState.type"
+      :student-name="modalState.studentName"
+      :message="modalState.message"
+      :error-details="modalState.errorDetails"
+      @close="closeModal"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useToast } from '~/composables/useToast'
+import { ref, onMounted, reactive } from 'vue'
 
 definePageMeta({
   layout: false,
@@ -123,7 +132,6 @@ useHead({
   ]
 })
 
-const toast = useToast()
 const config = useRuntimeConfig()
 
 // State
@@ -131,10 +139,31 @@ const barcode = ref('')
 const isSubmitting = ref(false)
 const barcodeInput = ref<HTMLInputElement | null>(null)
 
+const modalState = reactive<{
+  isOpen: boolean
+  type: 'success' | 'error' | 'already-saved'
+  studentName: string
+  message: string
+  errorDetails: string
+}>({
+  isOpen: false,
+  type: 'success',
+  studentName: '',
+  message: '',
+  errorDetails: ''
+})
+
 // Methods
+const closeModal = () => {
+  modalState.isOpen = false
+  barcode.value = ''
+  setTimeout(() => {
+    barcodeInput.value?.focus()
+  }, 100)
+}
+
 const handleSubmit = async () => {
   if (!barcode.value.trim()) {
-    toast.error('Validasi', 'Mohon scan atau masukkan kode barcode')
     return
   }
 
@@ -170,33 +199,46 @@ const handleSubmit = async () => {
     )
 
     if (response.success) {
-      // Success toast
       const nama = response.peserta_didik?.nama || 'Siswa'
-      toast.success('Absensi Berhasil', response.message)
       
-      // Clear input and focus
-      barcode.value = ''
-      setTimeout(() => {
-        barcodeInput.value?.focus()
-      }, 100)
+      // Cek apakah sudah absen sebelumnya
+      if (response.message.toLowerCase().includes('sudah') || 
+          response.message.toLowerCase().includes('telah')) {
+        // Already saved
+        modalState.type = 'already-saved'
+        modalState.studentName = `Selamat Datang ${nama}!`
+        modalState.message = response.message
+        modalState.errorDetails = ''
+      } else {
+        // Success
+        modalState.type = 'success'
+        modalState.studentName = `Selamat Datang ${nama}!`
+        modalState.message = response.message
+        modalState.errorDetails = ''
+      }
+      
+      modalState.isOpen = true
     } else {
-      toast.error('Absensi Gagal', response.message)
-      barcode.value = ''
-      setTimeout(() => {
-        barcodeInput.value?.focus()
-      }, 100)
+      // Failed
+      const nama = response.peserta_didik?.nama || ''
+      modalState.type = 'error'
+      modalState.studentName = nama ? `Selamat Datang ${nama}!` : ''
+      modalState.message = 'Mohon ulangi kembali'
+      modalState.errorDetails = response.message
+      modalState.isOpen = true
     }
   } catch (error: any) {
     console.error('Error submitting absensi:', error)
     
     // Handle error response
     const errorMessage = error?.data?.message || error?.message || 'Gagal melakukan absensi'
-    toast.error('Error', errorMessage)
+    const nama = error?.data?.peserta_didik?.nama || ''
     
-    barcode.value = ''
-    setTimeout(() => {
-      barcodeInput.value?.focus()
-    }, 100)
+    modalState.type = 'error'
+    modalState.studentName = nama ? `Selamat Datang ${nama}!` : ''
+    modalState.message = 'Mohon ulangi kembali'
+    modalState.errorDetails = errorMessage
+    modalState.isOpen = true
   } finally {
     isSubmitting.value = false
   }
