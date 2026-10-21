@@ -556,3 +556,55 @@ export async function exportPdfAbsensi(data: {
 
   return response
 }
+
+/**
+ * Get grafik kedatangan dan kepulangan
+ */
+export async function getGrafikKedatanganKepulangan(data: {
+  rombel_id: number | null
+  tanggal: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/grafik-kedatangan-kepulangan`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}
+
+/**
+ * Get rekap kedatangan dan kepulangan
+ */
+export async function getRekapKedatanganKepulangan(data: {
+  rombel_id: number | null
+  tanggal: string
+}) {
+  const config = useRuntimeConfig()
+  const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null
+
+  const response = await $fetch<{ data: any }>(
+    `${config.public.apiBase}/api/v1/absensi-siswa/rekap-kedatangan-kepulangan`,
+    {
+      method: 'POST',
+      body: data,
+      headers: {
+        'Authorization': token ? `Bearer ${token}` : '',
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    }
+  )
+
+  return response
+}

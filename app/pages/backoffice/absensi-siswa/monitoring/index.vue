@@ -29,6 +29,20 @@
               </span>
             </button>
             <button
+              @click="activeTab = 'dashboard-datang-pulang'"
+              :class="[
+                'px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0 border-b-2 relative cursor-pointer',
+                activeTab === 'dashboard-datang-pulang'
+                  ? 'text-red-600 border-b-red-600'
+                  : 'text-gray-600 border-b-transparent hover:text-gray-900 hover:border-b-gray-300'
+              ]"
+            >
+              <span class="flex items-center gap-2">
+                <i class="fa-solid fa-clock w-4 h-4"></i>
+                Dashboard Datang & Pulang
+              </span>
+            </button>
+            <button
               @click="activeTab = 'dashboard-siswa'"
               :class="[
                 'px-4 sm:px-6 py-3 sm:py-4 font-semibold text-xs sm:text-sm transition-all duration-200 whitespace-nowrap flex-shrink-0 border-b-2 relative cursor-pointer',
@@ -883,6 +897,424 @@
         </div>
       </div>
 
+      <!-- Tab Content: Dashboard Datang & Pulang -->
+      <div v-if="activeTab === 'dashboard-datang-pulang'" class="p-4 sm:p-6 md:p-8">
+        <!-- Filters -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+          <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-filter text-red-600"></i>
+            Filter Data
+          </h2>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Rombel -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 mb-2">
+                Rombel
+              </label>
+              <select
+                v-model="filtersKedatanganPulang.rombel_id"
+                @change="loadGrafikKedatanganPulang"
+                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 transition-all text-sm"
+              >
+                <!-- Only show "Semua Rombel" option for superadmin -->
+                <option v-if="isSuperAdmin" :value="null">Semua Rombel</option>
+                <option v-for="rombel in activeRombelList" :key="rombel.id" :value="rombel.id">
+                  {{ rombel.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Tanggal -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 mb-2">
+                Tanggal <span class="text-red-600">*</span>
+              </label>
+              <input
+                v-model="filtersKedatanganPulang.tanggal"
+                type="date"
+                @change="loadGrafikKedatanganPulang"
+                class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:outline-none focus:ring-2 focus:ring-red-100 transition-all text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="isLoadingKedatanganPulang" class="flex items-center justify-center py-12">
+          <div class="flex flex-col items-center gap-3">
+            <div class="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600"></div>
+            <p class="text-sm text-gray-600 font-medium">Memuat data kedatangan & kepulangan...</p>
+          </div>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div v-else-if="kedatanganPulangData" class="space-y-6">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Hadir -->
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 border-2 border-blue-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md flex-shrink-0">
+                  <i class="fa-solid fa-users text-white text-xl"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-blue-600 uppercase tracking-wide">Total Hadir</p>
+                  <p class="text-3xl font-bold text-blue-900 mt-1">{{ kedatanganPulangData.summary.total_hadir }}</p>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-blue-200">
+                <p class="text-xs text-blue-700">Siswa hadir hari ini</p>
+              </div>
+            </div>
+
+            <!-- Tepat Waktu -->
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5 border-2 border-green-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-md flex-shrink-0">
+                  <i class="fa-solid fa-check-circle text-white text-xl"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-green-600 uppercase tracking-wide">Tepat Waktu</p>
+                  <p class="text-3xl font-bold text-green-900 mt-1">{{ kedatanganPulangData.summary.tepat_waktu }}</p>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-green-200 flex items-center justify-between">
+                <p class="text-xs text-green-700">{{ kedatanganPulangData.summary.tepat_waktu_persen.toFixed(2) }}%</p>
+                <span class="text-xs font-bold px-2 py-1 rounded bg-green-200 text-green-800">
+                  {{ kedatanganPulangData.summary.tepat_waktu_persen.toFixed(1) }}%
+                </span>
+              </div>
+            </div>
+
+            <!-- Terlambat -->
+            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border-2 border-red-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-md flex-shrink-0">
+                  <i class="fa-solid fa-clock text-white text-xl"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-medium text-red-600 uppercase tracking-wide">Terlambat</p>
+                  <p class="text-3xl font-bold text-red-900 mt-1">{{ kedatanganPulangData.summary.terlambat }}</p>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-red-200 flex items-center justify-between">
+                <p class="text-xs text-red-700">{{ kedatanganPulangData.summary.terlambat_persen.toFixed(2) }}%</p>
+                <span class="text-xs font-bold px-2 py-1 rounded bg-red-200 text-red-800">
+                  {{ kedatanganPulangData.summary.terlambat_persen.toFixed(1) }}%
+                </span>
+              </div>
+            </div>
+
+            <!-- Input Manual vs Auto -->
+            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 border-2 border-purple-200 shadow-sm hover:shadow-md transition-shadow">
+              <div class="mb-3">
+                <p class="text-xs font-medium text-purple-600 uppercase tracking-wide mb-2">Metode Input</p>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-purple-900 flex items-center gap-2">
+                      <i class="fa-solid fa-keyboard text-xs"></i>
+                      Manual
+                    </span>
+                    <span class="text-lg font-bold text-purple-900">{{ kedatanganPulangData.summary.input_manual }}</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-purple-900 flex items-center gap-2">
+                      <i class="fa-solid fa-robot text-xs"></i>
+                      Auto
+                    </span>
+                    <span class="text-lg font-bold text-purple-900">{{ kedatanganPulangData.summary.input_auto }}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="pt-3 border-t border-purple-200 flex items-center gap-2 text-xs text-purple-700">
+                <span>Manual: {{ kedatanganPulangData.summary.input_manual_persen.toFixed(1) }}%</span>
+                <span>•</span>
+                <span>Auto: {{ kedatanganPulangData.summary.input_auto_persen.toFixed(1) }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Distribusi Keterlambatan Chart -->
+          <div class="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b-2 border-gray-200">
+              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-chart-pie text-red-600"></i>
+                Distribusi Keterlambatan
+              </h3>
+            </div>
+            <div class="p-6">
+              <div class="h-80">
+                <Bar :data="distribusiKeterlambatanBarData" :options="distribusiKeterlambatanOptions" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail Distribusi Keterlambatan -->
+          <div class="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b-2 border-gray-200">
+              <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <i class="fa-solid fa-list text-red-600"></i>
+                Detail Distribusi Keterlambatan
+              </h3>
+            </div>
+            <div class="p-6">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div 
+                  v-for="(item, index) in kedatanganPulangData.distribusi_keterlambatan.detail" 
+                  :key="index"
+                  class="bg-gradient-to-br from-white to-gray-50 rounded-lg p-4 border-2 hover:shadow-md transition-all"
+                  :class="{
+                    'border-green-200': index === 0,
+                    'border-yellow-200': index > 0 && index < 3,
+                    'border-red-200': index >= 3
+                  }"
+                >
+                  <div class="flex items-center gap-3 mb-3">
+                    <div 
+                      class="w-10 h-10 rounded-full flex items-center justify-center"
+                      :class="{
+                        'bg-green-500': index === 0,
+                        'bg-yellow-500': index > 0 && index < 3,
+                        'bg-red-500': index >= 3
+                      }"
+                    >
+                      <i 
+                        class="fa-solid text-white"
+                        :class="{
+                          'fa-check': index === 0,
+                          'fa-clock': index > 0
+                        }"
+                      ></i>
+                    </div>
+                    <div class="flex-1">
+                      <h4 class="font-bold text-gray-900">{{ item.kategori }}</h4>
+                      <p class="text-2xl font-bold"
+                        :class="{
+                          'text-green-700': index === 0,
+                          'text-yellow-700': index > 0 && index < 3,
+                          'text-red-700': index >= 3
+                        }"
+                      >
+                        {{ item.jumlah }}
+                      </p>
+                    </div>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      class="h-2 rounded-full transition-all duration-500"
+                      :class="{
+                        'bg-green-500': index === 0,
+                        'bg-yellow-500': index > 0 && index < 3,
+                        'bg-red-500': index >= 3
+                      }"
+                      :style="{ width: item.persentase + '%' }"
+                    ></div>
+                  </div>
+                  <p class="text-sm text-gray-600 mt-2 text-center font-semibold">{{ item.persentase.toFixed(2) }}%</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabel Kehadiran Siswa -->
+          <div class="bg-white rounded-xl border-2 border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b-2 border-gray-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-table text-red-600"></i>
+                    Tabel Kehadiran Siswa
+                  </h3>
+                  <p class="text-sm text-gray-600 mt-1">
+                    Total: {{ rekapKedatanganPulangData?.total_siswa || 0 }} Siswa
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Loading State for Table -->
+            <div v-if="isLoadingRekapKedatanganPulang" class="flex items-center justify-center py-12">
+              <div class="flex flex-col items-center gap-3">
+                <div class="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-red-600"></div>
+                <p class="text-sm text-gray-600 font-medium">Memuat data siswa...</p>
+              </div>
+            </div>
+            
+            <!-- Table Content -->
+            <div v-else class="overflow-x-auto">
+              <table class="w-full">
+                <thead>
+                  <tr class="bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200">
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider w-16">No</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[200px]">Nama</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[120px]">Rombel</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[120px]">Jam Kedatangan</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[120px]">Jam Kepulangan</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[140px]">Status Kedatangan</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[140px]">Status Kehadiran</th>
+                    <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[180px]">Keterangan</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[100px]">Surat</th>
+                    <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase tracking-wider min-w-[120px]">Metode Input</th>
+                  </tr>
+                </thead>
+                <tbody v-if="rekapKedatanganPulangData && rekapKedatanganPulangData.data_siswa && rekapKedatanganPulangData.data_siswa.length > 0" class="divide-y divide-gray-200">
+                  <tr 
+                    v-for="(siswa, index) in rekapKedatanganPulangData.data_siswa" 
+                    :key="siswa.peserta_didik_id"
+                    class="hover:bg-gray-50 transition-colors"
+                  >
+                    <!-- No -->
+                    <td class="px-4 py-3 text-center text-sm text-gray-900 font-semibold">
+                      {{ index + 1 }}
+                    </td>
+                    
+                    <!-- Nama -->
+                    <td class="px-4 py-3 text-sm">
+                      <div>
+                        <p class="font-semibold text-gray-900">{{ siswa.nama }}</p>
+                        <p class="text-xs text-gray-600">NIS: {{ siswa.nis }}</p>
+                      </div>
+                    </td>
+                    
+                    <!-- Rombel -->
+                    <td class="px-4 py-3 text-center text-sm">
+                      <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-semibold text-xs">
+                        <i class="fa-solid fa-users text-xs"></i>
+                        {{ siswa.rombel_nama }}
+                      </span>
+                    </td>
+                    
+                    <!-- Jam Kedatangan -->
+                    <td class="px-4 py-3 text-center text-sm">
+                      <span v-if="siswa.jam_kedatangan" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-800 font-semibold text-xs">
+                        <i class="fa-solid fa-clock text-xs"></i>
+                        {{ siswa.jam_kedatangan }}
+                      </span>
+                      <span v-else class="text-gray-400 italic text-xs">-</span>
+                    </td>
+                    
+                    <!-- Jam Kepulangan -->
+                    <td class="px-4 py-3 text-center text-sm">
+                      <span v-if="siswa.jam_kepulangan" class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-purple-100 text-purple-800 font-semibold text-xs">
+                        <i class="fa-solid fa-clock text-xs"></i>
+                        {{ siswa.jam_kepulangan }}
+                      </span>
+                      <span v-else class="text-gray-400 italic text-xs">-</span>
+                    </td>
+                    
+                    <!-- Status Kedatangan -->
+                    <td class="px-4 py-3 text-center text-sm">
+                      <span 
+                        v-if="siswa.status_kedatangan"
+                        class="inline-flex items-center gap-1 px-3 py-1 rounded-full font-semibold text-xs"
+                        :class="{
+                          'bg-green-100 text-green-800': siswa.status_kedatangan === 'Tepat Waktu',
+                          'bg-red-100 text-red-800': siswa.status_kedatangan === 'Terlambat'
+                        }"
+                      >
+                        <i 
+                          class="fa-solid text-xs"
+                          :class="{
+                            'fa-check-circle': siswa.status_kedatangan === 'Tepat Waktu',
+                            'fa-exclamation-circle': siswa.status_kedatangan === 'Terlambat'
+                          }"
+                        ></i>
+                        {{ siswa.status_kedatangan }}
+                      </span>
+                      <span v-else class="text-gray-400 italic text-xs">-</span>
+                    </td>
+                    
+                    <!-- Status Kehadiran -->
+                    <td class="px-4 py-3 text-center text-sm">
+                      <span 
+                        class="inline-flex items-center gap-1 px-3 py-1 rounded-full font-semibold text-xs uppercase"
+                        :class="{
+                          'bg-green-100 text-green-800': siswa.status_kehadiran === 'hadir',
+                          'bg-blue-100 text-blue-800': siswa.status_kehadiran === 'sakit',
+                          'bg-yellow-100 text-yellow-800': siswa.status_kehadiran === 'izin',
+                          'bg-red-100 text-red-800': siswa.status_kehadiran === 'alpa'
+                        }"
+                      >
+                        <i 
+                          class="fa-solid text-xs"
+                          :class="{
+                            'fa-check': siswa.status_kehadiran === 'hadir',
+                            'fa-notes-medical': siswa.status_kehadiran === 'sakit',
+                            'fa-hand-paper': siswa.status_kehadiran === 'izin',
+                            'fa-times': siswa.status_kehadiran === 'alpa'
+                          }"
+                        ></i>
+                        {{ siswa.status_kehadiran }}
+                      </span>
+                    </td>
+                    
+                    <!-- Keterangan -->
+                    <td class="px-4 py-3 text-sm text-gray-700">
+                      <span v-if="siswa.keterangan" class="italic">{{ siswa.keterangan }}</span>
+                      <span v-else class="text-gray-400 italic text-xs">-</span>
+                    </td>
+                    
+                    <!-- Surat -->
+                    <td class="px-4 py-3 text-center text-sm">
+                      <a 
+                        v-if="siswa.file_surat"
+                        :href="siswa.file_surat"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-100 text-indigo-800 hover:bg-indigo-200 transition-colors font-semibold text-xs"
+                      >
+                        <i class="fa-solid fa-file-pdf text-xs"></i>
+                        Lihat Surat
+                      </a>
+                      <span v-else class="text-gray-400 italic text-xs">-</span>
+                    </td>
+                    
+                    <!-- Metode Input -->
+                    <td class="px-4 py-3 text-center text-sm">
+                      <span 
+                        class="inline-flex items-center gap-1 px-3 py-1 rounded-full font-semibold text-xs uppercase"
+                        :class="{
+                          'bg-purple-100 text-purple-800': siswa.metode_input === 'auto',
+                          'bg-orange-100 text-orange-800': siswa.metode_input === 'manual'
+                        }"
+                      >
+                        <i 
+                          class="fa-solid text-xs"
+                          :class="{
+                            'fa-robot': siswa.metode_input === 'auto',
+                            'fa-keyboard': siswa.metode_input === 'manual'
+                          }"
+                        ></i>
+                        {{ siswa.metode_input }}
+                      </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              
+              <!-- Empty State for Table -->
+              <div v-if="!rekapKedatanganPulangData || !rekapKedatanganPulangData.data_siswa || rekapKedatanganPulangData.data_siswa.length === 0" class="flex flex-col items-center justify-center py-12">
+                <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                  <i class="fa-solid fa-users text-2xl text-gray-400"></i>
+                </div>
+                <h3 class="text-base font-semibold text-gray-900 mb-1">Tidak ada data siswa</h3>
+                <p class="text-sm text-gray-600">Belum ada data kehadiran untuk tanggal yang dipilih</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else class="flex flex-col items-center justify-center py-12">
+          <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+            <i class="fa-solid fa-clock text-2xl text-gray-400"></i>
+          </div>
+          <h3 class="text-base font-semibold text-gray-900 mb-1">Belum ada data</h3>
+          <p class="text-sm text-gray-600">Pilih tanggal untuk melihat data kedatangan & kepulangan</p>
+        </div>
+      </div>
+
       <!-- Tab Content: Dashboard Siswa -->
       <div v-if="activeTab === 'dashboard-siswa'" class="p-4 sm:p-6 md:p-8">
         <!-- Dashboard Type Selection -->
@@ -1309,7 +1741,7 @@ import { useRombelStore } from '~/stores/RombelStore'
 import { useTahunPelajaranStore } from '~/stores/TahunPelajaranStore'
 import { useBidangStudiStore } from '~/stores/BidangStudiStore'
 import { useAuth } from '~/composables/useAuth'
-import { getDashboardSummary, getGrafikKehadiran, getStatistikPerHari, getPerbandinganRombel, getSiswaTerendah, getDashboardSiswa } from '~/services/absensi'
+import { getDashboardSummary, getGrafikKehadiran, getStatistikPerHari, getPerbandinganRombel, getSiswaTerendah, getDashboardSiswa, getGrafikKedatanganKepulangan, getRekapKedatanganKepulangan } from '~/services/absensi'
 import DashboardLayout from '~/components/DashboardLayout.vue'
 
 // Register Chart.js components
@@ -1382,11 +1814,14 @@ const isLoadingPerbandingan = ref(false)
 const isLoadingSiswaTerendah = ref(false)
 const isLoadingDashboardSiswa = ref(false)
 const isLoadingPesertaDidik = ref(false)
+const isLoadingKedatanganPulang = ref(false)
+const isLoadingRekapKedatanganPulang = ref(false)
 
 // Get current date
 const today = new Date()
 const currentMonth = today.getMonth() + 1 // 1-12
 const currentYear = today.getFullYear()
+const todayString = today.toISOString().split('T')[0]
 // Semester 1: Juli-Desember (7-12), Semester 2: Januari-Juni (1-6)
 const defaultSemester = currentMonth >= 7 && currentMonth <= 12 ? 1 : 2
 
@@ -1417,6 +1852,14 @@ const filtersSiswa = ref({
   tanggal_mulai: firstDayOfMonth.toISOString().split('T')[0],
   tanggal_selesai: lastDayOfMonth.toISOString().split('T')[0]
 })
+
+const filtersKedatanganPulang = ref({
+  rombel_id: (isSuperAdmin.value ? null : (showGuruKelasTab.value ? currentUser?.rombel_guru_kelas_id : null)) as number | null,
+  tanggal: todayString
+})
+
+const kedatanganPulangData = ref<any>(null)
+const rekapKedatanganPulangData = ref<any>(null)
 
 // Computed - Filter based on user's assignment
 const activeRombelList = computed(() => {
@@ -1845,6 +2288,95 @@ const sortedRombelData = computed(() => {
   return [...perbandinganRombelData.value.data].sort((a, b) => b.persentase_hadir - a.persentase_hadir)
 })
 
+// Format distribusi keterlambatan data for Bar chart
+const distribusiKeterlambatanBarData = computed(() => {
+  if (!kedatanganPulangData.value) return null
+  
+  return {
+    labels: kedatanganPulangData.value.distribusi_keterlambatan.labels,
+    datasets: [
+      {
+        label: 'Jumlah Siswa',
+        data: kedatanganPulangData.value.distribusi_keterlambatan.data,
+        backgroundColor: kedatanganPulangData.value.distribusi_keterlambatan.labels.map((_: any, index: number) => {
+          if (index === 0) return 'rgba(34, 197, 94, 0.8)' // green for tepat waktu
+          if (index === 1) return 'rgba(234, 179, 8, 0.8)' // yellow for 1-5 min
+          if (index === 2) return 'rgba(249, 115, 22, 0.8)' // orange for 6-15 min
+          return 'rgba(239, 68, 68, 0.8)' // red for >15 min
+        }),
+        borderColor: kedatanganPulangData.value.distribusi_keterlambatan.labels.map((_: any, index: number) => {
+          if (index === 0) return '#22c55e'
+          if (index === 1) return '#eab308'
+          if (index === 2) return '#f97316'
+          return '#ef4444'
+        }),
+        borderWidth: 2,
+        borderRadius: 6,
+      },
+    ],
+  }
+})
+
+// Chart options for distribusi keterlambatan
+const distribusiKeterlambatanOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false,
+    },
+    tooltip: {
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      padding: 12,
+      titleFont: {
+        size: 14,
+        weight: 'bold',
+      },
+      bodyFont: {
+        size: 13,
+      },
+      callbacks: {
+        label: function(context: any) {
+          const persentase = kedatanganPulangData.value.distribusi_keterlambatan.persentase[context.dataIndex]
+          return `Jumlah: ${context.parsed.y} siswa (${persentase.toFixed(2)}%)`
+        }
+      }
+    },
+  },
+  scales: {
+    x: {
+      grid: {
+        display: false,
+      },
+      ticks: {
+        font: {
+          size: 12,
+          weight: '600',
+        },
+        maxRotation: 45,
+        minRotation: 45,
+      },
+    },
+    y: {
+      beginAtZero: true,
+      grid: {
+        display: true,
+        color: 'rgba(0, 0, 0, 0.05)',
+      },
+      ticks: {
+        font: {
+          size: 12,
+          weight: '500',
+        },
+        stepSize: 5,
+        callback: function(value: any) {
+          return value
+        }
+      },
+    },
+  },
+}))
+
 // Methods
 const getPercentage = (value: number) => {
   if (!dashboardData.value) return 0
@@ -2197,6 +2729,40 @@ const loadDashboardSiswa = async () => {
   }
 }
 
+const loadGrafikKedatanganPulang = async () => {
+  if (!filtersKedatanganPulang.value.tanggal) {
+    kedatanganPulangData.value = null
+    rekapKedatanganPulangData.value = null
+    return
+  }
+
+  isLoadingKedatanganPulang.value = true
+  isLoadingRekapKedatanganPulang.value = true
+  
+  try {
+    const requestData = {
+      rombel_id: filtersKedatanganPulang.value.rombel_id,
+      tanggal: filtersKedatanganPulang.value.tanggal
+    }
+
+    // Load both grafik and rekap data in parallel
+    const [grafikResponse, rekapResponse] = await Promise.all([
+      getGrafikKedatanganKepulangan(requestData),
+      getRekapKedatanganKepulangan(requestData)
+    ])
+    
+    kedatanganPulangData.value = grafikResponse.data || null
+    rekapKedatanganPulangData.value = rekapResponse.data || null
+  } catch (err) {
+    console.error('Error loading kedatangan pulang data:', err)
+    kedatanganPulangData.value = null
+    rekapKedatanganPulangData.value = null
+  } finally {
+    isLoadingKedatanganPulang.value = false
+    isLoadingRekapKedatanganPulang.value = false
+  }
+}
+
 // Watch dashboard type change
 watch(dashboardType, () => {
   // Reset bidang_studi_id when switching to guru kelas
@@ -2221,6 +2787,13 @@ watch([() => filtersSiswa.value.tahun_pelajaran_id, () => filtersSiswa.value.rom
   dashboardSiswaData.value = null
   dashboardSiswaError.value = null
   loadPesertaDidikList()
+})
+
+// Watch active tab change to load data for Dashboard Datang & Pulang
+watch(activeTab, (newTab) => {
+  if (newTab === 'dashboard-datang-pulang' && !kedatanganPulangData.value) {
+    loadGrafikKedatanganPulang()
+  }
 })
 
 onMounted(async () => {
